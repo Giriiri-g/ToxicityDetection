@@ -1,0 +1,76 @@
+<article class="post-card" [class.toxic-card]="item.toxicity.detected" [ngClass]="item.type">
+
+  <!-- Type label -->
+  <span class="type-label" [ngClass]="item.type">{{ typeLabel }}</span>
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="avatar" [style.background]="item.author.avatarColor">
+      {{ item.author.avatarInitials }}
+    </div>
+    <div class="author-info">
+      <span class="author-name">{{ item.author.name }}</span>
+      <span class="author-meta">&#64;{{ item.author.username }} · {{ timeAgo }}</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+    <p class="message" [class.blurred]="item.toxicity.status === 'auto_moderated'">
+      {{ item.message }}
+    </p>
+    <p class="moderation-notice" *ngIf="item.toxicity.status === 'auto_moderated'">
+      ⛔ This content was automatically moderated and hidden.
+    </p>
+  </div>
+
+  <!-- Toxicity panel -->
+  <app-toxicity-badge [toxicity]="item.toxicity"></app-toxicity-badge>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <!-- Like -->
+    <button class="action-btn like-btn" [class.liked]="liked" (click)="toggleLike()">
+      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+           [attr.fill]="liked ? 'currentColor' : 'none'">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      {{ formatCount(item.engagement.likes + (liked ? 1 : 0)) }}
+    </button>
+
+    <!-- Comments toggle — only on posts -->
+    <button class="action-btn comment-btn"
+            *ngIf="item.type === 'post'"
+            [class.active]="showComments"
+            (click)="toggleComments()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      {{ formatCount(item.engagement.replies) }}
+      <span class="comment-toggle-hint">{{ showComments ? '▲' : '▼' }}</span>
+    </button>
+
+    <!-- Share -->
+    <button class="action-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      {{ formatCount(item.engagement.shares) }}
+    </button>
+  </div>
+
+  <!-- Inline comments section -->
+  <div class="comments-section" *ngIf="item.type === 'post' && showComments && comments.length">
+    <app-post-card
+      *ngFor="let c of comments"
+      [item]="c"
+      [comments]="[]"
+    ></app-post-card>
+  </div>
+  <div class="no-comments" *ngIf="item.type === 'post' && showComments && comments.length === 0">
+    No comments yet.
+  </div>
+
+</article>

@@ -1,0 +1,47 @@
+<div class="comment" [class.comment--nested]="depth > 0" [style.margin-left.px]="depth > 0 ? 40 : 0">
+  <div class="comment__container">
+    <img [src]="comment.author.avatarUrl" [alt]="comment.author.displayName" class="comment__avatar">
+
+    <div class="comment__content">
+      <div class="comment__bubble">
+        <div class="comment__header">
+          <span class="comment__author-name">{{ comment.author.displayName }}</span>
+          <span class="comment__badge" [class]="'badge badge--small ' + getToxicityBadgeClass(comment.toxicityScore)">
+            {{ getToxicityBadgeClass(comment.toxicityScore).replace('badge--', '') }}
+          </span>
+        </div>
+        <p class="comment__text">{{ comment.content }}</p>
+      </div>
+
+      <div class="comment__actions">
+        <span class="comment__time">{{ formatTime(comment.createdAt) }}</span>
+        <button class="comment__action" [class.comment__action--active]="comment.isLiked" (click)="onLikeToggle()">
+          Like
+        </button>
+        <button class="comment__action" *ngIf="depth < maxDepth" (click)="toggleReplyForm()">
+          Reply
+        </button>
+        <span class="comment__likes" *ngIf="comment.likesCount > 0">
+          {{ comment.likesCount }} likes
+        </span>
+      </div>
+
+      <!-- Reply Form -->
+      <div class="reply-form" *ngIf="showReplyForm">
+        <img [src]="currentUser.avatarUrl" [alt]="currentUser.displayName" class="reply-form__avatar">
+        <div class="reply-form__wrap">
+          <textarea [(ngModel)]="replyText" placeholder="Write a reply..." rows="1"></textarea>
+          <button class="reply-form__submit" (click)="submitReply()" [disabled]="!replyText.trim()">
+            Reply
+          </button>
+        </div>
+      </div>
+
+      <!-- Nested Replies -->
+      <div class="comment__replies" *ngIf="comment.replies?.length">
+        <app-comment *ngFor="let reply of comment.replies" [comment]="reply" [currentUser]="currentUser" [depth]="depth + 1" (replyAdded)="onNestedReply($event)" (likeToggle)="reply.isLiked = !reply.isLiked">
+        </app-comment>
+      </div>
+    </div>
+  </div>
+</div>

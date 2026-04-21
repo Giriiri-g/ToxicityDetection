@@ -1,0 +1,26 @@
+<div class="toxicity-panel" *ngIf="toxicity.detected">
+  <div class="tox-header">
+    <span class="tox-icon">⚠</span>
+    <span class="tox-label">Toxicity Detected</span>
+    <span class="status-chip" [ngClass]="toxicity.status">{{ statusLabel }}</span>
+  </div>
+
+  <div class="severity-row">
+    <span class="severity-text">Severity</span>
+    <div class="severity-bar-track">
+      <div
+        class="severity-bar-fill"
+        [ngClass]="severityClass"
+        [style.width.%]="toxicity.severity"
+      ></div>
+    </div>
+    <span class="severity-score" [ngClass]="severityClass">{{ toxicity.severity }}</span>
+  </div>
+
+  <div class="tags-row">
+    <span
+      class="tag-chip"
+      *ngFor="let tag of toxicity.tags"
+    >{{ tagLabel(tag) }}</span>
+  </div>
+</div>

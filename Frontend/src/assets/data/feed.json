@@ -1,0 +1,182 @@
+[
+  {
+    "id": "s001",
+    "type": "story",
+    "author": { "name": "Lena Hartmann", "username": "lena.h", "avatarInitials": "LH", "avatarColor": "#6BA3BE" },
+    "message": "Just finished my morning run! Beautiful day out there 🌅",
+    "timestamp": "2025-04-07T06:15:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 42, "shares": 3, "replies": 7 }
+  },
+  {
+    "id": "s002",
+    "type": "story",
+    "author": { "name": "Marcus Reid", "username": "m.reid", "avatarInitials": "MR", "avatarColor": "#B8A99A" },
+    "message": "Everyone who disagrees with me is an absolute idiot and deserves to suffer. Change my mind. 🖕",
+    "timestamp": "2025-04-07T06:45:00Z",
+    "parentId": null,
+    "toxicity": { "detected": true, "tags": ["harassment", "hate_speech"], "severity": 84, "status": "auto_moderated" },
+    "engagement": { "likes": 5, "shares": 0, "replies": 12 }
+  },
+  {
+    "id": "p001",
+    "type": "post",
+    "author": { "name": "Aria Nguyen", "username": "aria.ng", "avatarInitials": "AN", "avatarColor": "#6BA3BE" },
+    "message": "Thrilled to share that our team just launched a new open-source library for real-time data visualization! Six months of late nights finally paid off. Link in comments 🚀",
+    "timestamp": "2025-04-07T07:00:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 318, "shares": 47, "replies": 26 }
+  },
+  {
+    "id": "c001",
+    "type": "comment",
+    "author": { "name": "Dev Patel", "username": "devpatel", "avatarInitials": "DP", "avatarColor": "#9AB87A" },
+    "message": "This is absolutely incredible work, Aria! Just starred the repo. The API design is so clean.",
+    "timestamp": "2025-04-07T07:12:00Z",
+    "parentId": "p001",
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 24, "shares": 0, "replies": 3 }
+  },
+  {
+    "id": "c001b",
+    "type": "comment",
+    "author": { "name": "Tom Birch", "username": "t.birch", "avatarInitials": "TB", "avatarColor": "#C47A5A" },
+    "message": "LOL another useless library nobody asked for. Your code is garbage and you should quit. Go back to making CRUD apps 😂😂",
+    "timestamp": "2025-04-07T07:18:00Z",
+    "parentId": "p001",
+    "toxicity": { "detected": true, "tags": ["harassment", "profanity"], "severity": 76, "status": "flagged" },
+    "engagement": { "likes": 1, "shares": 0, "replies": 5 }
+  },
+  {
+    "id": "c001c",
+    "type": "comment",
+    "author": { "name": "Aria Nguyen", "username": "aria.ng", "avatarInitials": "AN", "avatarColor": "#6BA3BE" },
+    "message": "Thanks so much Dev! We put a lot of thought into the DX. Happy to answer any questions.",
+    "timestamp": "2025-04-07T07:22:00Z",
+    "parentId": "p001",
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 31, "shares": 0, "replies": 0 }
+  },
+  {
+    "id": "p002",
+    "type": "post",
+    "author": { "name": "Jonah Ellis", "username": "j.ellis", "avatarInitials": "JE", "avatarColor": "#8B7D6B" },
+    "message": "Hot take: remote work destroyed team culture and productivity. Everyone working from home is just lazy and coasting. The office mandates can't come soon enough.",
+    "timestamp": "2025-04-07T08:30:00Z",
+    "parentId": null,
+    "toxicity": { "detected": true, "tags": ["hate_speech", "misinformation"], "severity": 52, "status": "pending_review" },
+    "engagement": { "likes": 88, "shares": 19, "replies": 143 }
+  },
+  {
+    "id": "c002",
+    "type": "comment",
+    "author": { "name": "Sofia Blanca", "username": "sofiab", "avatarInitials": "SB", "avatarColor": "#6BA3BE" },
+    "message": "This is a dangerously oversimplified take. Multiple studies show remote workers often outperform in-office peers. Maybe consider the data before generalizing?",
+    "timestamp": "2025-04-07T08:45:00Z",
+    "parentId": "p002",
+    "toxicity": { "detected": false, "tags": [], "severity": 8, "status": "approved" },
+    "engagement": { "likes": 204, "shares": 12, "replies": 9 }
+  },
+  {
+    "id": "c003",
+    "type": "comment",
+    "author": { "name": "Rex Holloway", "username": "rexh", "avatarInitials": "RH", "avatarColor": "#A05050" },
+    "message": "You people always spreading this propaganda! WAKE UP. All remote work supporters are paid shills. I'll find out where you live Sofia. 💀",
+    "timestamp": "2025-04-07T08:53:00Z",
+    "parentId": "p002",
+    "toxicity": { "detected": true, "tags": ["threat", "harassment", "hate_speech"], "severity": 97, "status": "auto_moderated" },
+    "engagement": { "likes": 0, "shares": 0, "replies": 2 }
+  },
+  {
+    "id": "p003",
+    "type": "post",
+    "author": { "name": "Priya Sharma", "username": "priya.s", "avatarInitials": "PS", "avatarColor": "#7BA07B" },
+    "message": "Today I helped a stranger whose car broke down on the highway. Small acts of kindness go a long way 💙 What's the nicest thing a stranger has done for you?",
+    "timestamp": "2025-04-07T09:15:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 1024, "shares": 88, "replies": 312 }
+  },
+  {
+    "id": "c004",
+    "type": "comment",
+    "author": { "name": "Lena Hartmann", "username": "lena.h", "avatarInitials": "LH", "avatarColor": "#6BA3BE" },
+    "message": "A woman once paid for my coffee when I left my wallet at home. Still makes me smile years later 😊",
+    "timestamp": "2025-04-07T09:24:00Z",
+    "parentId": "p003",
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 87, "shares": 0, "replies": 4 }
+  },
+  {
+    "id": "p004",
+    "type": "post",
+    "author": { "name": "Darnell Cross", "username": "d.cross", "avatarInitials": "DC", "avatarColor": "#8B7B6A" },
+    "message": "Buy $MOONTOKEN now or regret it forever. This is the next 1000x gem. All doubters are just broke losers who will miss out. DM me for the insider group 💰💰💰",
+    "timestamp": "2025-04-07T10:00:00Z",
+    "parentId": null,
+    "toxicity": { "detected": true, "tags": ["spam", "misinformation"], "severity": 63, "status": "flagged" },
+    "engagement": { "likes": 7, "shares": 2, "replies": 18 }
+  },
+  {
+    "id": "s003",
+    "type": "story",
+    "author": { "name": "Priya Sharma", "username": "priya.s", "avatarInitials": "PS", "avatarColor": "#7BA07B" },
+    "message": "Cooking homemade pasta tonight for the first time. Wish me luck! 🍝",
+    "timestamp": "2025-04-07T10:30:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 156, "shares": 4, "replies": 22 }
+  },
+  {
+    "id": "p005",
+    "type": "post",
+    "author": { "name": "Hana Kobayashi", "username": "hana.k", "avatarInitials": "HK", "avatarColor": "#B8A99A" },
+    "message": "Mental health reminder: it's okay to not be okay. If you're struggling, please reach out. You are not alone and your feelings are valid 🌿",
+    "timestamp": "2025-04-07T11:00:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 2341, "shares": 419, "replies": 87 }
+  },
+  {
+    "id": "c005",
+    "type": "comment",
+    "author": { "name": "Marcus Reid", "username": "m.reid", "avatarInitials": "MR", "avatarColor": "#B8A99A" },
+    "message": "Mental health is a scam invented by weak people who can't handle life. Man up and stop complaining. Nobody cares about your fake problems.",
+    "timestamp": "2025-04-07T11:12:00Z",
+    "parentId": "p005",
+    "toxicity": { "detected": true, "tags": ["harassment", "hate_speech"], "severity": 88, "status": "auto_moderated" },
+    "engagement": { "likes": 2, "shares": 0, "replies": 34 }
+  },
+  {
+    "id": "c005b",
+    "type": "comment",
+    "author": { "name": "Dev Patel", "username": "devpatel", "avatarInitials": "DP", "avatarColor": "#9AB87A" },
+    "message": "This comment is reported. Spreading this kind of stigma is actively harmful. Admins please review.",
+    "timestamp": "2025-04-07T11:15:00Z",
+    "parentId": "p005",
+    "toxicity": { "detected": false, "tags": [], "severity": 4, "status": "approved" },
+    "engagement": { "likes": 298, "shares": 0, "replies": 1 }
+  },
+  {
+    "id": "p006",
+    "type": "post",
+    "author": { "name": "Aria Nguyen", "username": "aria.ng", "avatarInitials": "AN", "avatarColor": "#6BA3BE" },
+    "message": "GitHub link to the viz library: github.com/aria-ng/lumina-charts — already at 200 stars in 4 hours! Thank you all so much for the incredible support 🙏",
+    "timestamp": "2025-04-07T11:45:00Z",
+    "parentId": null,
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 512, "shares": 93, "replies": 41 }
+  },
+  {
+    "id": "c006",
+    "type": "comment",
+    "author": { "name": "Jonah Ellis", "username": "j.ellis", "avatarInitials": "JE", "avatarColor": "#8B7D6B" },
+    "message": "Congrats! Any plans for a paid version? Would love enterprise support.",
+    "timestamp": "2025-04-07T11:58:00Z",
+    "parentId": "p006",
+    "toxicity": { "detected": false, "tags": [], "severity": 0, "status": "approved" },
+    "engagement": { "likes": 14, "shares": 0, "replies": 2 }
+  }
+]

@@ -1,0 +1,258 @@
+// ─── Tokens ──────────────────────────────────────────────────────────
+$green-deep:    #004d26;
+$green-mid:     #006633;
+$green-brand:   #008000;
+$green-bright:  #00c44f;
+$white:         #ffffff;
+$gray-bg:       #f0f0f0;
+$gray-border:   #d0d0d0;
+$gray-text:     #444444;
+$error:         #cc2200;
+$radius-input:  12px;
+$radius-btn:    100px;
+
+// ─── Card ─────────────────────────────────────────────────────────────
+.signin-card {
+  background: $white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+
+  &__header {
+    padding: 36px 36px 0;
+    border-left: 5px solid $green-brand;
+  }
+
+  &__title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: $green-deep;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    letter-spacing: -.02em;
+  }
+
+  &__sub {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    color: $gray-text;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  &__body {
+    padding: 28px 36px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__forgot {
+    margin-top: -4px;
+    text-align: right;
+  }
+}
+
+// ─── Fields ───────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+
+  &__label {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #888;
+    pointer-events: none;
+    transition: all .18s ease;
+    transform-origin: left top;
+  }
+
+  // Float label when input has content or is focused
+  &__input:focus ~ &__label,
+  &__input:not(:placeholder-shown) ~ &__label,
+  &__input-wrap:focus-within ~ &__label,
+  &__input-wrap:has(input:not(:placeholder-shown)) ~ &__label {
+    transform: translateY(-8px) scale(.82);
+    color: $green-brand;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 20px 14px 8px;
+    border: 1.5px solid $gray-border;
+    border-radius: $radius-input;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    color: #111;
+    background: $white;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .2s ease, box-shadow .2s ease;
+    appearance: none;
+
+    &:focus {
+      border-color: $green-brand;
+      box-shadow: 0 0 0 3px rgba($green-brand, .12);
+    }
+
+    &--padded {
+      padding-right: 48px;
+    }
+  }
+
+  // Floating label variant — label is inside the field visually
+  // Reordering: input first, label after (CSS sibling trick via :placeholder-shown)
+  display: flex;
+  flex-direction: column-reverse;
+
+  &__input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color .18s ease;
+
+    &:hover { color: $green-brand; }
+    &:focus-visible {
+      outline: 2px solid $green-brand;
+      border-radius: 4px;
+    }
+  }
+
+  &__error {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: $error;
+    padding-left: 2px;
+    order: 3;
+  }
+
+  &--error &__input,
+  &--error &__input-wrap .field__input {
+    border-color: $error;
+    &:focus { box-shadow: 0 0 0 3px rgba($error, .12); }
+  }
+}
+
+// Floating label – reorder within column-reverse parent
+.field__label  { order: 2; }
+.field__input  { order: 1; }
+.field__input-wrap { order: 1; }
+
+// ─── Shared link ─────────────────────────────────────────────────────
+.link {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: $green-brand;
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: $radius-btn;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+
+  &--primary {
+    background: $gray-bg;
+    color: #333;
+
+    &:hover:not(:disabled) {
+      background: darken($gray-bg, 5%);
+      transform: translateY(-1px);
+    }
+
+    // Active / filled state when fields have content — JS can add class
+    &.btn--active {
+      background: $green-bright;
+      color: $green-deep;
+      box-shadow: 0 6px 24px rgba($green-bright, .4);
+    }
+  }
+
+  &--dark {
+    background: $green-deep;
+    color: $white;
+
+    &:hover {
+      background: $green-mid;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba($green-deep, .3);
+    }
+
+    &:active { transform: translateY(0); }
+  }
+
+  &--loading {
+    opacity: .75;
+    cursor: not-allowed;
+  }
+
+  &__spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ─── Divider ──────────────────────────────────────────────────────────
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #aaa;
+  margin: 4px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $gray-border;
+  }
+
+  &__label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    color: #aaa;
+  }
+}

@@ -1,0 +1,30 @@
+.app-shell {
+  min-height: 100vh;
+  background: var(--bg);
+  scroll-behavior: smooth;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+app-signin {
+  position: fixed;
+  top: 80px;
+  right: 50px;
+  z-index: 200;
+  transition: all 0.3s ease-in-out;
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}

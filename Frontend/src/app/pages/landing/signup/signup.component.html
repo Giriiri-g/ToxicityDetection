@@ -1,0 +1,200 @@
+<div class="signup-outer">
+  <button class="outer-close" (click)="onClose()" aria-label="Close">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="signup-card">
+    <button class="card-close" (click)="onClose()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="stepper">
+      <div class="stepper__step" [class.stepper__step--active]="stepNumber >= 1" [class.stepper__step--done]="stepNumber > 1">
+        <div class="stepper__dot"><svg *ngIf="stepNumber > 1" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="stepper__label">Create account</span>
+      </div>
+      <div class="stepper__line" [class.stepper__line--done]="stepNumber > 1"></div>
+      <div class="stepper__step" [class.stepper__step--active]="stepNumber >= 2" [class.stepper__step--done]="stepNumber > 2">
+        <div class="stepper__dot"><svg *ngIf="stepNumber > 2" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="stepper__label">Verify email</span>
+      </div>
+      <div class="stepper__line" [class.stepper__line--done]="stepNumber > 2"></div>
+      <div class="stepper__step" [class.stepper__step--active]="stepNumber >= 3">
+        <div class="stepper__dot"></div>
+        <span class="stepper__label">Verify phone</span>
+      </div>
+    </div>
+
+    <!-- ─── STEP 1 ─────────────────────────────── -->
+    <div class="card-body" *ngIf="currentStep === 'form'">
+      <h1 class="card-title">Create your<br>account</h1>
+      <p class="card-sub">Have an account? <button class="link-btn" (click)="goToSignin.emit()">Sign in</button></p>
+
+      <div class="field" [class.field--error]="emailError">
+        <label class="field__label" for="su-email">Email address</label>
+        <input class="field__input" type="email" id="su-email" placeholder="you@example.com"
+          [(ngModel)]="email" (blur)="validateEmail()" autocomplete="email" />
+        <div class="field__err" *ngIf="emailError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ emailError }}
+        </div>
+      </div>
+
+      <div class="field" [class.field--error]="mobileError">
+        <label class="field__label">Mobile number</label>
+        <div class="phone-row">
+          <div class="cc-wrap">
+            <button type="button" class="cc-btn" (click)="toggleCountryDropdown()">
+              <span class="cc-flag">{{ selectedCountry.flag }}</span>
+              <span class="cc-dial">{{ selectedCountry.dial }}</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="cc-dropdown" *ngIf="showCountryDropdown">
+              <div class="cc-dropdown__item" *ngFor="let c of countries" (click)="selectCountry(c)">
+                <span class="cc-dropdown__flag">{{ c.flag }}</span>
+                <span class="cc-dropdown__name">{{ c.name }}</span>
+                <span class="cc-dropdown__dial">{{ c.dial }}</span>
+              </div>
+            </div>
+          </div>
+          <input class="field__input phone-input" type="tel" placeholder="Mobile number"
+            [(ngModel)]="mobile" (blur)="validateMobile()" autocomplete="tel" />
+        </div>
+        <span class="field__hint" *ngIf="!mobileError">We'll send a security verification code</span>
+        <div class="field__err" *ngIf="mobileError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ mobileError }}
+        </div>
+      </div>
+
+      <div class="field" [class.field--error]="passwordError">
+        <label class="field__label" for="su-pw">Password</label>
+        <div class="pw-wrap">
+          <input class="field__input" [type]="showPassword ? 'text' : 'password'" id="su-pw"
+            placeholder="Min. 8 characters" [(ngModel)]="password" (blur)="validatePassword()" autocomplete="new-password" />
+          <button type="button" class="pw-toggle" (click)="showPassword = !showPassword">
+            <svg *ngIf="!showPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg *ngIf="showPassword"  width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <div class="field__err" *ngIf="passwordError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ passwordError }}
+        </div>
+      </div>
+
+      <div class="field" [class.field--error]="confirmPasswordError">
+        <label class="field__label" for="su-cpw">Confirm password</label>
+        <div class="pw-wrap">
+          <input class="field__input" [type]="showConfirmPassword ? 'text' : 'password'" id="su-cpw"
+            placeholder="Repeat password" [(ngModel)]="confirmPassword" (blur)="validateConfirmPassword()" autocomplete="new-password" />
+          <button type="button" class="pw-toggle" (click)="showConfirmPassword = !showConfirmPassword">
+            <svg *ngIf="!showConfirmPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg *ngIf="showConfirmPassword"  width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <div class="field__err" *ngIf="confirmPasswordError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ confirmPasswordError }}
+        </div>
+      </div>
+
+      <div class="terms-block">
+        <label class="terms-row">
+          <input type="checkbox" class="terms-checkbox" [(ngModel)]="agreed" (change)="agreedError = ''" />
+          <span class="terms-box">
+            <svg *ngIf="agreed" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="terms-text">
+            I agree to the <a class="link-btn" href="#">Electronic Communications Consent</a> and the
+            <a class="link-btn" href="#">Online Service Agreement</a>. I acknowledge that the H&amp;R Block
+            <a class="link-btn" href="#">Privacy Notice</a> was made available to me.
+          </span>
+        </label>
+        <div class="field__err" *ngIf="agreedError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ agreedError }}
+        </div>
+      </div>
+
+      <button class="btn btn--gray" [disabled]="isSubmitting" (click)="onSubmit()">
+        <svg *ngIf="isSubmitting" class="btn__spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <span *ngIf="!isSubmitting">Next</span>
+      </button>
+    </div>
+
+    <!-- ─── STEP 2 ─────────────────────────────── -->
+    <div class="card-body" *ngIf="currentStep === 'verify-email'">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Go back
+      </button>
+      <div class="otp-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="2,4 12,13 22,4"/></svg>
+      </div>
+      <h1 class="card-title">Verify your<br>email</h1>
+      <div class="otp-target"><span class="otp-target__val">{{ maskedEmail }}</span></div>
+      <p class="change-line">Want to change your email address? <button class="link-btn" (click)="changeEmail()">Change here</button></p>
+
+      <button class="btn btn--green" *ngIf="!emailOtpSent" [disabled]="isSendingEmailOtp" (click)="sendEmailOtp()">
+        <svg *ngIf="isSendingEmailOtp" class="btn__spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <span *ngIf="!isSendingEmailOtp">Send OTP to verify</span>
+      </button>
+
+      <ng-container *ngIf="emailOtpSent">
+        <p class="otp-hint">Enter the 6-digit code sent to your email</p>
+        <div class="otp-grid">
+          <input *ngFor="let d of emailOtp; let i = index" [id]="'eotp-' + i" class="otp-input"
+            type="text" inputmode="numeric" maxlength="1" [value]="emailOtp[i]"
+            (input)="onEmailOtpInput($event, i)" (keydown)="onEmailOtpKeydown($event, i)" />
+        </div>
+        <div class="field__err otp-err" *ngIf="emailOtpError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ emailOtpError }}
+        </div>
+        <div class="otp-timer" *ngIf="emailTimerActive">Code expires in <strong>{{ emailTimerDisplay }}</strong></div>
+        <button class="btn btn--green" [disabled]="isVerifyingEmail" (click)="verifyEmail()">
+          <svg *ngIf="isVerifyingEmail" class="btn__spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          <span *ngIf="!isVerifyingEmail">Verify OTP</span>
+        </button>
+        <button class="btn btn--gray" *ngIf="!emailTimerActive" (click)="resendEmailOtp()">Resend OTP</button>
+      </ng-container>
+    </div>
+
+    <!-- ─── STEP 3 ─────────────────────────────── -->
+    <div class="card-body" *ngIf="currentStep === 'verify-phone'">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Go back
+      </button>
+      <div class="otp-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+      </div>
+      <h1 class="card-title">Verify your<br>phone</h1>
+      <div class="otp-target"><span class="otp-target__val">{{ maskedPhone }}</span></div>
+      <p class="change-line">Want to change your phone number? <button class="link-btn" (click)="changePhone()">Change here</button></p>
+
+      <button class="btn btn--green" *ngIf="!phoneOtpSent" [disabled]="isSendingPhoneOtp" (click)="sendPhoneOtp()">
+        <svg *ngIf="isSendingPhoneOtp" class="btn__spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <span *ngIf="!isSendingPhoneOtp">Send OTP to verify</span>
+      </button>
+
+      <ng-container *ngIf="phoneOtpSent">
+        <p class="otp-hint">Enter the 6-digit code sent to your mobile</p>
+        <div class="otp-grid">
+          <input *ngFor="let d of phoneOtp; let i = index" [id]="'potp-' + i" class="otp-input"
+            type="text" inputmode="numeric" maxlength="1" [value]="phoneOtp[i]"
+            (input)="onPhoneOtpInput($event, i)" (keydown)="onPhoneOtpKeydown($event, i)" />
+        </div>
+        <div class="field__err otp-err" *ngIf="phoneOtpError">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{{ phoneOtpError }}
+        </div>
+        <div class="otp-timer" *ngIf="phoneTimerActive">Code expires in <strong>{{ phoneTimerDisplay }}</strong></div>
+        <button class="btn btn--green" [disabled]="isVerifyingPhone" (click)="verifyPhone()">
+          <svg *ngIf="isVerifyingPhone" class="btn__spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          <span *ngIf="!isVerifyingPhone">Verify &amp; Complete</span>
+        </button>
+        <button class="btn btn--gray" *ngIf="!phoneTimerActive" (click)="resendPhoneOtp()">Resend OTP</button>
+      </ng-container>
+    </div>
+
+  </div>
+</div>

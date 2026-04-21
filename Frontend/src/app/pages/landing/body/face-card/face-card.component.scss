@@ -1,0 +1,327 @@
+// ─── Design tokens (match your H&R Block palette) ───────────────────
+$green-deep:   #004d26;
+$green-mid:    #006633;
+$green-brand:  #008000;
+$green-bright: #00c44f;
+$green-lime:   #39ff7a;
+$white:        #ffffff;
+$white-80:     rgba(255,255,255,0.80);
+$white-40:     rgba(255,255,255,0.40);
+$white-10:     rgba(255,255,255,0.10);
+$white-06:     rgba(255,255,255,0.06);
+
+// ─── Hero wrapper ────────────────────────────────────────────────────
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: $green-deep;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px 88px;
+  gap: 0;
+  font-family: 'Georgia', 'Times New Roman', serif; // elegant serif display
+  text-align: center;
+}
+
+// ─── Background effects ──────────────────────────────────────────────
+.hero__bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.hero__bg-glow {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  opacity: 0.28;
+
+  &--left {
+    left: -160px;
+    top: -80px;
+    background: radial-gradient(circle, $green-brand 0%, transparent 70%);
+    animation: pulse-glow 6s ease-in-out infinite alternate;
+  }
+
+  &--right {
+    right: -160px;
+    bottom: -80px;
+    background: radial-gradient(circle, $green-bright 0%, transparent 70%);
+    animation: pulse-glow 6s ease-in-out infinite alternate-reverse;
+  }
+}
+
+@keyframes pulse-glow {
+  from { opacity: 0.20; transform: scale(0.9); }
+  to   { opacity: 0.35; transform: scale(1.1); }
+}
+
+// ─── Badge ───────────────────────────────────────────────────────────
+.hero__badge {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: $white-06;
+  border: 1px solid rgba($green-bright, 0.35);
+  color: $green-bright;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 36px;
+  animation: badge-in 0.6s ease both;
+}
+
+.hero__badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $green-bright;
+  box-shadow: 0 0 0 0 rgba($green-bright, 0.6);
+  animation: live-ping 1.6s ease-in-out infinite;
+}
+
+@keyframes live-ping {
+  0%, 100% { box-shadow: 0 0 0 0 rgba($green-bright, 0.6); }
+  60%       { box-shadow: 0 0 0 6px rgba($green-bright, 0); }
+}
+
+@keyframes badge-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Headline ────────────────────────────────────────────────────────
+.hero__headline-wrap {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 52px;
+  animation: slide-up 0.7s 0.1s ease both;
+}
+
+.hero__headline {
+  margin: 0 0 20px;
+  line-height: 1.08;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero__headline-top {
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  color: $white;
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+.hero__headline-accent {
+  font-size: clamp(44px, 6.5vw, 80px);
+  font-weight: 700;
+  font-style: italic;
+  color: $green-bright;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 60px rgba($green-bright, 0.4);
+}
+
+.hero__sub {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(15px, 1.8vw, 18px);
+  color: $white-80;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.65;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+// ─── Stats grid ──────────────────────────────────────────────────────
+.hero__stats {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 860px;
+  margin-bottom: 20px;
+  animation: slide-up 0.7s 0.25s ease both;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.hero__stat-card {
+  position: relative;
+  overflow: hidden;
+  background: $white;
+  border-radius: 16px;
+  padding: 28px 16px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba($green-bright, 0.3);
+
+    .hero__stat-shimmer {
+      animation: shimmer 0.6s ease forwards;
+    }
+  }
+}
+
+// Shimmer overlay on hover
+.hero__stat-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba($green-brand, 0.08) 50%, transparent 60%);
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% 0; }
+}
+
+.hero__stat-value {
+  font-family: 'Georgia', serif;
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 700;
+  color: $green-deep;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  transition: color 0.3s ease;
+}
+
+.hero__stat-label {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+// Animated bottom bar
+.hero__stat-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, $green-brand, $green-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+  border-radius: 0 0 16px 16px;
+}
+
+.hero__stat-card:hover .hero__stat-bar {
+  transform: scaleX(1);
+}
+
+// ─── Live row ────────────────────────────────────────────────────────
+.hero__live-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 52px;
+  animation: slide-up 0.7s 0.35s ease both;
+}
+
+.hero__live-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $green-lime;
+  animation: live-ping 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.hero__live-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: $white-40;
+  text-transform: uppercase;
+}
+
+// ─── CTA buttons ─────────────────────────────────────────────────────
+.hero__actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: slide-up 0.7s 0.4s ease both;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 100px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  border: none;
+  letter-spacing: 0.01em;
+
+  &--primary {
+    background: $green-bright;
+    color: $green-deep;
+    padding: 15px 30px;
+    box-shadow: 0 0 0 0 rgba($green-bright, 0.5);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba($green-bright, 0.45);
+      background: $green-lime;
+    }
+    &:active { transform: translateY(0); }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $green-bright;
+    padding: 14px 28px;
+    border: 1.5px solid rgba($green-bright, 0.5);
+
+    &:hover {
+      border-color: $green-bright;
+      background: $white-06;
+      transform: translateY(-2px);
+    }
+    &:active { transform: translateY(0); }
+  }
+}
+
+// ─── Shared animation ────────────────────────────────────────────────
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

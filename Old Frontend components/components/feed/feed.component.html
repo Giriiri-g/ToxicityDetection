@@ -1,0 +1,59 @@
+<div class="feed-wrapper">
+
+  <!-- Stories Rail -->
+  <section class="stories-rail" *ngIf="storyItems.length">
+    <div class="stories-scroll">
+      <div class="stories-inner">
+        <app-story-card *ngFor="let story of storyItems" [item]="story"></app-story-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-value">{{ totalItems }}</span>
+      <span class="stat-label">Total Posts</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat toxic">
+      <span class="stat-value">{{ toxicCount }}</span>
+      <span class="stat-label">Toxic Flagged</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-value">{{ totalItems - toxicCount }}</span>
+      <span class="stat-label">Clean</span>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="filter-btn" [class.active]="activeFilter === 'all'"   (click)="setFilter('all')">All Content</button>
+    <button class="filter-btn toxic-filter" [class.active]="activeFilter === 'toxic'" (click)="setFilter('toxic')">⚠ Toxic Only</button>
+    <button class="filter-btn" [class.active]="activeFilter === 'clean'" (click)="setFilter('clean')">✓ Clean Only</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading feed…</span>
+  </div>
+
+  <!-- Feed List -->
+  <div class="feed-list" *ngIf="!loading">
+    <ng-container *ngFor="let post of postItems; let i = index">
+      <app-post-card
+        [item]="post"
+        [comments]="commentsFor(post.id)"
+        [style.animation-delay]="(i * 0.05) + 's'"
+      ></app-post-card>
+    </ng-container>
+
+    <div class="empty-state" *ngIf="postItems.length === 0">
+      <span class="empty-icon">✓</span>
+      <p>No content matches this filter.</p>
+    </div>
+  </div>
+
+</div>

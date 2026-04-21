@@ -1,0 +1,15 @@
+<div class="story-card" [class.toxic]="item.toxicity.detected">
+  <div class="story-ring" [class.toxic-ring]="item.toxicity.detected">
+    <div class="story-avatar" [style.background]="item.author.avatarColor">
+      {{ item.author.avatarInitials }}
+    </div>
+  </div>
+  <span class="story-name">{{ item.author.username }}</span>
+  <span class="story-time">{{ timeAgo }}</span>
+
+  <!-- Tooltip preview -->
+  <div class="story-tooltip">
+    <p class="tooltip-msg">{{ item.message }}</p>
+    <app-toxicity-badge [toxicity]="item.toxicity" *ngIf="item.toxicity.detected"></app-toxicity-badge>
+  </div>
+</div>
