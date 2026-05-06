@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToxicGuard AI - Safe Community Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .feature-highlights {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0 3rem 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .auth-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 450px;
+            margin: 2rem auto;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #6f42c1;
+            border-bottom-color: #6f42c1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6f42c1;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #6f42c1 0%, #5a359a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(111, 66, 193, 0.4);
+        }
+
+        .role-select-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .features-section {
+            background: #f8f9fa;
+            padding: 4rem 2rem;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .feature-card h3 {
+            color: #6f42c1;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            max-width: 1000px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .feature-highlights {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .auth-container {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="logo">🛡️</div>
+            <h1>ToxicGuard AI</h1>
+            <p class="tagline">Building Safer Communities with AI-Powered Content Moderation</p>
+            
+            <div class="feature-highlights">
+                <div class="feature-item">🤖 AI-Powered Safety</div>
+                <div class="feature-item">⚡ Real-Time Protection</div>
+                <div class="feature-item">👥 Human Oversight</div>
+                <div class="feature-item">📊 Smart Analytics</div>
+            </div>
+
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+                    <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Sign In Form -->
+                <div id="signin" class="tab-content active">
+                    <form onsubmit="handleSignIn(event)">
+                        <div class="form-group">
+                            <label for="signin-email">Email</label>
+                            <input type="email" id="signin-email" placeholder="your.email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password">Password</label>
+                            <input type="password" id="signin-password" placeholder="Enter your password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-role">Sign in as</label>
+                            <select id="signin-role" required>
+                                <option value="">Select your role</option>
+                                <option value="admin">Admin</option>
+                                <option value="moderator">Moderator</option>
+                                <option value="user">User (Creator)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Sign In</button>
+                    </form>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signup" class="tab-content">
+                    <form onsubmit="handleSignUp(event)">
+                        <div class="form-group">
+                            <label for="signup-username">Username</label>
+                            <input type="text" id="signup-username" placeholder="Choose a username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" placeholder="your.email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-role">Account Type</label>
+                            <select id="signup-role" required>
+                                <option value="">Select account type</option>
+                                <option value="user">User (Creator)</option>
+                                <option value="moderator">Moderator (Request Access)</option>
+                            </select>
+                        </div>
+                        <div class="role-select-info">
+                            <strong>Note:</strong> Moderator accounts require admin approval. Admin accounts can only be created by existing admins.
+                        </div>
+                        <button type="submit" class="btn-primary">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>🤖 AI-Powered Detection</h3>
+                <p>Advanced machine learning models analyze content in real-time, detecting hate speech, threats, harassment, and other toxic behavior before it spreads.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚙️ Smart Auto-Moderation</h3>
+                <p>Configurable rules automatically hide, flag, or block harmful content based on severity. Administrators have full control over moderation thresholds.</p>
+            </div>
+            <div class="feature-card">
+                <h3>👥 Human Review</h3>
+                <p>Expert moderators review flagged content and make final decisions on borderline cases, ensuring fairness and accuracy in content moderation.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Real-Time Analytics</h3>
+                <p>Comprehensive dashboards provide insights into community health, toxicity trends, and moderation performance metrics.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔒 Privacy First</h3>
+                <p>GDPR compliant with encryption, data minimization, and transparent AI decisions. Your privacy and security are our top priorities.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌍 Community Building</h3>
+                <p>Create safe spaces for meaningful connections. Share, engage, and build communities without fear of harassment or abuse.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <h2>Join Our Growing Community</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Content Analyzed Daily</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tab).classList.add('active');
+        }
+
+        function handleSignIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const role = document.getElementById('signin-role').value;
+
+            // Simulate authentication
+            console.log('Sign In:', { email, password, role });
+
+            // Route based on role
+            switch(role) {
+                case 'admin':
+                    alert('✅ Welcome Admin! Redirecting to Admin Dashboard...');
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                case 'moderator':
+                    alert('✅ Welcome Moderator! Redirecting to Moderation Dashboard...');
+                    window.location.href = 'moderator-dashboard.html';
+                    break;
+                case 'user':
+                    alert('✅ Welcome! Redirecting to Community Feed...');
+                    window.location.href = 'user-dashboard.html';
+                    break;
+                default:
+                    alert('Please select a role');
+            }
+        }
+
+        function handleSignUp(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('signup-role').value;
+
+            // Simulate account creation
+            console.log('Sign Up:', { username, email, password, role });
+
+            if (role === 'moderator') {
+                alert('✅ Account created! Your moderator access request has been sent to administrators for approval. You can sign in with user privileges while waiting for approval.');
+            } else {
+                alert('✅ Account created successfully! You can now sign in.');
+            }
+
+            // Switch to sign in tab
+            document.querySelectorAll('.tab-btn')[0].click();
+        }
+    </script>
+</body>
+</html>

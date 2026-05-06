@@ -1,0 +1,261 @@
+<div class="reddit-feed" [class.reddit-feed--sidebar-collapsed]="sidebarCollapsed">
+  <!-- Mobile Header with Toggle -->
+  <div class="reddit-feed__mobile-header">
+    <button class="reddit-feed__menu-toggle" (click)="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div class="reddit-feed__logo">
+      <svg viewBox="0 0 56 56" fill="#008000" width="32" height="32">
+        <path d="M0 0h56v56H0V0zm9.7 33.1H7.2v-3.5h-3v9.7h3v-3.5h2.5v3.5h3.1v-9.7H9.7v3.5zM22 37.3c.3-.6.4-1.3.4-1.9v-1.5h-2.1v1.4L18 32.8c-.2-.3-.4-.5-.4-.8 0-.4.3-.6.7-.6.4 0 .7.3.7.7v.5h2.3V32c0-1.5-1.3-2.5-3.1-2.5-1.9 0-3.2 1-3.2 2.5 0 .4.1 1.1.8 1.7-.9.4-1.8 1.3-1.8 2.7 0 1.9 1.5 3.2 4.2 3.2.9 0 1.8-.3 2.4-.7l.4.5h2.7L22 37.3zm-3.7.2c-.7 0-1.6-.4-1.6-1.3 0-.5.3-.9.7-1.1 0 0 1.6 1.8 1.9 2.1-.2.2-.6.3-1 .3zm9.3-.7h.9l1.5 2.5h3.5l-1.9-3.1c1-.6 1.7-1.7 1.7-3.1 0-2.1-1.3-3.6-3.8-3.6h-4.9v9.7h3v-2.4zm0-4.8h1.5c.7 0 1.1.5 1.1 1.2s-.4 1.2-1.1 1.2h-1.5V32zM10.8 46.7c.8-.4 1.3-1.2 1.3-2.2C12.1 43 11 42 9.2 42h-5v9.7h5.1c2.2 0 3.4-1.1 3.4-2.8 0-1.1-.7-1.9-1.9-2.2zm-3.7-2.4h1.4c.4 0 .7.3.7.7 0 .5-.3.8-.7.8H7.1v-1.5zm2 5.2h-2v-1.6h2c.5 0 .8.4.8.8s-.3.8-.8.8z"/>
+      </svg>
+      <span>MyBlock Community</span>
+    </div>
+    <div class="reddit-feed__spacer"></div>
+  </div>
+
+  <!-- Left Sidebar -->
+  <aside class="reddit-sidebar" [class.reddit-sidebar--collapsed]="sidebarCollapsed">
+    <div class="reddit-sidebar__header">
+      <button class="reddit-sidebar__toggle" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand' : 'Collapse'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="11 17 6 12 11 7"></polyline>
+          <polyline points="18 17 13 12 18 7"></polyline>
+        </svg>
+      </button>
+      <div class="reddit-sidebar__logo" *ngIf="!sidebarCollapsed">
+        <svg viewBox="0 0 56 56" fill="#008000" width="28" height="28">
+          <path d="M0 0h56v56H0V0zm9.7 33.1H7.2v-3.5h-3v9.7h3v-3.5h2.5v3.5h3.1v-9.7H9.7v3.5z"/>
+        </svg>
+        <span>MyBlock</span>
+      </div>
+    </div>
+
+    <nav class="reddit-sidebar__nav">
+      <!-- Sort Section -->
+      <div class="reddit-sidebar__section">
+        <div class="reddit-sidebar__section-title" *ngIf="!sidebarCollapsed">
+          <span>------ FEEDS ------</span>
+        </div>
+        <div class="reddit-sidebar__section-title--collapsed" *ngIf="sidebarCollapsed" title="Feeds"></div>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedSort === 'hot'" (click)="onSortChange('hot')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--hot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Hot</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedSort === 'new'" (click)="onSortChange('new')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">New</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedSort === 'top'" (click)="onSortChange('top')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20V10M6 20V4M18 20v-6"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Top</span>
+        </a>
+      </div>
+
+      <!-- Toxicity Filters Section -->
+      <div class="reddit-sidebar__section">
+        <div class="reddit-sidebar__section-title" *ngIf="!sidebarCollapsed">
+          <span>------ TOXICITY ------</span>
+        </div>
+        <div class="reddit-sidebar__section-title--collapsed" *ngIf="sidebarCollapsed" title="Toxicity"></div>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedToxicityFilter === 'all'" (click)="onToxicityFilterChange('all')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--all">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">All Content</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedToxicityFilter === 'safe'" (click)="onToxicityFilterChange('safe')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--safe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Safe Only</span>
+          <span class="reddit-sidebar__tag reddit-sidebar__tag--safe" *ngIf="!sidebarCollapsed">0-25%</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedToxicityFilter === 'mild'" (click)="onToxicityFilterChange('mild')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--mild">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Mild</span>
+          <span class="reddit-sidebar__tag reddit-sidebar__tag--mild" *ngIf="!sidebarCollapsed">26-50%</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedToxicityFilter === 'mature'" (click)="onToxicityFilterChange('mature')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--mature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Mature (NSFW)</span>
+          <span class="reddit-sidebar__tag reddit-sidebar__tag--mature" *ngIf="!sidebarCollapsed">51-75%</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedToxicityFilter === 'toxic'" (click)="onToxicityFilterChange('toxic')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--toxic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 16a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-5h-2V7h2z"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Toxic (NSFW)</span>
+          <span class="reddit-sidebar__tag reddit-sidebar__tag--toxic" *ngIf="!sidebarCollapsed">76-100%</span>
+        </a>
+      </div>
+
+      <!-- Sort by Toxicity -->
+      <div class="reddit-sidebar__section">
+        <div class="reddit-sidebar__section-title" *ngIf="!sidebarCollapsed">
+          <span>------ SORT BY ------</span>
+        </div>
+        <div class="reddit-sidebar__section-title--collapsed" *ngIf="sidebarCollapsed" title="Sort By"></div>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedSort === 'toxicity-low'" (click)="onSortChange('toxicity-low')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--sort-low">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <polyline points="6 10 12 4 18 10"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Low Toxicity First</span>
+        </a>
+
+        <a class="reddit-sidebar__link" [class.reddit-sidebar__link--active]="selectedSort === 'toxicity-high'" (click)="onSortChange('toxicity-high')">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--sort-high">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="4" x2="12" y2="20"/>
+              <polyline points="18 14 12 20 6 14"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">High Toxicity First</span>
+        </a>
+      </div>
+
+      <!-- User Section -->
+      <div class="reddit-sidebar__section reddit-sidebar__section--bottom">
+        <div class="reddit-sidebar__section-title" *ngIf="!sidebarCollapsed">
+          <span>------ ACCOUNT ------</span>
+        </div>
+
+        <a class="reddit-sidebar__link reddit-sidebar__link--user" *ngIf="!sidebarCollapsed">
+          <img [src]="currentUser.avatarUrl" [alt]="currentUser.displayName" class="reddit-sidebar__avatar">
+          <div class="reddit-sidebar__user-info">
+            <span class="reddit-sidebar__username">{{ currentUser.displayName }}</span>
+            <span class="reddit-sidebar__handle">&#64;{{ currentUser.username }}</span>
+          </div>
+        </a>
+
+        <a class="reddit-sidebar__link" (click)="logout()">
+          <span class="reddit-sidebar__icon reddit-sidebar__icon--circular reddit-sidebar__icon--logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span>
+          <span class="reddit-sidebar__label" *ngIf="!sidebarCollapsed">Logout</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="reddit-main">
+    <!-- Create Post Bar -->
+    <div class="reddit-create-post" (click)="showCreatePost = !showCreatePost">
+      <img [src]="currentUser.avatarUrl" [alt]="currentUser.displayName" class="reddit-create-post__avatar">
+      <input type="text" placeholder="Create post" readonly>
+      <div class="reddit-create-post__actions">
+        <button title="Add image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </button>
+        <button title="Add link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Create Post Form -->
+    <div class="reddit-create-post__form" *ngIf="showCreatePost">
+      <div class="reddit-create-post__header">
+        <span>Create a post</span>
+        <button class="reddit-create-post__close" (click)="showCreatePost = false; $event.stopPropagation()">×</button>
+      </div>
+      <textarea [(ngModel)]="newPostContent" placeholder="What's on your mind?" rows="4"></textarea>
+      <div class="reddit-create-post__footer">
+        <div class="reddit-create-post__options">
+          <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+          <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+          <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
+        </div>
+        <button class="reddit-create-post__submit" (click)="createPost()" [disabled]="!newPostContent.trim() || isSubmitting">
+          {{ isSubmitting ? 'Posting...' : 'Post' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Posts Feed -->
+    <div class="reddit-posts">
+      <app-post-card *ngFor="let post of filteredPosts" [post]="post" [currentUser]="currentUser" (likeToggle)="onLikeToggle($event)" (commentAdded)="onCommentAdded($event)"></app-post-card>
+    </div>
+  </main>
+
+  <!-- Right Sidebar -->
+  <aside class="reddit-right-sidebar">
+    <div class="reddit-trending">
+      <h3 class="reddit-trending__title">Trending Threads</h3>
+      <div class="reddit-trending__list">
+        <a *ngFor="let topic of trendingTopics; let i = index" class="reddit-trending__item">
+          <span class="reddit-trending__rank">{{ i + 1 }}</span>
+          <div class="reddit-trending__content">
+            <span class="reddit-trending__tag">{{ topic.tag }}</span>
+            <span class="reddit-trending__posts">{{ topic.posts }} posts</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="reddit-footer">
+      <p>MyBlock Community © 2026</p>
+      <p>Powered by H&R Block</p>
+    </div>
+  </aside>
+</div>

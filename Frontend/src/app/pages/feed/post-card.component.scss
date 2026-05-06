@@ -1,0 +1,287 @@
+// ─── Design tokens ──────────────────────────────────────────────────────────
+:host {
+  display: block;
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+}
+
+// ─── Card shell ─────────────────────────────────────────────────────────────
+.post-card {
+  position: relative;
+  display: flex;
+  background: transparent;
+  border-bottom: 0.0625rem solid #ffffff19;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #181C1F;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+
+}
+
+
+// ─── Body ────────────────────────────────────────────────────────────────────
+.post-card__body {
+  flex: 1;
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+.post-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.post-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ─── Community icon ──────────────────────────────────────────────────────────
+.post-card__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3b3b50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.post-card__icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-card__icon-letter {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a5b4fc;
+  line-height: 1;
+}
+
+// ─── Meta text ───────────────────────────────────────────────────────────────
+.post-card__meta-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: #8888a0;
+}
+
+.post-card__thread {
+  font-weight: 600;
+  color: #c4c4d4;
+
+  &:hover {
+    color: #e2e2f0;
+    text-decoration: underline;
+  }
+}
+
+.post-card__separator {
+  opacity: 0.4;
+}
+
+.post-card__time {
+  font-size: 12px;
+}
+
+// ─── Toxicity tags ───────────────────────────────────────────────────────────
+.post-card__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.post-card__tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+
+  &--high {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ff4500;
+    // border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  &--medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    // border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  &--low {
+    background: rgba(34, 197, 94, 0.12);
+    color: #94e044;
+    // border-color: rgba(34, 197, 94, 0.25);
+  }
+}
+
+.more{
+  color: white;
+}
+
+.more:hover{
+  color: white;
+}
+
+// ─── Title ───────────────────────────────────────────────────────────────────
+.post-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8e8f0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+// ─── Message ─────────────────────────────────────────────────────────────────
+.post-card__message {
+  margin: 0;
+  font-size: 13.5px;
+  color: #9090a8;
+  line-height: 1.55;
+
+  // Clamp to 3 lines in feed view
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Footer ──────────────────────────────────────────────────────────────────
+.post-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.post-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// ─── Buttons ─────────────────────────────────────────────────────────────────
+.post-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 20px;
+  background: #2a3236;
+  color: #dedfe0;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #333d42;
+    color: #eff0f0;
+  }
+
+  &--vote {
+    padding: 5px;
+  }
+
+  &--active-up {
+    color: #f97316 !important;
+  }
+
+  &--active-down {
+    color: #818cf8 !important;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Vote cluster: up | count | down in one pill
+.post-card__vote-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: #2a3236;
+  border-radius: 20px;
+  padding: 0 2px;
+  margin-right: 4px;
+}
+
+.post-card__count {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #dedfe0;
+  background-color: #2a3236;
+  min-width: 22px;
+  text-align: center;
+}
+
+// ─── Toxicity score widget ───────────────────────────────────────────────────
+.post-card__tox-score {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #222230;
+  border-radius: 8px;
+  padding: 5px 10px;
+  min-width: 150px;
+  flex-shrink: 0;
+}
+
+.post-card__tox-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #606078;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.post-card__tox-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: #33334a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.post-card__tox-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.post-card__tox-pct {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #a0a0bc;
+  white-space: nowrap;
+  min-width: 30px;
+  text-align: right;
+}

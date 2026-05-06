@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
-import { FeedComponent } from './pages/feed/feed.component';
+import { PostFeedComponent } from './pages/feed/post-feed.example';
 
 export const routes: Routes = [
   {
     path: 'feed',
-    component: FeedComponent
+    component: PostFeedComponent
   },
   {
     path: '',
-    redirectTo: '',
+    redirectTo: 'feed',
     pathMatch: 'full'
   }
 ];

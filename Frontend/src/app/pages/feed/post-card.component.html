@@ -1,0 +1,101 @@
+<article class="post-card" [class.post-card--toxic]="toxicityLevel === 'toxic'"
+  [class.post-card--moderate]="toxicityLevel === 'moderate'">
+  <!-- Main content -->
+  <div class="post-card__body">
+
+    <!-- Header row -->
+    <header class="post-card__header">
+      <div class="post-card__meta">
+        <!-- Community icon -->
+        <div class="post-card__icon">
+          <img *ngIf="iconUrl; else letterAvatar" [src]="iconUrl" [alt]="thread" class="post-card__icon-img" />
+          <ng-template #letterAvatar>
+            <span class="post-card__icon-letter">{{ iconFallbackLetter }}</span>
+          </ng-template>
+        </div>
+
+        <div class="post-card__meta-text">
+          <span class="post-card__thread">{{ thread }}</span>
+          <span class="post-card__separator">·</span>
+          <span class="post-card__time">{{ timePosted }}</span>
+        </div>
+      </div>
+
+      <!-- Toxicity tags -->
+      <div class="wrapper-left" style="display: flex; flex-direction: row; gap: 10px;">
+        <div class="post-card__tags" *ngIf="toxicityTags.length > 0">
+          <span *ngFor="let tag of toxicityTags" class="post-card__tag"
+            [class.post-card__tag--high]="tag.severity === 'high'"
+            [class.post-card__tag--medium]="tag.severity === 'medium'"
+            [class.post-card__tag--low]="tag.severity === 'low'">{{ tag.label }}</span>
+        </div>
+        <div class="more">•••</div>
+      </div>
+    </header>
+
+    <!-- Title -->
+    <h2 class="post-card__title">{{ title }}</h2>
+
+    <!-- Body message -->
+    <p class="post-card__message">{{ message }}</p>
+
+    <!-- Footer row -->
+    <footer class="post-card__footer">
+
+      <!-- Vote + comment actions -->
+      <div class="post-card__actions">
+        <!-- Upvote -->
+        <div class="post-card__vote-cluster">
+          <button class="post-card__btn post-card__btn--vote" [class.post-card__btn--active-up]="userVote === 'up'"
+            aria-label="Upvote">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </button>
+          <span class="post-card__count">{{ likeCount }}</span>
+          <button class="post-card__btn post-card__btn--vote" [class.post-card__btn--active-down]="userVote === 'down'"
+            aria-label="Downvote">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Comments -->
+        <button class="post-card__btn post-card__btn--comment">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>{{ commentCount }}</span>
+        </button>
+
+        <!-- Share -->
+        <button class="post-card__btn post-card__btn--share">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+          <span>Share</span>
+        </button>
+      </div>
+
+      <!-- Toxicity score pill -->
+      <div class="post-card__tox-score" [attr.data-level]="toxicityLevel">
+        <div class="post-card__tox-label">Toxicity</div>
+        <div class="post-card__tox-bar-wrap">
+          <div class="post-card__tox-bar" [style.width.%]="toxicityScore" [style.background]="scoreBarColor"></div>
+        </div>
+        <div class="post-card__tox-pct">{{ toxicityScore }}%</div>
+      </div>
+
+    </footer>
+  </div>
+  <hr style="border-color: #ffffff19; margin-top: 20px;" />
+</article>

@@ -2,12 +2,13 @@
     <ng-container *ngIf="isLandingPage; else feedLayout">
         <app-header (signinclick)="ToggleSignin($event)"></app-header>
         <app-face-card (discussionJoined)="ToggleSignin($event)"></app-face-card>
+        <!-- <app-post-feed/> -->
         <app-about></app-about>
         <app-features></app-features>
         <app-services></app-services>
         <app-footer></app-footer>
         <app-signin *ngIf="signin" #signinComponent @fade (createaccount)="ToggleSignup($event)"></app-signin>
-        <app-signup *ngIf="signup" #signupComponent @fade></app-signup>
+        <app-signup *ngIf="signup" #signupComponent @fade (closeModal)="ToggleSignup($event)"></app-signup>
     </ng-container>
     <ng-template #feedLayout>
         <router-outlet></router-outlet>

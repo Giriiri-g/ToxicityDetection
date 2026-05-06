@@ -1,0 +1,49 @@
+Users - Roles
+-----
+1. Admin
+2. Reviewer
+3. Creator
+
+
+Home page 
+---------
+ - SignIn / Signup
+ - Home page logo
+
+Admin
+------
+ - User Management
+ - Threshold Configuration (AI model configuration)
+ - Real-time system metrics and KPIs
+ - Create Communities (this will show in dropdown during create post)
+
+Reviewer
+--------
+ - Human moderators/admins see flagged content and make final decisions in unclear or serious cases.
+ - Need to Design better way 
+     - does Reviewer should see all posts, or priority based or admin should assign some user to reviewer or need some random picking
+
+
+
+Creator
+-------
+  - should be able to 
+    - create new posts,
+    - add comments against other community post, 
+    - messages, 
+    - images/text
+    - react
+    - connect in groups
+
+ - Users who post harmful content get notifications/warnings, and repeated violations can lead to stricter penalties.
+ - what kind of post user can see based on filter, or interest, tag
+ 
+
+
+DB
+---
+ - Users
+ - Roles
+ - posts (link to user, has toxic score, description, private/public)
+ - messages
+ - reacts (Link to post, who reacted)

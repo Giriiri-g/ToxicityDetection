@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - ToxicGuard AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .post-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .post-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 150px);
+        }
+
+        .conversations-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #6f42c1;
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .conversation-item:hover {
+            background: #f8f9fa;
+        }
+
+        .conversation-item.active {
+            background: #e3f2fd;
+            border-left: 4px solid #6f42c1;
+        }
+
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .conversation-preview {
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            font-size: 0.8rem;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        .unread-badge {
+            width: 20px;
+            height: 20px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .chat-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-header-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .chat-header-info h3 {
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-status {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            max-width: 60%;
+        }
+
+        .message-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            margin-bottom: 0.25rem;
+        }
+
+        .message.received .message-bubble {
+            background: white;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent .message-bubble {
+            background: #6f42c1;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #999;
+            padding: 0 0.5rem;
+        }
+
+        .message.sent .message-time {
+            text-align: right;
+        }
+
+        .safety-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        .message-input-container {
+            padding: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .safety-indicator {
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        .message-input-box {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            resize: none;
+            max-height: 100px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #6f42c1;
+        }
+
+        .send-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #5a359a;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .conversations-panel {
+                display: none;
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">💬 Messages - ToxicGuard AI</div>
+        <div class="nav-links">
+            <a href="profile.html" class="nav-link">My Profile</a>
+            <a href="user-dashboard.html" class="nav-link">Community</a>
+            <a href="messages.html" class="nav-link active">Messages</a>
+            <a href="#" class="nav-link">Trending</a>
+            <button onclick="window.location.href='index.html'" class="post-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Conversations List Panel -->
+        <div class="conversations-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">💬 Messages</h2>
+                <input type="text" class="search-box" placeholder="Search conversations...">
+            </div>
+            
+            <div class="conversations-list">
+                <!-- Active Conversation -->
+                <div class="conversation-item active" onclick="selectConversation(1)">
+                    <div class="conversation-avatar">SJ</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Sarah Johnson</div>
+                        <div class="conversation-preview">Thanks for the recommendation!</div>
+                    </div>
+                    <div>
+                        <div class="conversation-time">2m</div>
+                    </div>
+                </div>
+
+                <!-- Unread Conversation -->
+                <div class="conversation-item" onclick="selectConversation(2)">
+                    <div class="conversation-avatar">MW</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Mike Williams</div>
+                        <div class="conversation-preview">Can we discuss the community event?</div>
+                    </div>
+                    <div>
+                        <div class="conversation-time">1h</div>
+                        <div class="unread-badge">3</div>
+                    </div>
+                </div>
+
+                <!-- Regular Conversations -->
+                <div class="conversation-item" onclick="selectConversation(3)">
+                    <div class="conversation-avatar">AP</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Alex Peterson</div>
+                        <div class="conversation-preview">Great post about the new features!</div>
+                    </div>
+                    <div class="conversation-time">3h</div>
+                </div>
+
+                <div class="conversation-item" onclick="selectConversation(4)">
+                    <div class="conversation-avatar">LM</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Lisa Martinez</div>
+                        <div class="conversation-preview">When is the next meetup?</div>
+                    </div>
+                    <div class="conversation-time">1d</div>
+                </div>
+
+                <div class="conversation-item" onclick="selectConversation(5)">
+                    <div class="conversation-avatar">RT</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Robert Taylor</div>
+                        <div class="conversation-preview">I saw your comment on my post</div>
+                    </div>
+                    <div class="conversation-time">2d</div>
+                </div>
+
+                <div class="conversation-item" onclick="selectConversation(6)">
+                    <div class="conversation-avatar">EW</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">Emily White</div>
+                        <div class="conversation-preview">Thanks for joining our community!</div>
+                    </div>
+                    <div class="conversation-time">1w</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-avatar">SJ</div>
+                <div class="chat-header-info">
+                    <h3>Sarah Johnson</h3>
+                    <div class="chat-status">● Active now</div>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- AI Safety Notice -->
+                <div class="safety-warning">
+                    🛡️ <strong>AI Safety Active:</strong> All messages are screened for harmful content to ensure safe communication.
+                </div>
+
+                <!-- Received Message -->
+                <div class="message received">
+                    <div class="message-avatar">SJ</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Hey! I saw your post about Brew & Co. I've been looking for a good coffee shop for remote work. Is it usually quiet there?
+                        </div>
+                        <div class="message-time">10:23 AM</div>
+                    </div>
+                </div>
+
+                <!-- Sent Message -->
+                <div class="message sent">
+                    <div class="message-avatar">ME</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Yes! It's perfect for remote work. They have great wifi and the atmosphere is really calm, especially in the mornings.
+                        </div>
+                        <div class="message-time">10:25 AM</div>
+                    </div>
+                </div>
+
+                <!-- Received Message -->
+                <div class="message received">
+                    <div class="message-avatar">SJ</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            That sounds exactly what I need! What's your favorite drink there?
+                        </div>
+                        <div class="message-time">10:26 AM</div>
+                    </div>
+                </div>
+
+                <!-- Sent Message -->
+                <div class="message sent">
+                    <div class="message-avatar">ME</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            I always get their Ethiopian blend - the barista recommended it and it's amazing! They also have great pastries if you're hungry.
+                        </div>
+                        <div class="message-time">10:28 AM</div>
+                    </div>
+                </div>
+
+                <!-- Received Message -->
+                <div class="message received">
+                    <div class="message-avatar">SJ</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Thanks for the recommendation! I'll check it out this week. 😊
+                        </div>
+                        <div class="message-time">10:30 AM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-input-container">
+                <div class="safety-indicator" id="safetyIndicator"></div>
+                <div class="message-input-box">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput"
+                        placeholder="Type your message..." 
+                        rows="1"
+                        oninput="checkMessageSafety(this.value)"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectConversation(id) {
+            // Remove active class from all conversations
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to selected conversation
+            event.target.closest('.conversation-item').classList.add('active');
+            
+            // In production, this would load the conversation messages
+            console.log('Loading conversation:', id);
+        }
+
+        function checkMessageSafety(message) {
+            const indicator = document.getElementById('safetyIndicator');
+            
+            if (message.length < 5) {
+                indicator.style.display = 'none';
+                return;
+            }
+
+            // Simulate AI safety check
+            const toxicWords = ['hate', 'stupid', 'idiot', 'terrible', 'worst'];
+            let isToxic = false;
+
+            toxicWords.forEach(word => {
+                if (message.toLowerCase().includes(word)) {
+                    isToxic = true;
+                }
+            });
+
+            indicator.style.display = 'block';
+
+            if (isToxic) {
+                indicator.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 5px; border-left: 4px solid #dc3545;">
+                        ⚠️ <strong>Warning:</strong> This message may contain inappropriate content. Please review before sending.
+                    </div>
+                `;
+            } else {
+                indicator.innerHTML = `
+                    <div style="background: #d4edda; color: #155724; padding: 0.75rem; border-radius: 5px; border-left: 4px solid #28a745;">
+                        ✅ Message looks safe to send
+                    </div>
+                `;
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) {
+                alert('Please type a message first!');
+                return;
+            }
+
+            // Simulate sending message
+            const messagesContainer = document.getElementById('messagesContainer');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message sent';
+            newMessage.innerHTML = `
+                <div class="message-avatar">ME</div>
+                <div class="message-content">
+                    <div class="message-bubble">${message}</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(newMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Clear input and safety indicator
+            input.value = '';
+            document.getElementById('safetyIndicator').style.display = 'none';
+        }
+
+        // Allow Enter to send (Shift+Enter for new line)
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-scroll to bottom on load
+        window.onload = function() {
+            const container = document.getElementById('messagesContainer');
+            container.scrollTop = container.scrollHeight;
+        };
+    </script>
+</body>
+</html>

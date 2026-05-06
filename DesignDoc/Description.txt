@@ -1,0 +1,96 @@
+Project : AI Toxic Content Detection Platform
+ 
+Description: Used in community platforms to automatically detect abusive or unsafe content.
+
+
+
+*******************************************************************************
+Admin
+  - Can set Threshold
+  
+  Allow message   till toxicity 30 insult 30 hate 30 ....
+  Warn user
+  Block message   - if sexual > 10 warn user and will not show it in comment section. admin should be able to see it and take action. able to see the user who added , against which post, etc.
+
+  ----------------------------------
+ Admin Toxicity Rules
+----------------------------------
+
+Toxicity Threshold : [ 0.60 ]
+
+Block Categories
+☑ Hate Speech
+☑ Threat
+☑ Insult
+☐ Sexual
+obscene
+toxicity
+
+{
+ "toxicity": 0.82,
+ "insult": 0.91,
+ "threat": 0.02,
+ "obscene": 0.70
+}
+
+
+
+[ Save Rules ]
+Admin controls:
+    toxicity threshold
+    allowed categories
+    block rules
+
+  - see the posts, messages, which exceeded the Threshold
+       - take the action (set the flag for deletion, no need to delete set flag as deleted)
+       - 
+
+
+        We can use already trained model or create ML.Net model and train with data
+********************************************************************************
+
+User
+------
+   Toxic Content Checker
+----------------------------------
+
+Enter Text:
+[ __________________________ ]
+
+[ Check Toxicity ]
+
+Result:
+Toxicity Score: 0.82
+Category: Insult
+Status: Blocked
+Check their message
+
+See toxicity score
+
+
+********************************************************************************
+
+Features:
+Content ingestion
+Toxicity detection
+Auto moderation
+Admin review
+User warnings
+
+Feature explanations (simple):
+Content ingestion: The system collects incoming content (posts, comments, messages, images/text) from users so it can be checked.
+Toxicity detection: AI analyzes that content and identifies harmful language/behavior (abuse, hate, threats, bullying, etc.).
+Auto moderation: Based on toxicity score/rules, the system can automatically take action (hide, block, flag, or restrict content).
+Admin review: Human moderators/admins see flagged content and make final decisions in unclear or serious cases.
+User warnings: Users who post harmful content get notifications/warnings, and repeated violations can lead to stricter penalties.
+
+
+Community platform: an online space where users share content, comment, react, and connect in groups.
+UI style: feed-based layout (left menu, center content, right info panel), very similar to social apps.
+User options: Home feed, Explore, Create post, Messages, Notifications, Profile, Saved, Report, Settings.
+Which posts user can see: depends on visibility — Public, Followers only, or Group members only.
+Posts vs Messages: post is broadcast to feed; message is private 1:1 or small group chat.
+Like Facebook?: yes, concept is similar, but your platform adds AI toxicity detection and moderation.
+
+
+

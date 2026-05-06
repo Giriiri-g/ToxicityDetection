@@ -24,6 +24,9 @@ export class FeedComponent implements OnInit {
   newPostContent = '';
   showCreatePost = false;
   isSubmitting = false;
+  sidebarCollapsed = false;
+  selectedSort = 'hot';
+  selectedToxicityFilter: 'all' | 'safe' | 'mild' | 'mature' | 'toxic' = 'all';
 
   posts: Post[] = [
     {
@@ -43,41 +46,7 @@ export class FeedComponent implements OnInit {
       commentsCount: 5,
       sharesCount: 2,
       isLiked: false,
-      comments: [
-        {
-          id: 'c1',
-          author: {
-            id: '3',
-            username: 'mikejohnson',
-            displayName: 'Mike Johnson',
-            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mike',
-            toxicityThreshold: 60
-          },
-          content: 'Looks amazing! Which park did you visit?',
-          toxicityScore: 0,
-          createdAt: new Date(Date.now() - 3000000),
-          likesCount: 3,
-          isLiked: false,
-          replies: [
-            {
-              id: 'c1r1',
-              author: {
-                id: '2',
-                username: 'sarahsmith',
-                displayName: 'Sarah Smith',
-                avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-                toxicityThreshold: 40
-              },
-              content: 'Central Park! It was lovely this time of year.',
-              toxicityScore: 0,
-              createdAt: new Date(Date.now() - 2800000),
-              likesCount: 2,
-              isLiked: true,
-              replies: []
-            }
-          ]
-        }
-      ]
+      comments: []
     },
     {
       id: '2',
@@ -88,7 +57,7 @@ export class FeedComponent implements OnInit {
         avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mike',
         toxicityThreshold: 60
       },
-      content: 'This new policy is absolutely ridiculous. Who came up with this garbage? Complete waste of time and resources. Some people just dont think before acting.',
+      content: 'This new policy is absolutely ridiculous. Who came up with this garbage? Complete waste of time and resources.',
       toxicityScore: 65,
       category: 'Mild',
       createdAt: new Date(Date.now() - 7200000),
@@ -127,7 +96,7 @@ export class FeedComponent implements OnInit {
         avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex',
         toxicityThreshold: 70
       },
-      content: 'Some people are just so ignorant it makes my blood boil. How can you be so clueless about basic facts? Do some research before spewing nonsense everywhere.',
+      content: 'Some people are just so ignorant it makes my blood boil. How can you be so clueless about basic facts?',
       toxicityScore: 78,
       category: 'Mature',
       createdAt: new Date(Date.now() - 14400000),
@@ -139,20 +108,70 @@ export class FeedComponent implements OnInit {
     }
   ];
 
-  stories = [
-    { id: '1', author: 'Your Story', avatar: this.currentUser.avatarUrl, isUser: true, hasStory: false },
-    { id: '2', author: 'Sarah Smith', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah', isUser: false, hasStory: true },
-    { id: '3', author: 'Mike Johnson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mike', isUser: false, hasStory: true },
-    { id: '4', author: 'Emma Wilson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emma', isUser: false, hasStory: true },
-    { id: '5', author: 'Alex Thompson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex', isUser: false, hasStory: true },
-    { id: '6', author: 'Lisa Chen', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisa', isUser: false, hasStory: true }
+  trendingTopics = [
+    { tag: '#AIethics', posts: '12.5k' },
+    { tag: '#CleanTech', posts: '8.2k' },
+    { tag: '#MentalHealth', posts: '5.1k' },
+    { tag: '#SustainableLiving', posts: '3.8k' },
+    { tag: '#WorkLifeBalance', posts: '2.9k' },
+    { tag: '#DigitalPrivacy', posts: '2.3k' }
   ];
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // Filter posts based on user's toxicity threshold
-    this.posts = this.posts.filter(post => post.toxicityScore <= this.currentUser.toxicityThreshold);
+    this.filterPosts();
+  }
+
+  get filteredPosts(): Post[] {
+    let posts = this.posts.filter(post => post.toxicityScore <= this.currentUser.toxicityThreshold);
+
+    if (this.selectedToxicityFilter !== 'all') {
+      const filterMap: { [key: string]: [number, number] } = {
+        safe: [0, 25],
+        mild: [26, 50],
+        mature: [51, 75],
+        toxic: [76, 100]
+      };
+      const [min, max] = filterMap[this.selectedToxicityFilter];
+      posts = posts.filter(post => post.toxicityScore >= min && post.toxicityScore <= max);
+    }
+
+    // Sort based on selected option
+    switch (this.selectedSort) {
+      case 'hot':
+        posts.sort((a, b) => (b.likesCount + b.commentsCount) - (a.likesCount + a.commentsCount));
+        break;
+      case 'new':
+        posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case 'top':
+        posts.sort((a, b) => b.likesCount - a.likesCount);
+        break;
+      case 'toxicity-low':
+        posts.sort((a, b) => a.toxicityScore - b.toxicityScore);
+        break;
+      case 'toxicity-high':
+        posts.sort((a, b) => b.toxicityScore - a.toxicityScore);
+        break;
+    }
+    return posts;
+  }
+
+  filterPosts(): void {
+    // Triggered by filter changes
+  }
+
+  onSortChange(sort: string): void {
+    this.selectedSort = sort;
+  }
+
+  onToxicityFilterChange(filter: 'all' | 'safe' | 'mild' | 'mature' | 'toxic'): void {
+    this.selectedToxicityFilter = filter;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   onLikeToggle(post: Post): void {
@@ -165,7 +184,7 @@ export class FeedComponent implements OnInit {
       id: Date.now().toString(),
       author: this.currentUser,
       content: event.comment,
-      toxicityScore: Math.floor(Math.random() * 20), // Simulated
+      toxicityScore: Math.floor(Math.random() * 20),
       createdAt: new Date(),
       likesCount: 0,
       isLiked: false,
@@ -183,8 +202,6 @@ export class FeedComponent implements OnInit {
     if (!this.newPostContent.trim()) return;
 
     this.isSubmitting = true;
-
-    // Simulate API call
     setTimeout(() => {
       const newPost: Post = {
         id: Date.now().toString(),

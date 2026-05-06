@@ -12,11 +12,12 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { SignupComponent } from "./pages/landing/signup/signup.component";
 import { HttpClient } from '@angular/common/http';
 import { filter } from 'rxjs/operators';
+import { PostFeedComponent } from './pages/feed/post-feed.example';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HeaderComponent, FooterComponent, CommonModule, RouterOutlet, FaceCardComponent, AboutComponent, FeaturesComponent, ServicesComponent, SigninComponent, SignupComponent],
+  imports: [HeaderComponent, FooterComponent, CommonModule, RouterOutlet, FaceCardComponent, AboutComponent, FeaturesComponent, ServicesComponent, SigninComponent, SignupComponent, PostFeedComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   animations: [

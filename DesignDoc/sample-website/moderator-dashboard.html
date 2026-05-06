@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator Dashboard - ToxicGuard AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffc107;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #17a2b8;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .filters-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .moderation-queue {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .queue-item {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s;
+        }
+
+        .queue-item:hover {
+            border-color: #17a2b8;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .content-preview {
+            background: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+
+        .toxicity-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .score-item {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .score-high {
+            color: #dc3545;
+        }
+
+        .score-medium {
+            color: #ffc107;
+        }
+
+        .score-low {
+            color: #28a745;
+        }
+
+        .user-context {
+            background: #e3f2fd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .user-context-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-ban {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-view-context {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .filters-bar {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🛡️ ToxicGuard AI - Moderator</div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">MO</div>
+                <span>Moderator</span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="page-title">⚖️ Content Moderation Dashboard</h2>
+        
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">47</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">128</div>
+                <div class="stat-label">Reviewed Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">96%</div>
+                <div class="stat-label">Approval Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">2.3m</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group">
+                <span class="filter-label">Sort by:</span>
+                <select onchange="filterQueue()">
+                    <option value="severity">Severity (High to Low)</option>
+                    <option value="time">Newest First</option>
+                    <option value="time-old">Oldest First</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Category:</span>
+                <select onchange="filterQueue()">
+                    <option value="all">All Categories</option>
+                    <option value="hate">Hate Speech</option>
+                    <option value="threat">Threats</option>
+                    <option value="insult">Insults</option>
+                    <option value="profanity">Profanity</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Content Type:</span>
+                <select onchange="filterQueue()">
+                    <option value="all">All Types</option>
+                    <option value="post">Posts</option>
+                    <option value="comment">Comments</option>
+                    <option value="message">Messages</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="moderation-queue">
+            <div class="queue-header">
+                <h3>📋 Moderation Queue (47 items)</h3>
+                <button style="padding: 0.5rem 1rem; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ⟳ Refresh Queue
+                </button>
+            </div>
+
+            <!-- Queue Item 1 - High Priority -->
+            <div class="queue-item">
+                <div class="item-header">
+                    <div class="item-info">
+                        <div class="author-avatar">TR</div>
+                        <div>
+                            <strong>toxic_user_99</strong>
+                            <div style="font-size: 0.85rem; color: #666;">Post • 5 minutes ago</div>
+                        </div>
+                    </div>
+                    <span class="priority-badge priority-high">🔴 High Priority</span>
+                </div>
+
+                <div class="content-preview">
+                    "This is absolutely terrible! You people are complete idiots and don't know what you're talking about. This community is trash!"
+                </div>
+
+                <div class="toxicity-scores">
+                    <div class="score-item">
+                        <div class="score-label">Toxicity</div>
+                        <div class="score-value score-high">0.85</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Insult</div>
+                        <div class="score-value score-high">0.91</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Profanity</div>
+                        <div class="score-value score-medium">0.68</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Hate Speech</div>
+                        <div class="score-value score-medium">0.45</div>
+                    </div>
+                </div>
+
+                <div class="user-context">
+                    <strong>📊 User Context:</strong>
+                    <div class="user-context-row">
+                        <span>Account Age:</span>
+                        <span>3 days</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Previous Violations:</span>
+                        <span style="color: #dc3545; font-weight: bold;">2</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Total Posts:</span>
+                        <span>8</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>AI Recommendation:</span>
+                        <span style="color: #dc3545; font-weight: bold;">Delete & Warn User</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-approve" onclick="moderateContent('approve', 1)">✓ Approve</button>
+                    <button class="action-btn btn-delete" onclick="moderateContent('delete', 1)">🗑️ Delete</button>
+                    <button class="action-btn btn-warn" onclick="moderateContent('warn', 1)">⚠️ Warn User</button>
+                    <button class="action-btn btn-ban" onclick="moderateContent('ban', 1)">🚫 Ban User</button>
+                    <button class="action-btn btn-view-context" onclick="viewFullContext(1)">👁️ View Full Thread</button>
+                </div>
+            </div>
+
+            <!-- Queue Item 2 - Medium Priority -->
+            <div class="queue-item">
+                <div class="item-header">
+                    <div class="item-info">
+                        <div class="author-avatar">JD</div>
+                        <div>
+                            <strong>john_doe_42</strong>
+                            <div style="font-size: 0.85rem; color: #666;">Comment • 15 minutes ago</div>
+                        </div>
+                    </div>
+                    <span class="priority-badge priority-medium">🟡 Medium Priority</span>
+                </div>
+
+                <div class="content-preview">
+                    "I completely disagree with your opinion. This is a stupid take and makes no sense at all."
+                </div>
+
+                <div class="toxicity-scores">
+                    <div class="score-item">
+                        <div class="score-label">Toxicity</div>
+                        <div class="score-value score-medium">0.62</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Insult</div>
+                        <div class="score-value score-medium">0.55</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Profanity</div>
+                        <div class="score-value score-low">0.28</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Hate Speech</div>
+                        <div class="score-value score-low">0.08</div>
+                    </div>
+                </div>
+
+                <div class="user-context">
+                    <strong>📊 User Context:</strong>
+                    <div class="user-context-row">
+                        <span>Account Age:</span>
+                        <span>8 months</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Previous Violations:</span>
+                        <span style="color: #28a745; font-weight: bold;">0</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Total Posts:</span>
+                        <span>342</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>AI Recommendation:</span>
+                        <span style="color: #ffc107; font-weight: bold;">Review Manually</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-approve" onclick="moderateContent('approve', 2)">✓ Approve</button>
+                    <button class="action-btn btn-delete" onclick="moderateContent('delete', 2)">🗑️ Delete</button>
+                    <button class="action-btn btn-warn" onclick="moderateContent('warn', 2)">⚠️ Warn User</button>
+                    <button class="action-btn btn-view-context" onclick="viewFullContext(2)">👁️ View Full Thread</button>
+                </div>
+            </div>
+
+            <!-- Queue Item 3 - Low Priority -->
+            <div class="queue-item">
+                <div class="item-header">
+                    <div class="item-info">
+                        <div class="author-avatar">SK</div>
+                        <div>
+                            <strong>sarah_k_smith</strong>
+                            <div style="font-size: 0.85rem; color: #666;">Post • 1 hour ago</div>
+                        </div>
+                    </div>
+                    <span class="priority-badge priority-low">🟢 Low Priority</span>
+                </div>
+
+                <div class="content-preview">
+                    "I'm not sure I agree with this approach, but I respect your perspective. Can we discuss this further?"
+                </div>
+
+                <div class="toxicity-scores">
+                    <div class="score-item">
+                        <div class="score-label">Toxicity</div>
+                        <div class="score-value score-low">0.42</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Insult</div>
+                        <div class="score-value score-low">0.15</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Profanity</div>
+                        <div class="score-value score-low">0.03</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Hate Speech</div>
+                        <div class="score-value score-low">0.02</div>
+                    </div>
+                </div>
+
+                <div class="user-context">
+                    <strong>📊 User Context:</strong>
+                    <div class="user-context-row">
+                        <span>Account Age:</span>
+                        <span>1.5 years</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Previous Violations:</span>
+                        <span style="color: #28a745; font-weight: bold;">0</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>Total Posts:</span>
+                        <span>1,247</span>
+                    </div>
+                    <div class="user-context-row">
+                        <span>AI Recommendation:</span>
+                        <span style="color: #28a745; font-weight: bold;">Likely Safe - Approve</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-approve" onclick="moderateContent('approve', 3)">✓ Approve</button>
+                    <button class="action-btn btn-delete" onclick="moderateContent('delete', 3)">🗑️ Delete</button>
+                    <button class="action-btn btn-view-context" onclick="viewFullContext(3)">👁️ View Full Thread</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterQueue() {
+            console.log('Filtering queue...');
+            alert('Filter applied! In production, this would update the queue display.');
+        }
+
+        function moderateContent(action, itemId) {
+            const actions = {
+                'approve': '✅ Content approved and made visible to users.',
+                'delete': '🗑️ Content deleted and user notified.',
+                'warn': '⚠️ Content deleted and warning issued to user. Violation count increased.',
+                'ban': '🚫 Content deleted and user account banned. User can appeal.'
+            };
+
+            if (confirm(`Are you sure you want to ${action} this content?`)) {
+                alert(actions[action]);
+                // In production, this would call the API and update the queue
+                event.target.closest('.queue-item').style.opacity = '0.5';
+                setTimeout(() => {
+                    event.target.closest('.queue-item').remove();
+                }, 500);
+            }
+        }
+
+        function viewFullContext(itemId) {
+            alert('Opening full conversation thread with context...\n\nIn production, this would show:\n• Full conversation history\n• User profile details\n• Past violations\n• Related content');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

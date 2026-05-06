@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ToxicGuard AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffc107;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .nav-tabs {
+            background: white;
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-tab {
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #6f42c1;
+            border-bottom-color: #6f42c1;
+        }
+
+        .nav-tab:hover {
+            color: #6f42c1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-icon {
+            font-size: 2rem;
+        }
+
+        .kpi-trend {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+        }
+
+        .kpi-trend.up {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .kpi-trend.down {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #6f42c1;
+        }
+
+        .kpi-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .threshold-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .config-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .config-panel h4 {
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+
+        .slider-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .slider-value {
+            background: #6f42c1;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6f42c1;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6f42c1;
+            cursor: pointer;
+            border: none;
+        }
+
+        .category-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 0.75rem;
+            transition: background 0.3s;
+        }
+
+        .category-row:hover {
+            background: #f8f9fa;
+        }
+
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .action-select {
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-flagged {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-blocked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity 0.3s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .chart-placeholder {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .threshold-config {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🛡️ ToxicGuard AI - Admin</div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">AD</div>
+                <span>Admin User</span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
+        <button class="nav-tab" onclick="showSection('threshold')">Threshold Config</button>
+        <button class="nav-tab" onclick="showSection('users')">User Management</button>
+        <button class="nav-tab" onclick="showSection('moderation')">Moderation</button>
+        <button class="nav-tab" onclick="showSection('communities')">Communities</button>
+        <button class="nav-tab" onclick="showSection('analytics')">Analytics</button>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section-content">
+            <h2 class="page-title">Dashboard Overview</h2>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-icon">👥</span>
+                        <span class="kpi-trend up">+12%</span>
+                    </div>
+                    <div class="kpi-value">10,247</div>
+                    <div class="kpi-label">Total Users</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-icon">📝</span>
+                        <span class="kpi-trend up">+8%</span>
+                    </div>
+                    <div class="kpi-value">1,523</div>
+                    <div class="kpi-label">Posts Today</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-icon">⚠️</span>
+                        <span class="kpi-trend down">-5%</span>
+                    </div>
+                    <div class="kpi-value">47</div>
+                    <div class="kpi-label">Flagged Content</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-icon">🤖</span>
+                        <span class="kpi-trend up">+15%</span>
+                    </div>
+                    <div class="kpi-value">328</div>
+                    <div class="kpi-label">Auto-Moderated</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">📊 System Performance</h3>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-value" style="font-size: 2rem;">95.8%</div>
+                        <div class="kpi-label">AI Accuracy Rate</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" style="font-size: 2rem;">1.2s</div>
+                        <div class="kpi-label">Avg Processing Time</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" style="font-size: 2rem;">99.9%</div>
+                        <div class="kpi-label">System Uptime</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" style="font-size: 2rem;">52K</div>
+                        <div class="kpi-label">Daily Scans</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">🕒 Recent Moderation Actions</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Content</th>
+                                <th>User</th>
+                                <th>Score</th>
+                                <th>Action</th>
+                                <th>Moderator</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2 mins ago</td>
+                                <td>Post: "This is terrible content..."</td>
+                                <td>user_123</td>
+                                <td style="color: #dc3545; font-weight: bold;">0.85</td>
+                                <td><span class="status-badge status-blocked">Auto-Hidden</span></td>
+                                <td>AI System</td>
+                            </tr>
+                            <tr>
+                                <td>15 mins ago</td>
+                                <td>Comment: "I disagree with..."</td>
+                                <td>sarah_j</td>
+                                <td style="color: #ffc107; font-weight: bold;">0.62</td>
+                                <td><span class="status-badge status-flagged">Flagged</span></td>
+                                <td>AI System</td>
+                            </tr>
+                            <tr>
+                                <td>1 hour ago</td>
+                                <td>Post: "Great discussion on..."</td>
+                                <td>mike_w</td>
+                                <td style="color: #28a745; font-weight: bold;">0.12</td>
+                                <td><span class="status-badge status-approved">Approved</span></td>
+                                <td>AI System</td>
+                            </tr>
+                            <tr>
+                                <td>2 hours ago</td>
+                                <td>Comment: "You people are..."</td>
+                                <td>troll_42</td>
+                                <td style="color: #dc3545; font-weight: bold;">0.91</td>
+                                <td><span class="status-badge status-blocked">Deleted</span></td>
+                                <td>Admin</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Threshold Configuration Section -->
+        <div id="threshold" class="section-content" style="display: none;">
+            <h2 class="page-title">⚙️ Toxicity Threshold Configuration</h2>
+            
+            <div class="threshold-config">
+                <div class="config-panel">
+                    <h4>Global Threshold Settings</h4>
+                    
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span class="slider-label">Global Toxicity Threshold</span>
+                            <span class="slider-value" id="global-value">0.60</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="60" id="global-threshold" 
+                               oninput="updateValue('global', this.value)">
+                        <p style="font-size: 0.85rem; color: #6c757d; margin-top: 0.5rem;">
+                            Content with toxicity score above this value will be flagged for review
+                        </p>
+                    </div>
+
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+                        <strong>⚠️ Warning:</strong> Lowering thresholds may result in more false positives. Higher values may allow more toxic content through.
+                    </div>
+                </div>
+
+                <div class="config-panel">
+                    <h4>Category-Specific Rules</h4>
+                    
+                    <div class="category-row">
+                        <div class="category-info">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleCategory('hate_speech')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 500;">Hate Speech</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="range" min="0" max="100" value="50" style="width: 150px;" 
+                                   oninput="updateCategoryValue('hate-speech', this.value)">
+                            <span style="min-width: 40px;" id="hate-speech-value">0.50</span>
+                            <select class="action-select">
+                                <option>Auto-Hide</option>
+                                <option>Flag Review</option>
+                                <option>Auto-Block</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="category-row">
+                        <div class="category-info">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleCategory('threat')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 500;">Threats</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="range" min="0" max="100" value="40" style="width: 150px;"
+                                   oninput="updateCategoryValue('threat', this.value)">
+                            <span style="min-width: 40px;" id="threat-value">0.40</span>
+                            <select class="action-select">
+                                <option selected>Auto-Block</option>
+                                <option>Auto-Hide</option>
+                                <option>Flag Review</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="category-row">
+                        <div class="category-info">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleCategory('insult')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 500;">Insults</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="range" min="0" max="100" value="70" style="width: 150px;"
+                                   oninput="updateCategoryValue('insult', this.value)">
+                            <span style="min-width: 40px;" id="insult-value">0.70</span>
+                            <select class="action-select">
+                                <option selected>Flag Review</option>
+                                <option>Auto-Hide</option>
+                                <option>Auto-Block</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="category-row">
+                        <div class="category-info">
+                            <label class="toggle-switch">
+                                <input type="checkbox" onchange="toggleCategory('sexual')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 500;">Sexual Content</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="range" min="0" max="100" value="30" style="width: 150px;"
+                                   oninput="updateCategoryValue('sexual', this.value)">
+                            <span style="min-width: 40px;" id="sexual-value">0.30</span>
+                            <select class="action-select">
+                                <option>Warn User</option>
+                                <option selected>Auto-Hide</option>
+                                <option>Auto-Block</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="category-row">
+                        <div class="category-info">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="toggleCategory('profanity')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 500;">Profanity</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="range" min="0" max="100" value="80" style="width: 150px;"
+                                   oninput="updateCategoryValue('profanity', this.value)">
+                            <span style="min-width: 40px;" id="profanity-value">0.80</span>
+                            <select class="action-select">
+                                <option selected>Flag Review</option>
+                                <option>Auto-Hide</option>
+                                <option>Warn User</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: right;">
+                <button class="btn-save" onclick="saveThreshold()">💾 Save Configuration</button>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div id="users" class="section-content" style="display: none;">
+            <h2 class="page-title">👥 User Management</h2>
+            
+            <div class="section">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <input type="text" placeholder="Search users..." style="padding: 0.5rem 1rem; border: 1px solid #dee2e6; border-radius: 5px; width: 300px;">
+                    <div>
+                        <select style="padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 5px; margin-right: 0.5rem;">
+                            <option>All Users</option>
+                            <option>Active</option>
+                            <option>Banned</option>
+                            <option>Flagged</option>
+                        </select>
+                        <button style="padding: 0.5rem 1rem; background: #6f42c1; color: white; border: none; border-radius: 5px; cursor: pointer;">Export Data</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Violations</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>sarah_johnson</td>
+                                <td>sarah.j@email.com</td>
+                                <td>Creator</td>
+                                <td>2026-04-15</td>
+                                <td style="color: #28a745; font-weight: bold;">0</td>
+                                <td><span class="status-badge status-approved">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-view">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>mike_williams</td>
+                                <td>mike.w@email.com</td>
+                                <td>Creator</td>
+                                <td>2026-03-22</td>
+                                <td style="color: #ffc107; font-weight: bold;">1</td>
+                                <td><span class="status-badge status-flagged">Warned</span></td>
+                                <td>
+                                    <button class="action-btn btn-view">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>troll_user_42</td>
+                                <td>troll@email.com</td>
+                                <td>Creator</td>
+                                <td>2026-05-01</td>
+                                <td style="color: #dc3545; font-weight: bold;">4</td>
+                                <td><span class="status-badge status-blocked">Banned</span></td>
+                                <td>
+                                    <button class="action-btn btn-view">View</button>
+                                    <button class="action-btn btn-delete">Unban</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>alex_moderator</td>
+                                <td>alex.m@email.com</td>
+                                <td>Moderator</td>
+                                <td>2026-02-10</td>
+                                <td style="color: #28a745; font-weight: bold;">0</td>
+                                <td><span class="status-badge status-approved">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-view">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other sections (simplified placeholder) -->
+        <div id="moderation" class="section-content" style="display: none;">
+            <h2 class="page-title">🔍 Content Moderation Review</h2>
+            <div class="section">
+                <p>View and manage all moderation actions. This section allows you to review flagged content, approve or delete posts, and manage user violations.</p>
+                <div class="chart-placeholder">
+                    Detailed moderation review interface would appear here
+                </div>
+            </div>
+        </div>
+
+        <div id="communities" class="section-content" style="display: none;">
+            <h2 class="page-title">🌍 Communities Management</h2>
+            <div class="section">
+                <p>Create and manage communities. Assign moderators and configure community-specific rules.</p>
+                <div style="margin-top: 2rem;">
+                    <button class="btn-save">+ Create New Community</button>
+                </div>
+                <div class="chart-placeholder" style="margin-top: 2rem;">
+                    Community list and management interface
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics" class="section-content" style="display: none;">
+            <h2 class="page-title">📈 Analytics & Reports</h2>
+            <div class="section">
+                <h3 class="section-title">Toxicity Trends (Last 30 Days)</h3>
+                <div class="chart-placeholder">
+                    📊 Line chart showing toxicity trends over time
+                </div>
+            </div>
+            <div class="section">
+                <h3 class="section-title">Category Distribution</h3>
+                <div class="chart-placeholder">
+                    🍩 Pie chart showing distribution of toxicity categories
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function updateValue(type, value) {
+            const displayValue = (value / 100).toFixed(2);
+            document.getElementById(type + '-value').textContent = displayValue;
+        }
+
+        function updateCategoryValue(category, value) {
+            const displayValue = (value / 100).toFixed(2);
+            document.getElementById(category + '-value').textContent = displayValue;
+        }
+
+        function toggleCategory(category) {
+            console.log('Toggle category:', category);
+        }
+
+        function saveThreshold() {
+            alert('✅ Toxicity threshold configuration saved successfully!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

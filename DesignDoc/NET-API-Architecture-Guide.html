@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NET API Architecture Guide - Controller → Manager → Repository Pattern</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .architecture-flow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .step {
+            background-color: #ecf0f1;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+            border-radius: 5px;
+        }
+        .step-number {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .folder-structure {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>.NET API Architecture Guide</h1>
+        <h2>Controller → Manager → Repository Pattern with Dependency Injection</h2>
+        
+        <div class="architecture-flow">
+            <strong>Client Request → Controller → Manager → Repository → Database</strong><br>
+            <small>Each layer has specific responsibilities and communicates through interfaces</small>
+        </div>
+
+        <h2>📋 Table of Contents</h2>
+        <ol>
+            <li><a href="#overview">Architecture Overview</a></li>
+            <li><a href="#project-setup">Project Setup & Structure</a></li>
+            <li><a href="#models">Models & Entities</a></li>
+            <li><a href="#interfaces">Interfaces</a></li>
+            <li><a href="#repository">Repository Layer</a></li>
+            <li><a href="#manager">Manager/Service Layer</a></li>
+            <li><a href="#controller">Controller Layer</a></li>
+            <li><a href="#di-setup">Dependency Injection Setup</a></li>
+            <li><a href="#database">Database Context</a></li>
+            <li><a href="#example">Complete Example: GetAllUsers API</a></li>
+            <li><a href="#step-by-step">Step-by-Step Creation Guide</a></li>
+        </ol>
+
+        <h2 id="overview">🏗️ Architecture Overview</h2>
+        <p>This architecture follows the separation of concerns principle with clear responsibilities for each layer:</p>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Responsibility</th>
+                    <th>What it handles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Controller</strong></td>
+                    <td>HTTP Request/Response handling</td>
+                    <td>Routing, Model binding, HTTP status codes, Authentication</td>
+                </tr>
+                <tr>
+                    <td><strong>Manager/Service</strong></td>
+                    <td>Business Logic & Validation</td>
+                    <td>Business rules, Data validation, Orchestration between repositories</td>
+                </tr>
+                <tr>
+                    <td><strong>Repository</strong></td>
+                    <td>Data Access</td>
+                    <td>Database queries, CRUD operations, Data mapping</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="project-setup">📁 Project Setup & Structure</h2>
+        
+        <h3>1. Create New .NET Web API Project</h3>
+        <div class="code-block">
+dotnet new webapi -n YourProject.API
+cd YourProject.API
+</div>
+
+        <h3>2. Recommended Folder Structure</h3>
+        <div class="folder-structure">
+YourProject.API/
+├── Controllers/
+│   └── UsersController.cs
+├── Services/
+│   ├── Interfaces/
+│   │   └── IUserManager.cs
+│   └── UserManager.cs
+├── Repositories/
+│   ├── Interfaces/
+│   │   └── IUserRepository.cs
+│   └── UserRepository.cs
+├── Models/
+│   ├── Entities/
+│   │   └── User.cs
+│   └── DTOs/
+│       ├── UserDto.cs
+│       └── CreateUserDto.cs
+├── Data/
+│   └── ApplicationDbContext.cs
+├── Program.cs
+└── appsettings.json
+        </div>
+
+        <h3>3. Required NuGet Packages</h3>
+        <div class="code-block">
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.EntityFrameworkCore.Design
+        </div>
+
+        <h2 id="models">📦 Models & Entities</h2>
+
+        <h3>Entity Model (Models/Entities/User.cs)</h3>
+        <div class="code-block">
+using System.ComponentModel.DataAnnotations;
+
+namespace YourProject.API.Models.Entities
+{
+    public class User
+    {
+        [Key]
+        public int Id { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [EmailAddress]
+        [StringLength(255)]
+        public string Email { get; set; }
+        
+        [Phone]
+        public string PhoneNumber { get; set; }
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        
+        public bool IsActive { get; set; } = true;
+    }
+}
+        </div>
+
+        <h3>DTO Models</h3>
+        
+        <h4>Models/DTOs/UserDto.cs</h4>
+        <div class="code-block">
+namespace YourProject.API.Models.DTOs
+{
+    public class UserDto
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsActive { get; set; }
+    }
+}
+        </div>
+
+        <h4>Models/DTOs/CreateUserDto.cs</h4>
+        <div class="code-block">
+using System.ComponentModel.DataAnnotations;
+
+namespace YourProject.API.Models.DTOs
+{
+    public class CreateUserDto
+    {
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [Phone]
+        public string PhoneNumber { get; set; }
+    }
+}
+        </div>
+
+        <h2 id="interfaces">🔌 Interfaces</h2>
+
+        <h3>Repository Interface (Repositories/Interfaces/IUserRepository.cs)</h3>
+        <div class="code-block">
+using YourProject.API.Models.Entities;
+
+namespace YourProject.API.Repositories.Interfaces
+{
+    public interface IUserRepository
+    {
+        Task&lt;IEnumerable&lt;User&gt;&gt; GetAllUsersAsync();
+        Task&lt;User?&gt; GetUserByIdAsync(int id);
+        Task&lt;User?&gt; GetUserByEmailAsync(string email);
+        Task&lt;User&gt; CreateUserAsync(User user);
+        Task&lt;User?&gt; UpdateUserAsync(User user);
+        Task&lt;bool&gt; DeleteUserAsync(int id);
+        Task&lt;bool&gt; UserExistsAsync(int id);
+        Task&lt;bool&gt; EmailExistsAsync(string email);
+    }
+}
+        </div>
+
+        <h3>Manager Interface (Services/Interfaces/IUserManager.cs)</h3>
+        <div class="code-block">
+using YourProject.API.Models.DTOs;
+
+namespace YourProject.API.Services.Interfaces
+{
+    public interface IUserManager
+    {
+        Task&lt;IEnumerable&lt;UserDto&gt;&gt; GetAllUsersAsync();
+        Task&lt;UserDto?&gt; GetUserByIdAsync(int id);
+        Task&lt;UserDto&gt; CreateUserAsync(CreateUserDto createUserDto);
+        Task&lt;UserDto?&gt; UpdateUserAsync(int id, CreateUserDto updateUserDto);
+        Task&lt;bool&gt; DeleteUserAsync(int id);
+    }
+}
+        </div>
+
+        <h2 id="repository">📊 Repository Layer</h2>
+
+        <h3>User Repository (Repositories/UserRepository.cs)</h3>
+        <div class="code-block">
+using Microsoft.EntityFrameworkCore;
+using YourProject.API.Data;
+using YourProject.API.Models.Entities;
+using YourProject.API.Repositories.Interfaces;
+
+namespace YourProject.API.Repositories
+{
+    public class UserRepository : IUserRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public UserRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task&lt;IEnumerable&lt;User&gt;&gt; GetAllUsersAsync()
+        {
+            return await _context.Users
+                .Where(u => u.IsActive)
+                .OrderBy(u => u.FirstName)
+                .ToListAsync();
+        }
+
+        public async Task&lt;User?&gt; GetUserByIdAsync(int id)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+        }
+
+        public async Task&lt;User?&gt; GetUserByEmailAsync(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
+        }
+
+        public async Task&lt;User&gt; CreateUserAsync(User user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task&lt;User?&gt; UpdateUserAsync(User user)
+        {
+            var existingUser = await GetUserByIdAsync(user.Id);
+            if (existingUser == null) return null;
+
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.Email = user.Email;
+            existingUser.PhoneNumber = user.PhoneNumber;
+            existingUser.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return existingUser;
+        }
+
+        public async Task&lt;bool&gt; DeleteUserAsync(int id)
+        {
+            var user = await GetUserByIdAsync(id);
+            if (user == null) return false;
+
+            user.IsActive = false; // Soft delete
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task&lt;bool&gt; UserExistsAsync(int id)
+        {
+            return await _context.Users.AnyAsync(u => u.Id == id && u.IsActive);
+        }
+
+        public async Task&lt;bool&gt; EmailExistsAsync(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email && u.IsActive);
+        }
+    }
+}
+        </div>
+
+        <h2 id="manager">⚙️ Manager/Service Layer</h2>
+
+        <h3>User Manager (Services/UserManager.cs)</h3>
+        <div class="code-block">
+using YourProject.API.Models.DTOs;
+using YourProject.API.Models.Entities;
+using YourProject.API.Repositories.Interfaces;
+using YourProject.API.Services.Interfaces;
+
+namespace YourProject.API.Services
+{
+    public class UserManager : IUserManager
+    {
+        private readonly IUserRepository _userRepository;
+
+        public UserManager(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
+        public async Task&lt;IEnumerable&lt;UserDto&gt;&gt; GetAllUsersAsync()
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+            return users.Select(MapToDto);
+        }
+
+        public async Task&lt;UserDto?&gt; GetUserByIdAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("User ID must be greater than 0", nameof(id));
+
+            var user = await _userRepository.GetUserByIdAsync(id);
+            return user != null ? MapToDto(user) : null;
+        }
+
+        public async Task&lt;UserDto&gt; CreateUserAsync(CreateUserDto createUserDto)
+        {
+            // Business validation
+            if (await _userRepository.EmailExistsAsync(createUserDto.Email))
+                throw new InvalidOperationException("Email already exists");
+
+            var user = new User
+            {
+                FirstName = createUserDto.FirstName.Trim(),
+                LastName = createUserDto.LastName.Trim(),
+                Email = createUserDto.Email.ToLower().Trim(),
+                PhoneNumber = createUserDto.PhoneNumber?.Trim()
+            };
+
+            var createdUser = await _userRepository.CreateUserAsync(user);
+            return MapToDto(createdUser);
+        }
+
+        public async Task&lt;UserDto?&gt; UpdateUserAsync(int id, CreateUserDto updateUserDto)
+        {
+            if (id <= 0)
+                throw new ArgumentException("User ID must be greater than 0", nameof(id));
+
+            var existingUser = await _userRepository.GetUserByIdAsync(id);
+            if (existingUser == null) return null;
+
+            // Check if email is being changed and if it already exists
+            if (existingUser.Email != updateUserDto.Email.ToLower().Trim())
+            {
+                if (await _userRepository.EmailExistsAsync(updateUserDto.Email))
+                    throw new InvalidOperationException("Email already exists");
+            }
+
+            var userToUpdate = new User
+            {
+                Id = id,
+                FirstName = updateUserDto.FirstName.Trim(),
+                LastName = updateUserDto.LastName.Trim(),
+                Email = updateUserDto.Email.ToLower().Trim(),
+                PhoneNumber = updateUserDto.PhoneNumber?.Trim()
+            };
+
+            var updatedUser = await _userRepository.UpdateUserAsync(userToUpdate);
+            return updatedUser != null ? MapToDto(updatedUser) : null;
+        }
+
+        public async Task&lt;bool&gt; DeleteUserAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("User ID must be greater than 0", nameof(id));
+
+            return await _userRepository.DeleteUserAsync(id);
+        }
+
+        private static UserDto MapToDto(User user)
+        {
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                CreatedAt = user.CreatedAt,
+                IsActive = user.IsActive
+            };
+        }
+    }
+}
+        </div>
+
+        <h2 id="controller">🎮 Controller Layer</h2>
+
+        <h3>Users Controller (Controllers/UsersController.cs)</h3>
+        <div class="code-block">
+using Microsoft.AspNetCore.Mvc;
+using YourProject.API.Models.DTOs;
+using YourProject.API.Services.Interfaces;
+
+namespace YourProject.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsersController : ControllerBase
+    {
+        private readonly IUserManager _userManager;
+
+        public UsersController(IUserManager userManager)
+        {
+            _userManager = userManager;
+        }
+
+        /// &lt;summary&gt;
+        /// Get all users
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;List of users&lt;/returns&gt;
+        [HttpGet]
+        public async Task&lt;ActionResult&lt;IEnumerable&lt;UserDto&gt;&gt;&gt; GetAllUsers()
+        {
+            try
+            {
+                var users = await _userManager.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Get user by ID
+        /// &lt;/summary&gt;
+        /// &lt;param name="id"&gt;User ID&lt;/param&gt;
+        /// &lt;returns&gt;User details&lt;/returns&gt;
+        [HttpGet("{id}")]
+        public async Task&lt;ActionResult&lt;UserDto&gt;&gt; GetUser(int id)
+        {
+            try
+            {
+                var user = await _userManager.GetUserByIdAsync(id);
+                if (user == null)
+                    return NotFound($"User with ID {id} not found");
+
+                return Ok(user);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Create a new user
+        /// &lt;/summary&gt;
+        /// &lt;param name="createUserDto"&gt;User creation data&lt;/param&gt;
+        /// &lt;returns&gt;Created user&lt;/returns&gt;
+        [HttpPost]
+        public async Task&lt;ActionResult&lt;UserDto&gt;&gt; CreateUser(CreateUserDto createUserDto)
+        {
+            try
+            {
+                var createdUser = await _userManager.CreateUserAsync(createUserDto);
+                return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Update an existing user
+        /// &lt;/summary&gt;
+        /// &lt;param name="id"&gt;User ID&lt;/param&gt;
+        /// &lt;param name="updateUserDto"&gt;Updated user data&lt;/param&gt;
+        /// &lt;returns&gt;Updated user&lt;/returns&gt;
+        [HttpPut("{id}")]
+        public async Task&lt;ActionResult&lt;UserDto&gt;&gt; UpdateUser(int id, CreateUserDto updateUserDto)
+        {
+            try
+            {
+                var updatedUser = await _userManager.UpdateUserAsync(id, updateUserDto);
+                if (updatedUser == null)
+                    return NotFound($"User with ID {id} not found");
+
+                return Ok(updatedUser);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Delete a user (soft delete)
+        /// &lt;/summary&gt;
+        /// &lt;param name="id"&gt;User ID&lt;/param&gt;
+        /// &lt;returns&gt;Success status&lt;/returns&gt;
+        [HttpDelete("{id}")]
+        public async Task&lt;IActionResult&gt; DeleteUser(int id)
+        {
+            try
+            {
+                var success = await _userManager.DeleteUserAsync(id);
+                if (!success)
+                    return NotFound($"User with ID {id} not found");
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+    }
+}
+        </div>
+
+        <h2 id="di-setup">🔗 Dependency Injection Setup</h2>
+
+        <h3>Program.cs Configuration</h3>
+        <div class="code-block">
+using Microsoft.EntityFrameworkCore;
+using YourProject.API.Data;
+using YourProject.API.Repositories;
+using YourProject.API.Repositories.Interfaces;
+using YourProject.API.Services;
+using YourProject.API.Services.Interfaces;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Database Configuration
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Dependency Injection Registration
+// Repository Pattern
+builder.Services.AddScoped&lt;IUserRepository, UserRepository&gt;();
+
+// Service/Manager Pattern
+builder.Services.AddScoped&lt;IUserManager, UserManager&gt;();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
+        </div>
+
+        <h3>Connection String (appsettings.json)</h3>
+        <div class="code-block">
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=YourProjectDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+        </div>
+
+        <h2 id="database">🗄️ Database Context</h2>
+
+        <h3>Application DbContext (Data/ApplicationDbContext.cs)</h3>
+        <div class="code-block">
+using Microsoft.EntityFrameworkCore;
+using YourProject.API.Models.Entities;
+
+namespace YourProject.API.Data
+{
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options) : base(options)
+        {
+        }
+
+        public DbSet&lt;User&gt; Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure User entity
+            modelBuilder.Entity&lt;User&gt;(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Email).HasMaxLength(255);
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.Property(e => e.FirstName).HasMaxLength(100);
+                entity.Property(e => e.LastName).HasMaxLength(100);
+                entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            });
+
+            // Seed data
+            modelBuilder.Entity&lt;User&gt;().HasData(
+                new User
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    PhoneNumber = "+1234567890",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsActive = true
+                },
+                new User
+                {
+                    Id = 2,
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    Email = "jane.smith@example.com",
+                    PhoneNumber = "+1987654321",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsActive = true
+                }
+            );
+        }
+    }
+}
+        </div>
+
+        <h2 id="example">🎯 Complete Example: GetAllUsers API Flow</h2>
+
+        <div class="highlight">
+            <h3>API Endpoint Flow Explanation</h3>
+            <p><strong>GET /api/users</strong> - This is how the request flows through each layer:</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Client Request:</strong> HTTP GET to <code>/api/users</code>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Controller (UsersController.cs):</strong>
+            <ul>
+                <li>Receives HTTP request</li>
+                <li>Calls <code>_userManager.GetAllUsersAsync()</code></li>
+                <li>Returns HTTP 200 OK with UserDto list</li>
+                <li>Handles exceptions and returns appropriate HTTP status codes</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Manager (UserManager.cs):</strong>
+            <ul>
+                <li>Implements business logic</li>
+                <li>Calls <code>_userRepository.GetAllUsersAsync()</code></li>
+                <li>Maps Entity models to DTO models</li>
+                <li>Applies business rules (filtering, validation)</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Repository (UserRepository.cs):</strong>
+            <ul>
+                <li>Executes database query using Entity Framework</li>
+                <li>Applies data-level filtering (IsActive = true)</li>
+                <li>Returns raw Entity models</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Database:</strong>
+            <ul>
+                <li>SQL query executed: <code>SELECT * FROM Users WHERE IsActive = 1 ORDER BY FirstName</code></li>
+                <li>Returns data to Entity Framework</li>
+            </ul>
+        </div>
+
+        <h2 id="step-by-step">📝 Step-by-Step Creation Guide</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Create Project Structure</strong>
+            <div class="code-block">
+# Create new Web API project
+dotnet new webapi -n YourProject.API
+cd YourProject.API
+
+# Create folder structure
+mkdir Controllers Services Repositories Models Data
+mkdir Services/Interfaces Repositories/Interfaces Models/Entities Models/DTOs
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Install Required Packages</strong>
+            <div class="code-block">
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.EntityFrameworkCore.Design
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Create Models</strong>
+            <p>Create Entity models in <code>Models/Entities/</code> and DTO models in <code>Models/DTOs/</code></p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Create Interfaces</strong>
+            <p>Define contracts for Repository and Manager in respective Interface folders</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Create Database Context</strong>
+            <p>Implement <code>ApplicationDbContext</code> in <code>Data/</code> folder</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">6</span>
+            <strong>Implement Repository Layer</strong>
+            <p>Create concrete repository classes implementing the interfaces</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">7</span>
+            <strong>Implement Manager Layer</strong>
+            <p>Create manager/service classes with business logic</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">8</span>
+            <strong>Create Controllers</strong>
+            <p>Implement API controllers with proper HTTP methods and status codes</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">9</span>
+            <strong>Configure Dependency Injection</strong>
+            <p>Register services in <code>Program.cs</code></p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">10</span>
+            <strong>Setup Database</strong>
+            <div class="code-block">
+# Add migration
+dotnet ef migrations add InitialCreate
+
+# Update database
+dotnet ef database update
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">11</span>
+            <strong>Run and Test</strong>
+            <div class="code-block">
+# Run the application
+dotnet run
+
+# Test using Swagger UI: https://localhost:7xxx/swagger
+            </div>
+        </div>
+
+        <h2>🎉 Key Benefits of This Architecture</h2>
+        <ul>
+            <li><strong>Separation of Concerns:</strong> Each layer has specific responsibilities</li>
+            <li><strong>Testability:</strong> Easy to unit test each layer independently</li>
+            <li><strong>Maintainability:</strong> Changes in one layer don't affect others</li>
+            <li><strong>Scalability:</strong> Easy to add new features and modifications</li>
+            <li><strong>Dependency Injection:</strong> Loose coupling between components</li>
+            <li><strong>Interface-Based:</strong> Easy to swap implementations</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
+            <h3>Happy Coding! 🎯</h3>
+            <p><em>Remember: Practice makes perfect. Start with this example and gradually add more features!</em></p>
+        </div>
+    </div>
+</body>
+</html>

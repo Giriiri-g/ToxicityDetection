@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Feed - ToxicGuard AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .feed-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .quick-post {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .quick-post-input {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-category {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .post-btn {
+            background: #6f42c1;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .post-btn:hover {
+            background: #5a359a;
+        }
+
+        .feed-filters {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: #6f42c1;
+            color: white;
+            border-color: #6f42c1;
+        }
+
+        .post-item {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 1.5rem 1.5rem 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6f42c1 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .post-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .post-category-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .post-content {
+            padding: 1rem 1.5rem;
+            line-height: 1.6;
+        }
+
+        .post-engagement {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .engagement-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.liked {
+            color: #e91e63;
+            border-color: #e91e63;
+            background: #fce4ec;
+        }
+
+        .action-btn.shared {
+            color: #2196f3;
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .comments-section {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            height: 40px;
+        }
+
+        .comment-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .comment-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .comment-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .load-more {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .load-more-btn {
+            background: #6f42c1;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .trending-topics {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+        }
+
+        .trending-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .topic-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .topic-tag {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .topic-tag:hover {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .feature-highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffc107;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .highlight-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-text {
+            color: #856404;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 0.5rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .feed-filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .post-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .engagement-actions {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+        }
+
+        .moderation-note {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            border-radius: 5px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #155724;
+        }
+
+        .ai-confidence {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🌍 Community Feed - ToxicGuard AI</div>
+        <div class="nav-links">
+            <a href="profile.html" class="nav-link">My Profile</a>
+            <a href="user-dashboard.html" class="nav-link active">Community</a>
+            <a href="messages.html" class="nav-link">Messages</a>
+            <a href="#" class="nav-link">Trending</a>
+            <button onclick="window.location.href='index.html'" class="post-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Feed Header -->
+        <div class="feed-header">
+            <h2>🌟 Welcome to the Community</h2>
+            <p>Share your thoughts, engage with others, and build meaningful connections!</p>
+        </div>
+
+        <!-- AI Safety Feature Highlight -->
+        <div class="feature-highlight">
+            <div class="highlight-title">🛡️ AI-Powered Safe Space</div>
+            <div class="highlight-text">All content is automatically screened for safety. Our AI helps maintain a positive, respectful community environment for everyone.</div>
+        </div>
+
+        <!-- Quick Post -->
+        <div class="quick-post">
+            <textarea class="quick-post-input" placeholder="What's on your mind? Share your thoughts with the community..." oninput="checkContentSafety(this.value)"></textarea>
+            <div id="safety-indicator" style="margin-bottom: 1rem; display: none;"></div>
+            <div class="post-actions">
+                <select class="post-category">
+                    <option value="general">💬 General Discussion</option>
+                    <option value="review">⭐ Product Review</option>
+                    <option value="question">❓ Ask Community</option>
+                    <option value="announcement">📢 Announcement</option>
+                    <option value="help">🤝 Seeking Help</option>
+                    <option value="celebration">🎉 Good News</option>
+                </select>
+                <button class="post-btn" onclick="publishPost()">Share with Community</button>
+            </div>
+        </div>
+
+        <!-- Trending Topics -->
+        <div class="trending-topics">
+            <div class="trending-title">🔥 Trending Topics</div>
+            <div class="topic-tags">
+                <span class="topic-tag" onclick="filterByTopic('tech')">#TechReviews</span>
+                <span class="topic-tag" onclick="filterByTopic('community')">#CommunityHelp</span>
+                <span class="topic-tag" onclick="filterByTopic('feedback')">#ProductFeedback</span>
+                <span class="topic-tag" onclick="filterByTopic('discussion')">#OpenDiscussion</span>
+                <span class="topic-tag" onclick="filterByTopic('celebration')">#GoodNews</span>
+                <span class="topic-tag" onclick="filterByTopic('questions')">#AskCommunity</span>
+            </div>
+        </div>
+
+        <!-- Feed Filters -->
+        <div class="feed-filters">
+            <strong>Filter by:</strong>
+            <button class="filter-btn active" onclick="filterFeed('all')">All Posts</button>
+            <button class="filter-btn" onclick="filterFeed('following')">Following</button>
+            <button class="filter-btn" onclick="filterFeed('popular')">Most Popular</button>
+            <button class="filter-btn" onclick="filterFeed('recent')">Most Recent</button>
+            <button class="filter-btn" onclick="filterFeed('discussed')">Most Discussed</button>
+        </div>
+
+        <!-- Community Posts Feed -->
+        <div id="community-feed">
+            <!-- Sample Post 1 - Positive Review -->
+            <div class="post-item" data-category="review">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">MK</div>
+                        <div class="author-info">
+                            <div class="author-name">Mike Kumar</div>
+                            <div class="post-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="post-category-tag">⭐ Product Review</div>
+                </div>
+                <div class="post-content">
+                    <p>Just tried the new coffee shop downtown - "Brew & Co." Absolutely fantastic! The barista was knowledgeable and friendly, and their Ethiopian blend has amazing floral notes. The atmosphere is perfect for remote work too. Highly recommend! ☕️✨</p>
+                </div>
+                <div class="post-engagement">
+                    <div class="engagement-actions">
+                        <button class="action-btn liked" onclick="toggleLike(this)">
+                            <span>❤️</span> <span>12</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleComments(this)">
+                            <span>💬</span> <span>5</span>
+                        </button>
+                        <button class="action-btn" onclick="sharePost(this)">
+                            <span>🔄</span> <span>3</span>
+                        </button>
+                    </div>
+                    <div class="post-stats">
+                        <span>✅ AI Verified Safe</span>
+                        <span class="ai-confidence">95% Positive</span>
+                    </div>
+                </div>
+                <div class="comments-section" style="display: none;">
+                    <div class="comment-form">
+                        <textarea class="comment-input" placeholder="Add a thoughtful comment..."></textarea>
+                        <button class="comment-btn" onclick="addComment(this)">Comment</button>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-avatar">SJ</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">Sarah Johnson</span>
+                                <span class="comment-time">1 hour ago</span>
+                            </div>
+                            <div class="comment-text">Thanks for the recommendation! I've been looking for a good coffee place. Will definitely check it out this weekend! 😊</div>
+                        </div>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-avatar">DL</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">David Lee</span>
+                                <span class="comment-time">45 minutes ago</span>
+                            </div>
+                            <div class="comment-text">Love their Ethiopian blend too! The owner sources directly from farmers. Great to support ethical coffee businesses.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Post 2 - Community Question -->
+            <div class="post-item" data-category="question">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">AL</div>
+                        <div class="author-info">
+                            <div class="author-name">Alex Thompson</div>
+                            <div class="post-time">4 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="post-category-tag">❓ Ask Community</div>
+                </div>
+                <div class="post-content">
+                    <p>Hey everyone! I'm new to the city and looking for recommendations for family-friendly parks with playgrounds. My kids are 5 and 8 years old. Any suggestions would be greatly appreciated! 🏞️👨‍👩‍👧‍👦</p>
+                </div>
+                <div class="post-engagement">
+                    <div class="engagement-actions">
+                        <button class="action-btn" onclick="toggleLike(this)">
+                            <span>👍</span> <span>8</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleComments(this)">
+                            <span>💬</span> <span>12</span>
+                        </button>
+                        <button class="action-btn" onclick="sharePost(this)">
+                            <span>🔄</span> <span>2</span>
+                        </button>
+                    </div>
+                    <div class="post-stats">
+                        <span>✅ AI Verified Safe</span>
+                        <span class="ai-confidence">88% Positive</span>
+                    </div>
+                </div>
+                <div class="comments-section" style="display: none;">
+                    <div class="comment-form">
+                        <textarea class="comment-input" placeholder="Share your recommendations..."></textarea>
+                        <button class="comment-btn" onclick="addComment(this)">Help Out</button>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-avatar">RT</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">Rachel Turner</span>
+                                <span class="comment-time">3 hours ago</span>
+                            </div>
+                            <div class="comment-text">Welcome to the city! 🎉 I'd highly recommend Riverfront Park - it has an amazing playground, splash pad for summer, and beautiful walking trails. Perfect for families!</div>
+                        </div>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-avatar">JM</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">James Miller</span>
+                                <span class="comment-time">2 hours ago</span>
+                            </div>
+                            <div class="comment-text">Also check out Central Park - they have a fantastic adventure playground and host family events every weekend. My kids love it there!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Post 3 - Positive Community Update -->
+            <div class="post-item" data-category="celebration">
+                <div class="moderation-note">
+                    <strong>💡 Community Highlight:</strong> This post was featured for promoting positive community engagement!
+                </div>
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="author-avatar">LW</div>
+                        <div class="author-info">
+                            <div class="author-name">Lisa Wang</div>
+                            <div class="post-time">6 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="post-category-tag">🎉 Good News</div>
+                </div>
+                <div class="post-content">
+                    <p>Amazing news! Our community food drive collected over 2,000 items for local families in need! 🥫📦 Thank you to everyone who participated. It's incredible what we can accomplish when we work together. Next drive is scheduled for next month - let's make it even bigger! 💪❤️</p>
+                </div>
+                <div class="post-engagement">
+                    <div class="engagement-actions">
+                        <button class="action-btn liked" onclick="toggleLike(this)">
+                            <span>❤️</span> <span>24</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleComments(this)">
+                            <span>💬</span> <span>8</span>
+                        </button>
+                        <button class="action-btn shared" onclick="sharePost(this)">
+                            <span>🔄</span> <span>7</span>
+                        </button>
+                    </div>
+                    <div class="post-stats">
+                        <span>✅ AI Verified Safe</span>
+                        <span class="ai-confidence">98% Positive</span>
+                    </div>
+                </div>
+                <div class="comments-section" style="display: none;">
+                    <div class="comment-form">
+                        <textarea class="comment-input" placeholder="Share your thoughts on this amazing achievement..."></textarea>
+                        <button class="comment-btn" onclick="addComment(this)">Celebrate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="load-more">
+            <button class="load-more-btn" onclick="loadMorePosts()">Load More Posts</button>
+        </div>
+    </div>
+
+    <script>
+        function checkContentSafety(content) {
+            const indicator = document.getElementById('safety-indicator');
+            
+            if (content.length < 10) {
+                indicator.style.display = 'none';
+                return;
+            }
+
+            // Simulate AI content analysis
+            let toxicityScore = 0;
+            const toxicWords = ['stupid', 'hate', 'terrible', 'awful', 'worst', 'garbage'];
+            const positiveWords = ['love', 'great', 'amazing', 'wonderful', 'excellent', 'fantastic', 'recommend'];
+            
+            toxicWords.forEach(word => {
+                if (content.toLowerCase().includes(word)) toxicityScore += 30;
+            });
+            
+            positiveWords.forEach(word => {
+                if (content.toLowerCase().includes(word)) toxicityScore -= 15;
+            });
+            
+            toxicityScore = Math.max(0, Math.min(100, toxicityScore + Math.random() * 20));
+            
+            indicator.style.display = 'block';
+            
+            if (toxicityScore < 25) {
+                indicator.innerHTML = `
+                    <div style="background: #d4edda; color: #155724; padding: 0.75rem; border-radius: 5px; border: 1px solid #c3e6cb;">
+                        ✅ <strong>Content looks great!</strong> Ready to share with the community.
+                        <span style="float: right; opacity: 0.8;">Safety Score: ${Math.round(100-toxicityScore)}%</span>
+                    </div>
+                `;
+            } else if (toxicityScore < 60) {
+                indicator.innerHTML = `
+                    <div style="background: #fff3cd; color: #856404; padding: 0.75rem; border-radius: 5px; border: 1px solid #ffeaa7;">
+                        ⚠️ <strong>Consider rephrasing:</strong> Your content might be more effective with a more positive tone.
+                        <span style="float: right; opacity: 0.8;">Safety Score: ${Math.round(100-toxicityScore)}%</span>
+                    </div>
+                `;
+            } else {
+                indicator.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 5px; border: 1px solid #f5c6cb;">
+                        🚫 <strong>Content blocked:</strong> Please rephrase to be more respectful and constructive.
+                        <span style="float: right; opacity: 0.8;">Safety Score: ${Math.round(100-toxicityScore)}%</span>
+                    </div>
+                `;
+            }
+        }
+
+        function publishPost() {
+            const content = document.querySelector('.quick-post-input').value;
+            const category = document.querySelector('.post-category').value;
+            
+            if (content.trim()) {
+                alert(`Post shared with community!\nCategory: ${category}\nContent will appear in feed after AI safety verification.`);
+                document.querySelector('.quick-post-input').value = '';
+                document.getElementById('safety-indicator').style.display = 'none';
+                
+                // Simulate adding to feed (in real app, this would be handled by backend)
+                setTimeout(() => {
+                    alert('✅ Your post has been approved and is now live in the community feed!');
+                }, 2000);
+            }
+        }
+
+        function toggleLike(button) {
+            const isLiked = button.classList.contains('liked');
+            const countSpan = button.querySelector('span:last-child');
+            let count = parseInt(countSpan.textContent);
+            
+            if (isLiked) {
+                button.classList.remove('liked');
+                count--;
+                button.querySelector('span:first-child').textContent = button.closest('.post-item').querySelector('.post-category-tag').textContent.includes('Review') ? '👍' : '❤️';
+            } else {
+                button.classList.add('liked');
+                count++;
+                button.querySelector('span:first-child').textContent = '❤️';
+            }
+            
+            countSpan.textContent = count;
+        }
+
+        function toggleComments(button) {
+            const post = button.closest('.post-item');
+            const comments = post.querySelector('.comments-section');
+            
+            if (comments.style.display === 'none' || !comments.style.display) {
+                comments.style.display = 'block';
+                comments.querySelector('.comment-input').focus();
+            } else {
+                comments.style.display = 'none';
+            }
+        }
+
+        function addComment(button) {
+            const commentInput = button.parentElement.querySelector('.comment-input');
+            const commentText = commentInput.value.trim();
+            
+            if (commentText) {
+                // Simulate AI safety check
+                const safetyCheck = Math.random() > 0.1; // 90% pass rate
+                
+                if (safetyCheck) {
+                    alert('✅ Comment added successfully!');
+                    commentInput.value = '';
+                    
+                    // Update comment count
+                    const commentButton = button.closest('.post-item').querySelector('[onclick*="toggleComments"]');
+                    const countSpan = commentButton.querySelector('span:last-child');
+                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                } else {
+                    alert('⚠️ Comment flagged for review. Please ensure your comment is respectful and constructive.');
+                }
+            }
+        }
+
+        function sharePost(button) {
+            button.classList.toggle('shared');
+            const countSpan = button.querySelector('span:last-child');
+            const count = parseInt(countSpan.textContent) + (button.classList.contains('shared') ? 1 : -1);
+            countSpan.textContent = count;
+            
+            if (button.classList.contains('shared')) {
+                alert('📤 Post shared! Your followers can now see this in their feed.');
+            }
+        }
+
+        function filterFeed(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // In real implementation, this would filter the actual posts
+            console.log(`Filtering feed by: ${filter}`);
+            alert(`Showing ${filter} posts - feature simulated!`);
+        }
+
+        function filterByTopic(topic) {
+            console.log(`Filtering by topic: ${topic}`);
+            alert(`Showing posts tagged with #${topic} - feature simulated!`);
+        }
+
+        function loadMorePosts() {
+            alert('Loading more community posts... In a real implementation, this would fetch more posts from the server!');
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // In real app, this would check for new posts via SignalR
+            const randomPost = document.querySelectorAll('.post-item')[Math.floor(Math.random() * 3)];
+            const likeButton = randomPost.querySelector('[onclick*="toggleLike"]');
+            if (likeButton && Math.random() > 0.7) {
+                const countSpan = likeButton.querySelector('span:last-child');
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

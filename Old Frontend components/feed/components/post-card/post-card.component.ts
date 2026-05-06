@@ -86,6 +86,11 @@ export class PostCardComponent {
     console.log('Nested reply:', event);
   }
 
+  onCommentLikeToggle(comment: Comment): void {
+    comment.isLiked = !comment.isLiked;
+    comment.likesCount += comment.isLiked ? 1 : -1;
+  }
+
   formatTime(date: Date): string {
     const now = new Date();
     const diff = now.getTime() - new Date(date).getTime();
