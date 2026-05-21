@@ -1,0 +1,138 @@
+<div class="signup-shell">
+  <button class="close" [routerLink]="['']">X</button>
+
+  <div class="signup-model">
+    <div class="signup-swipe">
+      <!-- STEP 1 -->
+      <div class="signup-panel signup-panel--account">
+        <div class="header">Create a new Account</div>
+        <div class="body">
+          <form (ngSubmit)="onSubmit()">
+            <div class="label-wrapper">
+              <label for="username">Username</label>
+              <div class="error-field error-username">Username should be 6-20 characters</div>
+            </div>
+            <input
+              type="text"
+              id="username"
+              placeholder="Username"
+              name="username"
+              required
+              [(ngModel)]="username"
+              (input)="clearUsernameError()" />
+
+            <div class="label-wrapper">
+              <label for="email">Email</label>
+              <div class="error-field error-email">Please enter a valid email address</div>
+            </div>
+            <input
+              type="email"
+              id="email"
+              placeholder="Email"
+              name="email"
+              required
+              [(ngModel)]="email"
+              (input)="clearEmailError()" />
+
+            <div class="label-wrapper">
+              <label for="role">Role</label>
+            </div>
+            <select id="role" name="role" [(ngModel)]="role" class="select">
+              <option value="Normal user">Normal user</option>
+              <option value="Admin">Admin</option>
+              <option value="Reviewer">Reviewer</option>
+            </select>
+
+            <div class="label-wrapper">
+              <label for="password">Password</label>
+              <div class="error-field error-password">Password should be atleast 6 characters</div>
+            </div>
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              name="password"
+              required
+              [(ngModel)]="password"
+              (input)="clearPasswordError()" />
+
+            <div class="label-wrapper">
+              <label for="c-password">Confirm Password</label>
+              <div class="error-field error-c-password">The password does not match</div>
+            </div>
+            <input
+              type="password"
+              id="c-password"
+              placeholder="Password"
+              name="c-password"
+              required
+              [(ngModel)]="confirmPassword"
+              (input)="clearConfirmPasswordError()" />
+
+            <button type="submit">Register</button>
+          </form>
+
+          <div class="signup-footer-link">
+            <a routerLink="/signin">Already have an account? Sign In</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="signup-panel signup-panel--profile">
+        <div class="header">Your account</div>
+        <div class="body">
+          <form (ngSubmit)="onSubmit()">
+            <div class="label-wrapper">
+              <label for="phone">Phone number</label>
+            </div>
+            <input
+              type="text"
+              id="phone"
+              placeholder="Phone number"
+              name="phone"
+              required
+              [(ngModel)]="phone" />
+
+            <div class="label-wrapper">
+              <label for="gender">Gender</label>
+            </div>
+            <select id="gender" name="gender" [(ngModel)]="gender" class="select">
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <div class="label-wrapper">
+              <label for="dob">Date of birth</label>
+            </div>
+            <input
+              type="date"
+              id="dob"
+              name="dob"
+              required
+              [(ngModel)]="dob" />
+
+            <div class="label-wrapper">
+              <label for="bio">User bio</label>
+            </div>
+            <textarea
+              id="bio"
+              name="bio"
+              placeholder="Write a short bio"
+              required
+              [(ngModel)]="bio"
+              class="textarea"></textarea>
+
+            <div class="profile-actions">
+              <button type="button" class="profile-skip" (click)="skip()">Skip</button>
+              <button type="submit" class="profile-submit">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,6 +1,8 @@
-using API.Data;
+using API.DTOs;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace API.Controllers;
 
@@ -8,28 +10,59 @@ namespace API.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IAuthService _authService;
 
-    public AuthController(AppDbContext context)
+    public AuthController(IAuthService authService)
     {
-        _context = context;
+        _authService = authService;
     }
 
-    // GET api/auth/{username}
-    [HttpGet("{username}")]
-    public async Task<IActionResult> GetAuth(string username)
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login(LoginDto dto)
     {
-        var auth = await _context.Auths
-            .Where(a => a.UserName == username)
-            .Select(a => new
+        var token = await _authService.Login(dto);
+
+        if (token == null)
+            return Unauthorized();
+
+        Response.Cookies.Append(
+            "auth_token",
+            token,
+            new CookieOptions
             {
-                a.PasswordHash
-            })
-            .FirstOrDefaultAsync();
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
 
-        if (auth == null)
-            return Ok(null);
+        return Ok(new { token = token });
+    }
 
-        return Ok(auth);
+    [HttpPost("register")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        var token = await _authService.Register(dto);
+
+        // null means username/email exists
+        if (token == null)
+            return Conflict();
+
+        Response.Cookies.Append(
+            "auth_token",
+            token,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+
+        return Ok(new { token = token });
     }
 }
+
+

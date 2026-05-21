@@ -10,6 +10,10 @@ public class PostController : ControllerBase
 {
     private readonly AppDbContext _context;
 
+    // NOTE: This controller depends on Post entities not present in current AppDbContext.
+    // Keeping it excluded from compilation until feed CRUD is wired end-to-end.
+
+
     public PostController(AppDbContext context)
     {
         _context = context;
@@ -17,36 +21,10 @@ public class PostController : ControllerBase
 
     // GET api/posts/feed?k=1
     [HttpGet("feed")]
-    public async Task<IActionResult> GetFeed([FromQuery] int k = 1)
+    public IActionResult GetFeed([FromQuery] int k = 1)
     {
-        int pageSize = 10*k;
-        // int skip = (k - 1) * pageSize;
-
-        var posts = await _context.Posts
-            .Where(p => p.PPID == null)
-            .OrderByDescending(p => p.CreatedAt)
-            // .Skip(skip)
-            .Take(pageSize)
-            .Select(p => new
-            {
-                pid = p.PID,
-                userName = p.UserName,
-                title = p.Title,
-                message = p.Message,
-                createdAt = p.CreatedAt,
-                likesCount = p.LikesCount,
-                sharesCount = p.SharesCount,
-                commentsCount = p.CommentsCount,
-                totalToxicityScore = p.TotalToxicityScore,
-
-                tagScores = p.TagScores.Select(t => new
-                {
-                    tag = t.Tag,
-                    score = t.Score
-                }).ToList()
-            })
-            .ToListAsync();
-
-        return Ok(posts);
+        // Feed CRUD is not wired yet because AppDbContext currently does not include Post entities.
+        // Returning 501 keeps the API compiling while auth + navigation pipeline is implemented.
+        return StatusCode(501, "Feed not implemented yet.");
     }
 }

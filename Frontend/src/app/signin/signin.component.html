@@ -1,0 +1,28 @@
+<div class="signin-shell">
+    <button class="close" [routerLink]="['']">X</button>
+    <div class="signin-model">
+        <div class="header">Signin!</div>
+        <div class="body">
+            <form (ngSubmit)="onSubmit()">
+                <div class="label-wrapper">
+                    <label for="username">Username</label>
+                    <div class="error-field error-username">Username should be 6-20 characters</div>
+                </div>
+                <input type="text" id="username" placeholder="Username" name="username" required [(ngModel)]="username" (input)="clearUsernameError()">
+
+                <div class="label-wrapper">
+                    <label for="password">Password</label>
+                    <div class="error-field error-password">Password should be atleast 6 characters</div>
+                </div>
+                <input type="password" id="password" placeholder="Password" name="password" required [(ngModel)]="password" (input)="clearPasswordError()">
+
+                <div class="signin-links">
+                    <a class="signin-link" routerLink="/forgot-password">Forgot password?</a>
+                    <a class="signin-link" routerLink="/signup">Register new account</a>
+                </div>
+
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+</div>

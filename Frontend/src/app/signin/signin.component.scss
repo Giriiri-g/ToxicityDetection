@@ -1,0 +1,173 @@
+/* Signin modal styles for Frontend/src/app/signin/signin.component.html */
+
+// Tokens (align with global design tokens when present)
+$bg: var(--bg, #F2EEE9);
+$surface: var(--surface, #FFFFFF);
+$surface-raised: var(--surface-raised, #F5F1EC);
+$border: var(--border, rgba(0,0,0,0.12));
+$text-primary: var(--text-primary, #1A1612);
+$text-muted: var(--text-muted, #9C8E84);
+$accent: var(--accent, #C41E3A);
+$cloud-blue: var(--cloud-blue, #6BA3BE);
+
+$radius: 18px;
+$shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+.signin-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+}
+
+.close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text-muted;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: $text-primary;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+  }
+}
+
+.signin-model {
+  width: 440px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+.header {
+  padding: 26px 28px 10px;
+  background: linear-gradient(135deg, rgba($cloud-blue, 0.16), rgba($accent, 0.08));
+  border-bottom: 1px solid $border;
+}
+
+.header {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 30px;
+  color: $accent;
+}
+
+.body {
+  padding: 20px 28px 28px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.label-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+
+label {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid $border;
+  padding: 12px 14px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: $text-primary;
+  background: $surface;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    border-color: rgba($accent, 0.9);
+    box-shadow: 0 0 0 4px rgba($accent, 0.15);
+  }
+}
+
+.error-field {
+  display: none; // default
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: $accent;
+}
+
+
+.signin-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+.signin-link {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  text-decoration: none;
+}
+
+.signin-link:hover {
+  text-decoration: underline;
+}
+
+button[type='submit'] {
+  margin-top: 4px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  background: $accent;
+  box-shadow: 0 10px 25px rgba($accent, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px rgba($accent, 0.30);
+    // $accent comes from CSS variable; avoid Sass darken() (not valid for var())
+    background: rgba(196, 30, 58, 0.95);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba($accent, 0.22);
+  }
+}
+

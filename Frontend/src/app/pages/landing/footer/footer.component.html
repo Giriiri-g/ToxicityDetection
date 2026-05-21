@@ -1,1 +1,37 @@
-<p>footer works!</p>
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <div class="footer__logo" aria-hidden="true">ToxiGuard</div>
+      <p class="footer__tagline">AI-based toxicity detection and community moderation.</p>
+    </div>
+
+    <div class="footer__cols">
+      <div class="footer__col">
+        <div class="footer__heading">Product</div>
+        <a class="footer__link" href="#">How it works</a>
+        <a class="footer__link" href="#">Features</a>
+        <a class="footer__link" href="#">Moderation SLA</a>
+      </div>
+
+      <div class="footer__col">
+        <div class="footer__heading">Community</div>
+        <a class="footer__link" href="#">Appeals</a>
+        <a class="footer__link" href="#">Transparency</a>
+        <a class="footer__link" href="#">Safety</a>
+      </div>
+
+      <div class="footer__col">
+        <div class="footer__heading">Get started</div>
+        <a class="footer__link" routerLink="/signin">Sign in</a>
+        <a class="footer__link" routerLink="/signup">Create account</a>
+        <span class="footer__muted">Demo UI only</span>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© {{ year }} ToxiGuard. All rights reserved.</span>
+      <span class="footer__muted">Built for trust & fairness.</span>
+    </div>
+  </div>
+</footer>
+
