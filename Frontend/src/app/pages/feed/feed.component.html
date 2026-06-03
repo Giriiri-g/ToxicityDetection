@@ -1,0 +1,150 @@
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<header class="feed-header">
+  <div class="feed-header__logo">⚡ ToxicFeed</div>
+  <input class="feed-header__search" type="text" placeholder="Search posts…" />
+  <div class="feed-header__user">👤 Profile</div>
+</header>
+
+
+<div class="feed-main">
+
+  <!-- Left nav -->
+  <nav class="feed-nav">
+    <ul>
+      <li *ngFor="let item of navItems" class="feed-nav__item">
+        <span class="feed-nav__icon">{{ item.icon }}</span>
+        <span class="feed-nav__label">{{ item.label }}</span>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Content injestion and posts -->
+  <section class="feed-center">
+
+    <!-- Dummy composer trigger -->
+    <div class="feed-composer-trigger">
+      <h2 class="feed-composer-trigger__heading">Post New Content</h2>
+      <div class="feed-composer-trigger__bar" (click)="openModal()">
+        <span>What's on your mind? Share something…</span>
+      </div>
+    </div>
+
+
+    <div class="feed-posts">
+      <app-post-card
+        *ngFor="let post of posts; trackBy: trackById"
+        [thread]="post.thread"
+        [iconUrl]="post.iconUrl"
+        [timePosted]="post.timePosted"
+        [title]="post.title"
+        [message]="post.message"
+        [likeCount]="post.likeCount"
+        [commentCount]="post.commentCount"
+        [toxicityScore]="post.toxicityScore"
+        [toxicityTags]="post.toxicityTags"
+        [userVote]="post.userVote"
+        (click)="onPostClick(post)"
+      />
+    </div>
+
+  </section>
+
+  <!-- Right: trending -->
+  <aside class="feed-trending">
+    <h3 class="feed-trending__title">🔥 Trending Today</h3>
+    <ul class="feed-trending__list">
+      <li *ngFor="let t of trending" class="feed-trending__item">
+        <span class="feed-trending__rank">#{{ t.rank }}</span>
+        <div class="feed-trending__info">
+          <span class="feed-trending__thread">{{ t.thread }}</span>
+          <span class="feed-trending__posts">{{ t.posts }}</span>
+        </div>
+      </li>
+    </ul>
+  </aside>
+
+</div>
+
+<!-- ── Composer Modal ─────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" [class.modal-backdrop--open]="modalOpen" (click)="closeModal()"></div>
+
+<div class="modal-card" [class.modal-card--open]="modalOpen">
+
+  <!-- Card header -->
+  <div class="modal-card__header">
+    <span class="modal-card__title">Create Post</span>
+    <button class="modal-card__close" (click)="closeModal()">✕</button>
+  </div>
+
+  <!-- Two-column: editor | preview -->
+  <div class="modal-card__body">
+
+    <!-- Editor column -->
+    <div class="modal-editor">
+
+      <!-- Title -->
+      <input
+        class="modal-editor__title"
+        type="text"
+        placeholder="Post title…"
+        [(ngModel)]="postTitle"
+      />
+
+      <!-- Formatting toolbar -->
+      <div class="modal-editor__toolbar">
+        <button class="modal-editor__tool" title="Bold" (click)="wrapSelection('**','**')"><b>B</b></button>
+        <button class="modal-editor__tool" title="Italic" (click)="wrapSelection('_','_')"><i>I</i></button>
+        <span class="modal-editor__divider"></span>
+        <label class="modal-editor__tool" title="Add media">
+          📷
+          <input #fileInput type="file" accept="image/*" hidden (change)="onMediaSelected($event)" />
+        </label>
+      </div>
+
+      <!-- Body textarea -->
+      <textarea
+        #bodyArea
+        class="modal-editor__body"
+        placeholder="Write your post body… (supports **bold** and _italic_)"
+        [(ngModel)]="postBody"
+        rows="6"
+      ></textarea>
+
+      <!-- Link field -->
+      <input
+        class="modal-editor__link"
+        type="url"
+        placeholder="🔗 Paste a link (optional)…"
+        [(ngModel)]="postLink"
+      />
+
+      <!-- Media preview -->
+      <div class="modal-editor__media" *ngIf="mediaPreviewUrl">
+        <img [src]="mediaPreviewUrl" alt="Media preview" class="modal-editor__media-img" />
+        <button class="modal-editor__media-remove" (click)="removeMedia()">✕</button>
+      </div>
+
+    </div>
+
+    <!-- Live preview column -->
+    <div class="modal-preview">
+      <div class="modal-preview__label">Preview</div>
+      <div class="modal-preview__title">{{ postTitle || 'Post title will appear here' }}</div>
+      <div class="modal-preview__body" [innerHTML]="previewHtml || 'Your post body will appear here…'"></div>
+      <div class="modal-preview__link" *ngIf="postLink">
+        <span>🔗</span> <a [href]="postLink" target="_blank">{{ postLink }}</a>
+      </div>
+      <img *ngIf="mediaPreviewUrl" [src]="mediaPreviewUrl" class="modal-preview__img" alt="preview" />
+    </div>
+
+  </div>
+
+  <!-- Card footer -->
+  <div class="modal-card__footer">
+    <button class="modal-card__cancel" (click)="closeModal()">Cancel</button>
+    <button class="modal-card__submit" (click)="submitPost()" [disabled]="submitting || !postBody.trim()">
+      {{ submitting ? 'Posting…' : 'Post' }}
+    </button>
+  </div>
+
+</div>

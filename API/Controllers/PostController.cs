@@ -1,30 +1,36 @@
-using API.Data;
+using System.Security.Claims;
+using API.DTOs;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/posts")]
+[Authorize]
 public class PostController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IPostService _postService;
 
-    // NOTE: This controller depends on Post entities not present in current AppDbContext.
-    // Keeping it excluded from compilation until feed CRUD is wired end-to-end.
+    public PostController(IPostService postService) => _postService = postService;
 
-
-    public PostController(AppDbContext context)
+    // POST api/posts
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreatePostDto dto)
     {
-        _context = context;
+        var username = User.FindFirstValue(ClaimTypes.Name);
+        if (username == null) return Unauthorized();
+
+        var result = await _postService.CreatePost(username, dto);
+        return CreatedAtAction(nameof(GetFeed), result);
     }
 
-    // GET api/posts/feed?k=1
+    // GET api/posts/feed?page=1&pageSize=20
     [HttpGet("feed")]
-    public IActionResult GetFeed([FromQuery] int k = 1)
+    public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        // Feed CRUD is not wired yet because AppDbContext currently does not include Post entities.
-        // Returning 501 keeps the API compiling while auth + navigation pipeline is implemented.
-        return StatusCode(501, "Feed not implemented yet.");
+        var posts = await _postService.GetFeed(page, pageSize);
+        return Ok(posts);
     }
 }

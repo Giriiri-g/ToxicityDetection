@@ -48,13 +48,13 @@ builder.Services
                     )
             };
 
-        // Read JWT from cookie instead of Authorization header
+        // Accept JWT from cookie OR Authorization header
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                context.Token =
-                    context.Request.Cookies["auth_token"];
+                if (context.Request.Cookies.TryGetValue("auth_token", out var cookieToken))
+                    context.Token = cookieToken;
 
                 return Task.CompletedTask;
             }
@@ -90,6 +90,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IToxicityService, ToxicityService>();
 
 
 var app = builder.Build();

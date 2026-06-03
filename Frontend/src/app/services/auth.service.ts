@@ -16,17 +16,17 @@ export class AuthService {
   login(username: string, password: string) {
     return this.http.post<{ token: string }>(
       `${this.apiUrl}/auth/login`,
-      { username, password }
+      { username, password },
+      { withCredentials: true }
     ).pipe(
       tap(res => localStorage.setItem('token', res.token))
     );
   }
 
   me() {
-    return this.http.get(
-      `${this.apiUrl}/user/me`,
-      { headers: this.authHeaders() }
-    );
+    return this.http.get(`${this.apiUrl}/user/me`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${this.getToken()}` })
+    });
   }
 
   logout() {
@@ -39,12 +39,5 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
-  }
-
-  private authHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
   }
 }

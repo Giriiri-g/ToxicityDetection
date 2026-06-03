@@ -87,6 +87,12 @@ html {
   scroll-behavior: smooth;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
 }
 
 html::-webkit-scrollbar{
