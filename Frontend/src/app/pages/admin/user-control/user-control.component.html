@@ -1,1 +1,43 @@
-<p>user-control works!</p>
+<div class="uc-page">
+  <h2 class="uc-title">Create Account</h2>
+  <p class="uc-sub">Create User or Reviewer accounts on behalf of the platform.</p>
+
+  <form class="uc-form" (ngSubmit)="submit()" #f="ngForm">
+
+
+    <div class="uc-role-toggle">
+      <button type="button" class="uc-role-btn" [class.active]="form.role === 'Reviewer'"
+        (click)="form.role = 'Reviewer'">
+        Reviewer
+      </button>
+      <button type="button" class="uc-role-btn" [class.active]="form.role === 'User'" (click)="form.role = 'User'">
+        User
+      </button>
+    </div>
+
+    <label class="uc-label">
+      Username
+      <input class="uc-input" type="text" [(ngModel)]="form.username" name="username" required
+        placeholder="e.g. reviewer_jane" />
+    </label>
+
+    <label class="uc-label">
+      Email
+      <input class="uc-input" type="email" [(ngModel)]="form.email" name="email" required
+        placeholder="jane@example.com" />
+    </label>
+
+    <label class="uc-label">
+      Password
+      <input class="uc-input" type="password" [(ngModel)]="form.password" name="password" required
+        placeholder="Temporary password" />
+    </label>
+
+    <button class="uc-submit" type="submit" [disabled]="submitting || !form.username || !form.email || !form.password">
+      {{ submitting ? 'Creating…' : 'Create ' + form.role + ' Account' }}
+    </button>
+
+    <p class="uc-message" [class.uc-message--error]="isError" *ngIf="message">{{ message }}</p>
+
+  </form>
+</div>

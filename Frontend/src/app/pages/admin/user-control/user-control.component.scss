@@ -1,0 +1,82 @@
+.uc-page { padding: 32px 40px; font-family: 'Segoe UI', sans-serif; max-width: 480px; }
+
+.uc-title { font-size: 22px; font-weight: 700; margin: 0 0 6px; color: #1a1a2e; }
+.uc-sub   { font-size: 13.5px; color: #718096; margin: 0 0 28px; }
+
+// ── Role toggle ───────────────────────────────────────────────────────────────
+.uc-role-toggle {
+  display: flex;
+  background: #edf2f7;
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 22px;
+  width: fit-content;
+}
+
+.uc-role-btn {
+  padding: 7px 22px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #718096;
+  transition: background 0.15s, color 0.15s;
+
+  &.active {
+    background: #fff;
+    color: #1a202c;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    font-weight: 700;
+  }
+}
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+.uc-form { display: flex; flex-direction: column; gap: 16px; }
+
+.uc-label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.uc-input {
+  padding: 9px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: #667eea; }
+  &::placeholder { color: #a0aec0; }
+}
+
+.uc-submit {
+  margin-top: 4px;
+  padding: 10px;
+  background: #667eea;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.uc-message {
+  font-size: 13px;
+  color: #38a169;
+  margin: 0;
+
+  &--error { color: #e53e3e; }
+}
