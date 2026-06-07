@@ -22,12 +22,15 @@
         <a href="/contact" class="contact">Contact Us</a>
     </div>
     <div class="right">
-        <button id="login" (click)="OnSignin($event)">
+        <button id="login" *ngIf="!isLoggedIn()" (click)="OnSignin($event)">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" class="icon" role="img" aria-label="Login to MyBlock"><g id="Frame"><g id="Group"><path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M11.918 4.959C11.918 6.593 10.593 7.918 8.959 7.918C7.325 7.918 6 6.593 6 4.959C6 3.325 7.325 2 8.959 2C10.593 2 11.918 3.325 11.918 4.959Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path id="Vector_2" d="M3 13.918C3 10.605 5.686 7.91797 9 7.91797C12.314 7.91797 15 10.605 15 13.918" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></g></g></svg>
             <div class="wrapper">
                 <span>Sign in to</span>
                 <b>MyBlock</b>
             </div>
         </button>
+
+        <button id="logout" *ngIf="isLoggedIn()" (click)="OnLogout()">Logout</button>
+
     </div>
 </header>
