@@ -40,6 +40,11 @@ public class UserRepository : IUserRepository
         await _context.Users.AddAsync(user);
     }
 
+    public async Task<List<DateOnly>> GetAllCreatedDates()
+    {
+        return await _context.Users.Select(u => u.Created).ToListAsync();
+    }
+
     public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();

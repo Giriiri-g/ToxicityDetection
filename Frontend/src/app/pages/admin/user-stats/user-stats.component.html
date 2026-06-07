@@ -1,1 +1,34 @@
-<p>user-stats works!</p>
+<div class="us-page">
+  <h2 class="us-title">User Statistics</h2>
+
+  <p class="us-error" *ngIf="error">{{ error }}</p>
+
+  <ng-container *ngIf="stats">
+
+    <!-- Stat cards -->
+    <div class="us-cards">
+      <div class="us-card">
+        <span class="us-card__value">{{ stats.totalUsers }}</span>
+        <span class="us-card__label">Total Users</span>
+      </div>
+      <div class="us-card">
+        <span class="us-card__value">{{ stats.newThisMonth }}</span>
+        <span class="us-card__label">New This Month</span>
+      </div>
+    </div>
+
+    <!-- Account stats chart -->
+    <div class="us-chart">
+      <h3 class="us-chart__title">User Growth — Last 12 Months</h3>
+      <div class="us-chart__bars">
+        <div class="us-bar" *ngFor="let g of stats.growth">
+          <div class="us-bar__fill" [style.height.%]="(g.count / maxCount) * 100">
+            <span class="us-bar__count" *ngIf="g.count > 0">{{ g.count }}</span>
+          </div>
+          <span class="us-bar__label">{{ g.month }}</span>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

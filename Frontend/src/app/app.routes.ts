@@ -37,7 +37,7 @@ export const routes: Routes = [
       { path: 'toxicity-stats', loadComponent: () => import('./pages/admin/toxicity-stats/toxicity-stats.component').then(m => m.ToxicityStatsComponent), outlet: 'admin-dashboard' },
       { path: 'toxicity-control', loadComponent: () => import('./pages/admin/toxicity-control/toxicity-control.component').then(m => m.ToxicityControlComponent), outlet: 'admin-dashboard' },
       { path: 'thread-ranking', loadComponent: () => import('./pages/admin/thread-ranking/thread-ranking.component').then(m => m.ThreadRankingComponent), outlet: 'admin-dashboard' },
-      { path: '', pathMatch: 'full', redirectTo: 'user-stats' }
+      { path: '', pathMatch: 'full', redirectTo: 'user-stats', outlet: 'admin-dashboard' }
     ]
   },
   {

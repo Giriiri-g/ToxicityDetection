@@ -10,6 +10,8 @@ public interface IUserRepository
     Task<bool> UsernameExists(string username);
     Task<bool> EmailExists(string email);
 
+    Task<List<DateOnly>> GetAllCreatedDates();
+
     Task Add(User user);
 
     Task SaveChanges();
