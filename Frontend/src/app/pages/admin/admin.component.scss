@@ -1,0 +1,128 @@
+main {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+nav.admin-nav {
+  position: relative;
+  width: 20px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.nav-seam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  border-right: 1px solid rgb(74, 71, 71, 0.5);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  transition: left 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 20;
+}
+
+.admin-nav.open .nav-seam {
+  left: 300px;
+}
+
+.nav-toggle {
+  position: absolute;
+  right: -18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgb(0, 0, 0, 0.9);
+  background: #fff4d6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 30;
+  transition: background 0.18s ease;
+
+  &:hover { background: #ffe9a0; }
+
+  span {
+    display: block;
+    width: 15px;
+    height: 2px;
+    background: rgb(33, 33, 33, 0.7);
+    border-radius: 2px;
+    transform-origin: center;
+    transition: transform 0.26s ease, opacity 0.18s ease, width 0.18s ease;
+  }
+}
+
+.admin-nav.open .nav-toggle {
+  span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  span:nth-child(2) { opacity: 0; width: 0; }
+  span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+}
+
+.nav-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px 0 16px;
+  pointer-events: none;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition:
+    transform 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity   0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.admin-nav.open .nav-panel {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.nav-item {
+  display: block;
+  padding: 8px 10px;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  color: black;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: background 0.16s ease, padding-left 0.16s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    padding-left: 16px;
+  }
+
+  &.active {
+    background: #fff4d6;
+    padding-left: 16px;
+  }
+}
+
+.admin-nav.open .nav-item {
+  animation: navIn 0.24s ease both;
+
+  @for $i from 1 through 5 {
+    &:nth-child(#{$i}) { animation-delay: #{0.04 + $i * 0.04}s; }
+  }
+}
+
+@keyframes navIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

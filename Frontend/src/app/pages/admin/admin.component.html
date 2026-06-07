@@ -1,0 +1,24 @@
+<app-header></app-header>
+<main>
+    <nav class="admin-nav" [class.open]="NavState">
+        <div class="nav-panel">
+            <a [routerLink]="[{ outlets: { 'admin-dashboard': ['user-stats'] } }]" routerLinkActive="active" class="nav-item">User Statistics</a>
+            <a [routerLink]="[{ outlets: { 'admin-dashboard': ['user-control'] } }]" routerLinkActive="active" class="nav-item">Control Account Creation</a>
+            <a [routerLink]="[{ outlets: { 'admin-dashboard': ['toxicity-stats'] } }]" routerLinkActive="active" class="nav-item">Content Censoring Statistics</a>
+            <a [routerLink]="[{ outlets: { 'admin-dashboard': ['toxicity-control'] } }]" routerLinkActive="active" class="nav-item">Control Censoring Thresholds</a>
+            <a [routerLink]="[{ outlets: { 'admin-dashboard': ['thread-ranking'] } }]" routerLinkActive="active" class="nav-item">Trending Threads</a>
+        </div>
+
+        <div class="nav-seam">
+            <button class="nav-toggle" (click)="toggleNav()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <router-outlet name="admin-dashboard"></router-outlet>
+    <!-- <section class="user-stats">User Stats</section>
+        <section class="user-control">User Control</section>
+        <section class="toxicity-stats">Toxicity Stats</section>
+        <section class="toxicity-control">Toxicity Control</section>
+        <section class="thread-ranking">Thread Ranking</section> -->
+</main>
