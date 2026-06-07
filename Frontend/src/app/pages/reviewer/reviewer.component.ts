@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { HeaderComponent } from "../landing/header/header.component";
 
 @Component({
   selector: 'app-reviewer',
   standalone: true,
-  template: `<h2>Reviewer</h2><p>Reviewer dashboard.</p>`,
+  templateUrl: './reviewer.component.html',
+  styleUrl: './reviewer.component.scss',
+  imports: [HeaderComponent]
 })
 export class ReviewerComponent {}
 
