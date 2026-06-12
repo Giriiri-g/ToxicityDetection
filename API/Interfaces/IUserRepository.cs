@@ -12,6 +12,8 @@ public interface IUserRepository
 
     Task<List<DateOnly>> GetAllCreatedDates();
 
+    Task<DateOnly?> GetJoinDate(string username);
+
     Task Add(User user);
 
     Task SaveChanges();

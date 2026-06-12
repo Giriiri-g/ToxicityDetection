@@ -1,1 +1,160 @@
 <app-header></app-header>
+
+<main class="rv-main">
+
+  <!-- ── Slide-in filter nav ──────────────────────────────────────────────── -->
+  <nav class="rv-nav" [class.open]="navOpen">
+
+    <div class="rv-nav__panel">
+      <h3 class="rv-nav__heading">Filters</h3>
+
+      <label class="rv-nav__label">Sort by
+        <select class="rv-nav__select" [(ngModel)]="sortOrder" (ngModelChange)="onFilterChange()">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="highest">Highest toxicity</option>
+          <option value="lowest">Lowest toxicity</option>
+        </select>
+      </label>
+
+      <label class="rv-nav__label">Min toxicity score: {{ minScore }}%
+        <input class="rv-nav__range" type="range" min="0" max="100" step="5"
+               [(ngModel)]="minScore" (ngModelChange)="onFilterChange()" />
+      </label>
+
+      <label class="rv-nav__label">Tag
+        <select class="rv-nav__select" [(ngModel)]="selectedTag" (ngModelChange)="onFilterChange()">
+          <option value="">All tags</option>
+          <option *ngFor="let t of allTags" [value]="t">{{ t }}</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="rv-nav__seam">
+      <button class="rv-nav__toggle" (click)="toggleNav()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Post list ─────────────────────────────────────────────────────────── -->
+  <section class="rv-list">
+
+    <div class="rv-list__empty" *ngIf="pagedPosts.length === 0">No posts match the current filters.</div>
+
+    <div class="rv-row" *ngFor="let post of pagedPosts" (click)="openPost(post)">
+      <!-- Left: avatar + meta -->
+      <div class="rv-row__meta">
+        <div class="rv-row__avatar">{{ post.username.charAt(0).toUpperCase() }}</div>
+        <div>
+          <span class="rv-row__user">{{ post.username }}</span>
+          <span class="rv-row__time">{{ post.timePosted | date:'d MMM y, HH:mm' }}</span>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <p class="rv-row__title">{{ post.title }}</p>
+
+      <!-- Right: tags + score -->
+      <div class="rv-row__right">
+        <div class="rv-row__tags">
+          <span class="rv-tag" *ngFor="let tag of post.tags"
+                [style.color]="tagColor(tag.severity)"
+                [style.background]="tagBg(tag.severity)">{{ tag.label }}</span>
+        </div>
+        <div class="rv-row__score">
+          <div class="rv-score-bar">
+            <div class="rv-score-bar__fill"
+                 [style.width.%]="post.toxicityScore"
+                 [style.background]="scoreBarColor(post.toxicityScore)"></div>
+          </div>
+          <span class="rv-row__pct" [style.color]="scoreBarColor(post.toxicityScore)">{{ post.toxicityScore }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="rv-pagination" *ngIf="totalPages > 1">
+      <button class="rv-page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">‹</button>
+      <button class="rv-page-btn" *ngFor="let p of pageNumbers"
+              [class.active]="p === currentPage" (click)="currentPage = p">{{ p }}</button>
+      <button class="rv-page-btn" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">›</button>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ── Detail aside overlay ──────────────────────────────────────────────── -->
+<div class="rv-backdrop" [class.rv-backdrop--open]="selectedPost" (click)="closePost()"></div>
+
+<aside class="rv-aside" [class.rv-aside--open]="selectedPost" *ngIf="selectedPost">
+
+  <button class="rv-aside__close" (click)="closePost()">✕</button>
+
+  <!-- Header -->
+  <div class="rv-aside__header">
+    <div class="rv-aside__avatar">{{ selectedPost.username.charAt(0).toUpperCase() }}</div>
+    <div>
+      <div class="rv-aside__user">{{ selectedPost.username }}</div>
+      <div class="rv-aside__joined">Joined {{ selectedPost.userJoined | date:'d MMM y' }}</div>
+      <div class="rv-aside__time">{{ selectedPost.timePosted | date:'d MMM y, HH:mm' }}</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <h2 class="rv-aside__title">{{ selectedPost.title }}</h2>
+  <p class="rv-aside__message">{{ selectedPost.message }}</p>
+
+  <!-- Toxicity score -->
+  <div class="rv-aside__score-row">
+    <span class="rv-aside__score-label">Toxicity</span>
+    <div class="rv-score-bar rv-score-bar--wide">
+      <div class="rv-score-bar__fill"
+           [style.width.%]="selectedPost.toxicityScore"
+           [style.background]="scoreBarColor(selectedPost.toxicityScore)"></div>
+    </div>
+    <span class="rv-aside__score-pct" [style.color]="scoreBarColor(selectedPost.toxicityScore)">
+      {{ selectedPost.toxicityScore }}%
+    </span>
+  </div>
+
+  <!-- Editable tags -->
+  <div class="rv-aside__tags">
+    <span class="rv-tag rv-tag--removable" *ngFor="let tag of editTags"
+          [style.color]="tagColor(tag.severity)"
+          [style.background]="tagBg(tag.severity)">
+      {{ tag.label }}
+      <button class="rv-tag__remove" (click)="removeTag(tag)">✕</button>
+    </span>
+    <span class="rv-aside__no-tags" *ngIf="editTags.length === 0">No tags</span>
+  </div>
+
+  <!-- Post history -->
+  <div class="rv-aside__history-toggle" (click)="historyOpen = !historyOpen">
+    <span>Post history ({{ selectedPost.history.length }})</span>
+    <span class="rv-aside__chevron" [class.open]="historyOpen">›</span>
+  </div>
+
+  <div class="rv-aside__history" *ngIf="historyOpen && selectedPost.history.length > 0">
+    <div class="rv-hist-row" *ngFor="let h of selectedPost.history">
+      <span class="rv-hist-row__title">{{ h.title }}</span>
+      <span class="rv-hist-row__time">{{ h.timePosted | date:'d MMM y' }}</span>
+      <span class="rv-hist-row__score" [style.color]="scoreBarColor(h.toxicityScore)">{{ h.toxicityScore }}%</span>
+    </div>
+  </div>
+  <div class="rv-aside__history rv-aside__history--empty" *ngIf="historyOpen && selectedPost.history.length === 0">
+    No previous posts.
+  </div>
+
+  <!-- Feedback -->
+  <textarea class="rv-aside__feedback" [(ngModel)]="feedback" placeholder="Optional feedback to the user…" rows="3"></textarea>
+
+  <!-- Actions -->
+  <div class="rv-aside__actions">
+    <button class="rv-btn rv-btn--approve" (click)="approve(true)">Approve &amp; Clear Scores</button>
+    <button class="rv-btn rv-btn--approve-keep" (click)="approve(false)">Approve (keep scores)</button>
+    <button class="rv-btn rv-btn--reject" (click)="reject()">Reject</button>
+  </div>
+
+</aside>

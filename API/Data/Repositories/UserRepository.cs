@@ -45,6 +45,12 @@ public class UserRepository : IUserRepository
         return await _context.Users.Select(u => u.Created).ToListAsync();
     }
 
+    public async Task<DateOnly?> GetJoinDate(string username) =>
+        await _context.Users
+            .Where(u => u.UserName == username)
+            .Select(u => (DateOnly?)u.Created)
+            .FirstOrDefaultAsync();
+
     public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();

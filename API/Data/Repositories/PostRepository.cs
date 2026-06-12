@@ -15,12 +15,55 @@ public class PostRepository : IPostRepository
 
     public async Task<List<Post>> GetFeed(int page, int pageSize) =>
         await _context.Posts
-            .Where(p => p.PPID == null)          // top-level posts only
+            .Where(p => p.PPID == null)
             .Include(p => p.TagScores)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+
+    // Flagged = score >= 35 (moderate or higher)
+    public async Task<List<Post>> GetFlaggedPosts(int page, int pageSize) =>
+        await _context.Posts
+            .Where(p => p.PPID == null && p.TotalToxicityScore >= 35)
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.TotalToxicityScore)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+    public async Task<int> GetFlaggedPostsCount() =>
+        await _context.Posts.CountAsync(p => p.PPID == null && p.TotalToxicityScore >= 35);
+
+    public async Task<Post?> GetById(Guid id) =>
+        await _context.Posts
+            .Include(p => p.TagScores)
+            .FirstOrDefaultAsync(p => p.PID == id);
+
+    public async Task<List<Post>> GetByUsername(string username) =>
+        await _context.Posts
+            .Where(p => p.UserName == username && p.PPID == null)
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(20)
+            .ToListAsync();
+
+    public async Task UpdateTagScores(Post post, double totalScore, List<TagScore> newTags)
+    {
+        post.TotalToxicityScore = totalScore;
+
+        _context.TagScores.RemoveRange(
+            _context.TagScores.Where(t => t.PostId == post.PID)
+        );
+
+        foreach (var tag in newTags)
+        {
+            tag.PostId = post.PID;
+            tag.Post = post;
+        }
+
+        await _context.TagScores.AddRangeAsync(newTags);
+    }
 
     public async Task SaveChanges() => await _context.SaveChangesAsync();
 }
