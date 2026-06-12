@@ -63,10 +63,9 @@ public class PostService : IPostService
         LikesCount = p.LikesCount,
         CommentsCount = p.CommentsCount,
         TotalToxicityScore = p.TotalToxicityScore,
-        TagScores = p.TagScores.Select(t => new TagScoreDto
-        {
-            Tag = t.Tag,
-            Score = t.Score
-        }).ToList()
+        TagScores = p.TagScores
+            .Where(t => t.Score >= 0.35)
+            .Select(t => new TagScoreDto { Tag = t.Tag })
+            .ToList()
     };
 }

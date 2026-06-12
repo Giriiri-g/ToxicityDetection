@@ -34,16 +34,15 @@
       <app-post-card
         *ngFor="let post of posts; trackBy: trackById"
         [thread]="post.thread"
+        [username]="post.username"
         [iconUrl]="post.iconUrl"
         [timePosted]="post.timePosted"
         [title]="post.title"
         [message]="post.message"
         [likeCount]="post.likeCount"
         [commentCount]="post.commentCount"
-        [toxicityScore]="post.toxicityScore"
         [toxicityTags]="post.toxicityTags"
         [userVote]="post.userVote"
-        (click)="onPostClick(post)"
       />
     </div>
 

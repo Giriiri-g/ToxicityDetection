@@ -3,7 +3,6 @@ namespace API.DTOs;
 public class TagScoreDto
 {
     public string Tag { get; set; } = "";
-    public double Score { get; set; }
 }
 
 public class PostResponseDto

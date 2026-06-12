@@ -1,12 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { PostCardComponent, ToxicityTag } from './post-card.component';
 import { PostService, PostResponse } from '../../services/post.service';
 
 export interface Post {
   id: string;
+  username: string;
   thread: string;
   iconUrl: string;
   timePosted: string;
@@ -14,7 +14,6 @@ export interface Post {
   message: string;
   likeCount: number;
   commentCount: number;
-  toxicityScore: number;
   toxicityTags: ToxicityTag[];
   userVote: 'up' | 'down' | null;
 }
@@ -38,15 +37,15 @@ export class FeedComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('bodyArea') bodyArea!: ElementRef<HTMLTextAreaElement>;
 
-  constructor(private postService: PostService, private router: Router) {}
+  constructor(private postService: PostService) {}
 
 
   ngOnInit() { this.loadFeed(); }
 
   loadFeed() {
     this.postService.getFeed().subscribe({
-      next: res => { this.posts = res.map(this.toUiPost); },
-      error: () => {}  // keep demo posts on error
+      next: res => { this.posts = res.map(r => this.toUiPost(r)); },
+      error: () => { this.posts = []; }
     });
   }
 
@@ -114,26 +113,20 @@ export class FeedComponent implements OnInit {
   private toUiPost(r: PostResponse): Post {
     return {
       id: r.pid,
-      thread: r.userName,
+      username: r.userName,
+      thread: '#general',
       iconUrl: '',
       timePosted: new Date(r.createdAt).toLocaleDateString(),
       title: r.title ?? '',
       message: r.message,
       likeCount: r.likesCount,
       commentCount: r.commentsCount,
-      toxicityScore: Math.round(r.totalToxicityScore),
-      toxicityTags: r.tagScores.map(t => ({
-        label: t.tag,
-        severity: t.score >= 70 ? 'high' : t.score >= 35 ? 'medium' : 'low'
-      } as { label: string; severity: 'low' | 'medium' | 'high' })),
+      toxicityTags: r.tagScores.map(t => ({ label: t.tag })),
       userVote: null,
     };
   }
 
   trackById(_: number, post: Post) { return post.id; }
-  onPostClick(post: Post) {
-    this.router.navigate(['/feed', post.id]);
-  }
 
   navItems = [
     { icon: '🏠', label: 'Home' },
@@ -151,48 +144,5 @@ export class FeedComponent implements OnInit {
     { rank: 5, thread: '#plans', posts: '3.9k posts today' },
   ];
 
-  posts: Post[] = [
-    {
-      id: 'demo-1',
-      thread: 'r/androidapps',
-      iconUrl: '',
-      timePosted: '2 days ago',
-      title: 'Best App to watch Movies',
-      message: 'Hey guys, I have been searching for an app to watch movies on my Android TV. I have tried Net Mirror but it is very slow, so please recommend me an app to watch movies. I want Indian movies as well.',
-      likeCount: 32,
-      commentCount: 35,
-      toxicityScore: 8,
-      toxicityTags: [],
-      userVote: null,
-    },
-    {
-      id: 'demo-2',
-      thread: 'r/worldnews',
-      iconUrl: '',
-      timePosted: '5 hours ago',
-      title: 'Heated debate breaks out over new policy',
-      message: 'Users are flooding the thread with strong opinions. Moderation is struggling to keep up with the volume of reports as tensions escalate in the comment section.',
-      likeCount: 1241,
-      commentCount: 889,
-      toxicityScore: 71,
-      toxicityTags: [
-        { label: 'Hate', severity: 'high' },
-        { label: 'NSFW', severity: 'medium' },
-      ],
-      userVote: 'up',
-    },
-    {
-      id: 'demo-3',
-      thread: 'r/learnprogramming',
-      iconUrl: '',
-      timePosted: '1 hour ago',
-      title: 'Why does everyone say Python is slow?',
-      message: 'I keep seeing this claim but my scripts run fast enough for everything I need. Is this just for production-scale workloads or is there something I am missing about the benchmarks?',
-      likeCount: 147,
-      commentCount: 62,
-      toxicityScore: 38,
-      toxicityTags: [{ label: 'Controversial', severity: 'medium' }],
-      userVote: null,
-    },
-  ];
+  posts: Post[] = [];
 }

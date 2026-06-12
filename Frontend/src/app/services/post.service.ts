@@ -11,7 +11,6 @@ export interface CreatePostRequest {
 
 export interface TagScoreResponse {
   tag: string;
-  score: number;
 }
 
 export interface PostResponse {
@@ -24,7 +23,6 @@ export interface PostResponse {
   createdAt: string;
   likesCount: number;
   commentsCount: number;
-  totalToxicityScore: number;
   tagScores: TagScoreResponse[];
 }
 
