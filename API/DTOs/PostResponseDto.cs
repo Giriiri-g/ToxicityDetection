@@ -1,6 +1,6 @@
 namespace API.DTOs;
 
-public class TagScoreDto
+public class TagDto
 {
     public string Tag { get; set; } = "";
 }
@@ -17,5 +17,5 @@ public class PostResponseDto
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
     public double TotalToxicityScore { get; set; }
-    public List<TagScoreDto> TagScores { get; set; } = new();
+    public List<TagDto> TagScores { get; set; } = new();
 }

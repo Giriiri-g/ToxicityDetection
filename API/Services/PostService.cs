@@ -65,7 +65,7 @@ public class PostService : IPostService
         TotalToxicityScore = p.TotalToxicityScore,
         TagScores = p.TagScores
             .Where(t => t.Score >= 0.35)
-            .Select(t => new TagScoreDto { Tag = t.Tag })
+            .Select(t => new TagDto { Tag = t.Tag })
             .ToList()
     };
 }
