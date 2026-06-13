@@ -19,7 +19,7 @@ export class SignupComponent {
   email = '';
   password = '';
   confirmPassword = '';
-  role: 'Admin' | 'Reviewer' | 'Normal user' = 'Normal user';
+  role = 'Normal user';
 
   // validation errors
   usernameErrorEl?: HTMLElement | null;
