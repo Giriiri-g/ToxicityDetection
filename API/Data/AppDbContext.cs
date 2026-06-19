@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<TagScore> TagScores { get; set; }
+    public DbSet<ToxicityConfig> ToxicityConfigs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -34,6 +35,16 @@ public class AppDbContext : DbContext
              .HasForeignKey(t => t.PostId)
              .HasPrincipalKey(p => p.PID)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ToxicityConfig — singleton row seeded with defaults
+        b.Entity<ToxicityConfig>(e => e.HasKey(c => c.Id));
+        b.Entity<ToxicityConfig>().HasData(new ToxicityConfig
+        {
+            Id = 1,
+            TagThresholdsJson = "{\"Hate\":35,\"Threat\":35,\"NSFW\":35,\"Spam\":35,\"Controversial\":35}",
+            BlurThreshold = 35.0,
+            BlockThreshold = 70.0
         });
     }
 }
