@@ -5,6 +5,12 @@ public class TagDto
     public string Tag { get; set; } = "";
 }
 
+public class ThreadCountDto
+{
+    public string Thread { get; set; } = "";
+    public int Count { get; set; }
+}
+
 public class PostResponseDto
 {
     public Guid PID { get; set; }
@@ -18,4 +24,5 @@ public class PostResponseDto
     public int CommentsCount { get; set; }
     public double TotalToxicityScore { get; set; }
     public List<TagDto> TagScores { get; set; } = new();
+    public string? Thread { get; set; }
 }

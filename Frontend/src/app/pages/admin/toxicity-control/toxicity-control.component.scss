@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.tc-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+.thresholds { width:100%; max-width:720px; background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px }
+.tag-row { display:flex; justify-content:space-between; gap:12px; align-items:center; margin:8px 0 }
+.tag-row label { width:200px }
+.tag-row input { width:120px; padding:6px }
+.actions { display:flex; justify-content:flex-end; margin-top:12px }
+.actions button { padding:8px 12px }

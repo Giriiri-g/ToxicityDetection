@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.ts-page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.ts-cards { display:flex; gap:20px; margin-bottom:20px; }
+.ts-card { background:#fff; border:1px solid #e5e7eb; padding:16px 24px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.04);} 
+.ts-card__value { font-size:28px; font-weight:800 }
+.ts-card__label { color:#6b7280 }
+
+.ts-main { display:flex; gap:24px; width:100%; max-width:1100px }
+.ts-left { width:280px; background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px }
+.tag-list { list-style:none; padding:0; margin:0 }
+
+.ts-chart { flex:1; background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px }
+.line-chart { width:100%; height:260px; display:block }
+.xlabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.xlabels span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.line.total { stroke-linejoin:round; stroke-linecap:round }
+.line.flagged { stroke-linejoin:round; stroke-linecap:round }

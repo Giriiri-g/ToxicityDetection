@@ -1,1 +1,10 @@
-<p>thread-ranking works!</p>
+<div class="tr-page">
+	<h2>Trending Threads</h2>
+	<div class="tr-list" *ngIf="threads">
+		<div class="tr-item" *ngFor="let t of threads">
+			<div>{{ t.thread }}</div>
+			<div>{{ t.postCount }}</div>
+		</div>
+	</div>
+	<div *ngIf="!threads">Loading...</div>
+</div>

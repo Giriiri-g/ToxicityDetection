@@ -1,11 +1,19 @@
 using API.Entities;
+using API.DTOs;
 
 namespace API.Interfaces;
 
 public interface IPostRepository
 {
     Task Add(Post post);
-    Task<List<Post>> GetFeed(int page, int pageSize);
+    Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null);
+
+    // Stats / admin
+    Task<int> GetTotalPostCount();
+    Task<List<(string Tag, int Count)>> GetFlaggedCountByTag();
+    Task<List<(DateTime Date, int NewPosts, int FlaggedPosts)>> GetDailyTrend(int days);
+    Task<List<(string Thread, int Count)>> GetThreadRankings();
+    Task<List<ThreadCountDto>> GetThreadCounts();
 
     // Reviewer
     Task<List<Post>> GetFlaggedPosts(int page, int pageSize);

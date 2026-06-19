@@ -8,6 +8,7 @@ public class Post
     public Guid? PPID { get; set; } // null = top-level post, set = comment
 
     public required string UserName { get; set; }
+    public string? Thread { get; set; }
     public string? Title { get; set; }
     public required string Message { get; set; }
     public string? MediaUrl { get; set; }  // base64 data URL or null

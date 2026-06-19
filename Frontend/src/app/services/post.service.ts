@@ -7,6 +7,7 @@ export interface CreatePostRequest {
   message: string;
   mediaUrl?: string;
   linkUrl?: string;
+  thread?: string;
 }
 
 export interface TagScoreResponse {
@@ -24,6 +25,7 @@ export interface PostResponse {
   likesCount: number;
   commentsCount: number;
   tagScores: TagScoreResponse[];
+  thread?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,17 +35,33 @@ export class PostService {
   constructor(private http: HttpClient, private auth: AuthService) {}
 
   private headers() {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken()}` });
+    const token = this.auth.getToken();
+    if (!token) {
+      console.warn('No auth token available');
+      // Return headers without authorization - let the backend handle auth errors
+      return new HttpHeaders({});
+    }
+    return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
   createPost(req: CreatePostRequest) {
     return this.http.post<PostResponse>(this.apiUrl, req, { headers: this.headers() });
   }
 
-  getFeed(page = 1, pageSize = 20) {
+  getFeed(page = 1, pageSize = 20, thread?: string) {
+    const params: any = { page, pageSize };
+    if (thread) {
+      params.thread = thread;
+    }
     return this.http.get<PostResponse[]>(`${this.apiUrl}/feed`, {
       headers: this.headers(),
-      params: { page, pageSize }
+      params: params
+    });
+  }
+
+  getThreadCounts() {
+    return this.http.get<{ thread: string; count: number }[]>(`${this.apiUrl}/thread-counts`, {
+      headers: this.headers()
     });
   }
 }

@@ -8,11 +8,13 @@ public class PostService : IPostService
 {
     private readonly IPostRepository _posts;
     private readonly IToxicityService _toxicity;
+    private readonly IAdminService _admin;
 
-    public PostService(IPostRepository posts, IToxicityService toxicity)
+    public PostService(IPostRepository posts, IToxicityService toxicity, IAdminService admin)
     {
         _posts = posts;
         _toxicity = toxicity;
+        _admin = admin;
     }
 
     public async Task<PostResponseDto> CreatePost(string username, CreatePostDto dto)
@@ -29,6 +31,7 @@ public class PostService : IPostService
             LinkUrl = dto.LinkUrl,
             CreatedAt = DateTime.UtcNow,
             TotalToxicityScore = totalScore,
+            Thread = dto.Thread
         };
 
         // Link tag scores to the post
@@ -42,16 +45,24 @@ public class PostService : IPostService
         await _posts.Add(post);
         await _posts.SaveChanges();
 
-        return ToDto(post);
+        var thresholds = await _admin.GetThresholds();
+        return ToDto(post, thresholds);
     }
 
-    public async Task<List<PostResponseDto>> GetFeed(int page, int pageSize)
+    public async Task<List<PostResponseDto>> GetFeed(int page, int pageSize, string? thread = null)
     {
-        var posts = await _posts.GetFeed(page, pageSize);
-        return posts.Select(ToDto).ToList();
+        var posts = await _posts.GetFeed(page, pageSize, thread);
+        var thresholds = await _admin.GetThresholds();
+        return posts.Select(p => ToDto(p, thresholds)).ToList();
     }
 
-    private static PostResponseDto ToDto(Post p) => new()
+    public async Task<List<ThreadCountDto>> GetThreadCounts()
+    {
+        var threadCounts = await _posts.GetThreadCounts();
+        return threadCounts;
+    }
+
+    private static PostResponseDto ToDto(Post p, ToxicityThresholdsDto thresholds) => new()
     {
         PID = p.PID,
         UserName = p.UserName,
@@ -64,8 +75,10 @@ public class PostService : IPostService
         CommentsCount = p.CommentsCount,
         TotalToxicityScore = p.TotalToxicityScore,
         TagScores = p.TagScores
-            .Where(t => t.Score >= 0.35)
+            .Where(t => t.Score >= thresholds.TagThresholds.GetValueOrDefault(t.Tag, thresholds.BlurThreshold))
             .Select(t => new TagDto { Tag = t.Tag })
-            .ToList()
+            .ToList(),
+        Thread = p.Thread
     };
+
 }

@@ -1,1 +1,38 @@
-<p>toxicity-stats works!</p>
+<div class="ts-page" *ngIf="stats">
+	<div class="ts-cards">
+		<div class="ts-card">
+			<div class="ts-card__value">{{ stats.totalPosts }}</div>
+			<div class="ts-card__label">Total Posts</div>
+		</div>
+		<div class="ts-card">
+			<div class="ts-card__value">{{ stats.flaggedPosts }}</div>
+			<div class="ts-card__label">Flagged Posts</div>
+		</div>
+	</div>
+
+	<div class="ts-main">
+		<div class="ts-left">
+			<h3>Flagged by Tag</h3>
+			<ul class="tag-list">
+				<li *ngFor="let t of stats.tagCounts">{{ t.tag }}: {{ t.count }}</li>
+			</ul>
+		</div>
+
+		<div class="ts-chart">
+			<h3>Posts Trend (Last {{ stats.trend.length }} days)</h3>
+			<svg [attr.viewBox]="viewBox" preserveAspectRatio="none" class="line-chart">
+				<path [attr.d]="pathTotal" class="line total" fill="none" stroke="#4f46e5" stroke-width="1" />
+				<path [attr.d]="pathFlagged" class="line flagged" fill="none" stroke="#ef4444" stroke-width="1" />
+				<g *ngFor="let p of points; let i = index">
+					<circle [attr.cx]="p.x" [attr.cy]="p.yTotal" r="1" fill="#4f46e5"></circle>
+					<circle [attr.cx]="p.x" [attr.cy]="p.yFlagged" r="1" fill="#ef4444"></circle>
+				</g>
+			</svg>
+			<div class="xlabels">
+				<span *ngFor="let l of labels">{{ l }}</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="!stats">Loading...</div>

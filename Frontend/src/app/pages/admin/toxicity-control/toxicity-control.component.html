@@ -1,1 +1,29 @@
-<p>toxicity-control works!</p>
+<div class="tc-page">
+	<h2>Control Censoring Thresholds</h2>
+
+	<div *ngIf="thresholds">
+		<div class="thresholds">
+			<h3>Per-tag thresholds (%)</h3>
+			<div class="tag-row" *ngFor="let k of tagKeys">
+				<label>{{ k }}</label>
+				<input type="number" [(ngModel)]="thresholds.tagThresholds[k]" min="0" max="100" />
+			</div>
+
+			<h3>Overall</h3>
+			<div class="tag-row">
+				<label>Blur threshold</label>
+				<input type="number" [(ngModel)]="thresholds.blurThreshold" min="0" max="100" />
+			</div>
+			<div class="tag-row">
+				<label>Block threshold</label>
+				<input type="number" [(ngModel)]="thresholds.blockThreshold" min="0" max="100" />
+			</div>
+
+			<div class="actions">
+				<button (click)="save()">Save</button>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="!thresholds">Loading...</div>
+</div>

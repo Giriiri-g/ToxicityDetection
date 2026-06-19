@@ -131,8 +131,11 @@ nav.admin-nav {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-router-outlet[name="admin-dashboard"] + * {
+router-outlet[name="admin-dashboard"] {
   flex: 1;
   overflow: auto;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

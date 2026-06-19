@@ -5,5 +5,6 @@ namespace API.Interfaces;
 public interface IPostService
 {
     Task<PostResponseDto> CreatePost(string username, CreatePostDto dto);
-    Task<List<PostResponseDto>> GetFeed(int page, int pageSize);
+    Task<List<PostResponseDto>> GetFeed(int page, int pageSize, string? thread = null);
+    Task<List<ThreadCountDto>> GetThreadCounts();
 }

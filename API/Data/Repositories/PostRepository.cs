@@ -1,6 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using API.Data;
 using API.Entities;
 using API.Interfaces;
+using API.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data.Repositories;
@@ -11,59 +17,187 @@ public class PostRepository : IPostRepository
 
     public PostRepository(AppDbContext context) => _context = context;
 
-    public async Task Add(Post post) => await _context.Posts.AddAsync(post);
+    public async Task Add(Post post)
+    {
+        await _context.Posts.AddAsync(post);
+    }
 
-    public async Task<List<Post>> GetFeed(int page, int pageSize) =>
-        await _context.Posts
-            .Where(p => p.PPID == null)
+    public async Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null)
+    {
+        var cfg = await _context.ToxicityConfigs.FirstOrDefaultAsync(c => c.Id == 1);
+        var blockThreshold = cfg?.BlockThreshold ?? 70.0;
+
+        var query = _context.Posts
+            .Where(p => p.PPID == null && p.TotalToxicityScore < blockThreshold);
+
+        if (!string.IsNullOrWhiteSpace(thread))
+        {
+            query = query.Where(p => p.Thread == thread);
+        }
+
+        return await query
             .Include(p => p.TagScores)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+    }
 
-    // Flagged = score >= 35 (moderate or higher)
-    public async Task<List<Post>> GetFlaggedPosts(int page, int pageSize) =>
-        await _context.Posts
-            .Where(p => p.PPID == null && p.TotalToxicityScore >= 35)
-            .Include(p => p.TagScores)
-            .OrderByDescending(p => p.TotalToxicityScore)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+    public async Task<int> GetTotalPostCount()
+    {
+        return await _context.Posts.CountAsync(p => p.PPID == null);
+    }
+
+    public async Task<List<(string Tag, int Count)>> GetFlaggedCountByTag()
+    {
+        var thresholds = await LoadTagThresholds();
+
+        // Fetch all tag scores for non-null posts (PPID == null) to avoid EF translation issues with dictionary lookup
+        var tagScores = await _context.TagScores
+            .Where(ts => ts.Post.PPID == null)
+            .Select(ts => new { ts.Tag, ts.Score })
             .ToListAsync();
 
-    public async Task<int> GetFlaggedPostsCount() =>
-        await _context.Posts.CountAsync(p => p.PPID == null && p.TotalToxicityScore >= 35);
+        var grouped = tagScores
+            .GroupBy(x => x.Tag)
+            .Select(g => new { Tag = g.Key, Count = g.Count(x => x.Score >= thresholds.GetValueOrDefault(g.Key, 35.0)) })
+            .Where(x => x.Count > 0) // Only include tags with at least one flagged score
+            .OrderByDescending(x => x.Count)
+            .ToList();
 
-    public async Task<Post?> GetById(Guid id) =>
-        await _context.Posts
+        return grouped.Select(x => (x.Tag, x.Count)).ToList();
+    }
+
+    public async Task<List<(DateTime Date, int NewPosts, int FlaggedPosts)>> GetDailyTrend(int days)
+    {
+        var since = DateTime.UtcNow.Date.AddDays(-(days - 1));
+        var thresholds = await LoadTagThresholds();
+
+        var posts = await _context.Posts
+            .Where(p => p.PPID == null && p.CreatedAt >= since)
+            .Include(p => p.TagScores)
+            .ToListAsync();
+
+        return Enumerable.Range(0, days)
+            .Select(i =>
+            {
+                var day = since.AddDays(i);
+                var dayPosts = posts.Where(p => p.CreatedAt.Date == day).ToList();
+                var flaggedCount = dayPosts.Count(p => p.TagScores.Any(ts => ts.Score >= thresholds.GetValueOrDefault(ts.Tag, 35.0)));
+                return (day, dayPosts.Count, flaggedCount);
+            })
+            .ToList();
+    }
+
+    public async Task<List<(string Thread, int Count)>> GetThreadRankings()
+    {
+        var grouped = await _context.Posts
+            .Where(p => p.PPID == null && p.Thread != null)
+            .GroupBy(p => p.Thread!)
+            .Select(g => new { Thread = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .Take(20)
+            .ToListAsync();
+
+        return grouped.Select(x => (x.Thread, x.Count)).ToList();
+    }
+
+    public async Task<List<Post>> GetFlaggedPosts(int page, int pageSize)
+    {
+        var thresholds = await LoadTagThresholds();
+
+        return await _context.Posts
+            .Where(p => p.PPID == null)
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync()
+            .ContinueWith(t => t.Result
+                .Where(p => p.TagScores.Any(ts => ts.Score >= thresholds.GetValueOrDefault(ts.Tag, 35.0)))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList());
+    }
+
+    public async Task<int> GetFlaggedPostsCount()
+    {
+        var thresholds = await LoadTagThresholds();
+
+        return await _context.Posts
+            .Include(p => p.TagScores)
+            .Where(p => p.PPID == null)
+            .ToListAsync()
+            .ContinueWith(t => t.Result.Count(p => p.TagScores.Any(ts => ts.Score >= thresholds.GetValueOrDefault(ts.Tag, 35.0))));
+    }
+
+    public async Task<Post?> GetById(Guid id)
+    {
+        return await _context.Posts
             .Include(p => p.TagScores)
             .FirstOrDefaultAsync(p => p.PID == id);
+    }
 
-    public async Task<List<Post>> GetByUsername(string username) =>
-        await _context.Posts
+    public async Task<List<Post>> GetByUsername(string username)
+    {
+        return await _context.Posts
             .Where(p => p.UserName == username && p.PPID == null)
             .Include(p => p.TagScores)
             .OrderByDescending(p => p.CreatedAt)
             .Take(20)
             .ToListAsync();
+    }
 
-    public async Task UpdateTagScores(Post post, double totalScore, List<TagScore> newTags)
+    public async Task UpdateTagScores(Post post, double totalScore, List<TagScore> tags)
     {
         post.TotalToxicityScore = totalScore;
 
-        _context.TagScores.RemoveRange(
-            _context.TagScores.Where(t => t.PostId == post.PID)
-        );
+        _context.TagScores.RemoveRange(_context.TagScores.Where(t => t.PostId == post.PID));
 
-        foreach (var tag in newTags)
+        foreach (var tag in tags)
         {
             tag.PostId = post.PID;
             tag.Post = post;
         }
 
-        await _context.TagScores.AddRangeAsync(newTags);
+        await _context.TagScores.AddRangeAsync(tags);
     }
 
-    public async Task SaveChanges() => await _context.SaveChangesAsync();
+    public async Task SaveChanges()
+    {
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<ThreadCountDto>> GetThreadCounts()
+    {
+        var query = from p in _context.Posts
+                    where p.PPID == null
+                    group p by p.Thread into g
+                    select new ThreadCountDto
+                    {
+                        Thread = g.Key ?? "No Thread",
+                        Count = g.Count()
+                    };
+
+        return await query.ToListAsync();
+    }
+
+    private async Task<Dictionary<string, double>> LoadTagThresholds()
+    {
+        var cfg = await _context.ToxicityConfigs.FirstOrDefaultAsync(c => c.Id == 1);
+        if (cfg == null || string.IsNullOrWhiteSpace(cfg.TagThresholdsJson))
+        {
+            return new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, double>>(cfg.TagThresholdsJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        }
+    }
 }

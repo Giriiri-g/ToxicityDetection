@@ -18,6 +18,27 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetUserStats()
         => Ok(await _adminService.GetUserStats());
 
+    [HttpGet("toxicity-stats")]
+    public async Task<IActionResult> GetToxicityStats([FromQuery] int days = 30)
+        => Ok(await _adminService.GetToxicityStats(days));
+
+    [HttpGet("thresholds")]
+    public async Task<IActionResult> GetThresholds()
+        => Ok(await _admin_service_wrapper());
+
+    private async Task<ToxicityThresholdsDto> _admin_service_wrapper() => await _adminService.GetThresholds();
+
+    [HttpPost("thresholds")]
+    public async Task<IActionResult> SetThresholds([FromBody] ToxicityThresholdsDto dto)
+    {
+        await _adminService.SetThresholds(dto);
+        return Ok(new { message = "Thresholds updated" });
+    }
+
+    [HttpGet("threads")]
+    public async Task<IActionResult> GetTrendingThreads([FromQuery] int top = 10, [FromQuery] int days = 14)
+        => Ok(await _adminService.GetTrendingThreads(top, days));
+
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] RegisterDto dto)
     {
