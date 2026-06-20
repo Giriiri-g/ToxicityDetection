@@ -35,7 +35,7 @@
     </header>
 
     <h2 class="post-card__title">{{ title }}</h2>
-    <p class="post-card__message">{{ message }}</p>
+    <p class="post-card__message" [innerHTML]="messageHtml"></p>
 
     <!-- Footer row -->
     <footer class="post-card__footer" (click)="$event.stopPropagation()">

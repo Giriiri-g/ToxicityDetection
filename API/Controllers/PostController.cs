@@ -26,11 +26,19 @@ public class PostController : ControllerBase
         return CreatedAtAction(nameof(GetFeed), result);
     }
 
-    // GET api/posts/feed?page=1&pageSize=20
+    // GET api/posts/feed?page=1&pageSize=20&thread=...
     [HttpGet("feed")]
-    public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? thread = null)
     {
-        var posts = await _postService.GetFeed(page, pageSize);
+        var posts = await _postService.GetFeed(page, pageSize, thread);
         return Ok(posts);
+    }
+
+    // GET api/posts/thread-counts
+    [HttpGet("thread-counts")]
+    public async Task<IActionResult> GetThreadCounts()
+    {
+        var threadCounts = await _postService.GetThreadCounts();
+        return Ok(threadCounts);
     }
 }

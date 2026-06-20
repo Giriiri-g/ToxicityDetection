@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { renderMarkdown } from './markdown.util';
 
 export interface ToxicityTag {
   label: string;
@@ -43,6 +44,8 @@ export class PostCardComponent {
   get iconFallbackLetter(): string {
     return this.username?.charAt(0).toUpperCase() ?? '?';
   }
+
+  get messageHtml(): string { return renderMarkdown(this.message); }
 
   tagColor(label: string): string {
     return TAG_COLORS[label.toLowerCase()] ?? DEFAULT_TAG_COLOR;
