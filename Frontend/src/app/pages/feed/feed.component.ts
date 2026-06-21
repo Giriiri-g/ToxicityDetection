@@ -7,7 +7,7 @@ import { renderMarkdown } from './markdown.util';
 import { HeaderComponent } from '../landing/header/header.component';
 
 export interface Post {
-  id: string;
+  postId: string;
   username: string;
   thread: string;
   iconUrl: string;
@@ -84,6 +84,7 @@ export class FeedComponent implements OnInit {
         try {
           this.threadCounts = Array.isArray(counts) ? counts : [];
           console.log('Thread counts loaded:', this.threadCounts.length, 'threads');
+          console.log(this.threadCounts);
         } catch (e) {
           console.error('Error processing thread counts:', e);
           this.threadCounts = [];
@@ -226,7 +227,7 @@ export class FeedComponent implements OnInit {
       }
 
       return {
-        id: r.pid,
+        postId: r.pid,
         username: r.userName,
         thread: r.thread ?? '#general',
         iconUrl: '',
@@ -242,7 +243,7 @@ export class FeedComponent implements OnInit {
       console.error('Error in toUiPost:', r, e);
       // Return a minimal valid post to prevent breaking the whole feed
       return {
-        id: r.pid ?? 'unknown',
+        postId: r.pid ?? 'unknown',
         username: r.userName ?? 'unknown',
         thread: '#general',
         iconUrl: '',
@@ -257,5 +258,5 @@ export class FeedComponent implements OnInit {
     }
   }
 
-  trackById(_: number, post: Post) { return post.id; }
+  trackById(_: number, post: Post) { return post.postId; }
 }

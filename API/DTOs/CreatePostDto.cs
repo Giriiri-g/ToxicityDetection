@@ -7,4 +7,5 @@ public class CreatePostDto
     public required string Message { get; set; }
     public string? MediaUrl { get; set; }
     public string? LinkUrl { get; set; }
+    public Guid? PPID { get; set; }
 }

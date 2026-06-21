@@ -33,12 +33,12 @@
         <span>What's on your mind? Share something…</span>
       </div>
     </div>
-
+    <!-- -------------------------------- Posts -------------------------------- -->
     <div class="feed-posts">
       <app-post-card *ngFor="let post of posts; trackBy: trackById" [thread]="post.thread" [username]="post.username"
         [iconUrl]="post.iconUrl" [timePosted]="post.timePosted" [title]="post.title" [message]="post.message"
         [likeCount]="post.likeCount" [commentCount]="post.commentCount" [toxicityTags]="post.toxicityTags"
-        [userVote]="post.userVote" />
+        [userVote]="post.userVote" [postId]="post.postId" />
       <div class="feed-posts__empty" *ngIf="posts.length === 0">No posts yet. Be the first to share!</div>
     </div>
 

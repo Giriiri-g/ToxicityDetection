@@ -14,6 +14,7 @@ public class ThreadCountDto
 public class PostResponseDto
 {
     public Guid PID { get; set; }
+    public Guid? PPID { get; set; }
     public string UserName { get; set; } = "";
     public string? Title { get; set; }
     public string Message { get; set; } = "";
@@ -25,4 +26,7 @@ public class PostResponseDto
     public double TotalToxicityScore { get; set; }
     public List<TagDto> TagScores { get; set; } = new();
     public string? Thread { get; set; }
+
+    // For holding comments (child posts) when needed
+    public List<PostResponseDto> Comments { get; set; } = new();
 }

@@ -14,16 +14,9 @@ namespace API.Data.Repositories;
 public class PostRepository : IPostRepository
 {
     private readonly AppDbContext _context;
-
     public PostRepository(AppDbContext context) => _context = context;
-
-    public async Task Add(Post post)
-    {
-        await _context.Posts.AddAsync(post);
-    }
-
-    public async Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null)
-    {
+    public async Task Add(Post post){await _context.Posts.AddAsync(post);}
+    public async Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null){
         var cfg = await _context.ToxicityConfigs.FirstOrDefaultAsync(c => c.Id == 1);
         var blockThreshold = cfg?.BlockThreshold ?? 70.0;
 
@@ -43,13 +36,9 @@ public class PostRepository : IPostRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetTotalPostCount()
-    {
-        return await _context.Posts.CountAsync(p => p.PPID == null);
-    }
+    public async Task<int> GetTotalPostCount(){return await _context.Posts.CountAsync(p => p.PPID == null);}
 
-    public async Task<List<(string Tag, int Count)>> GetFlaggedCountByTag()
-    {
+    public async Task<List<(string Tag, int Count)>> GetFlaggedCountByTag(){
         var thresholds = await LoadTagThresholds();
 
         // Fetch all tag scores for non-null posts (PPID == null) to avoid EF translation issues with dictionary lookup
@@ -68,8 +57,7 @@ public class PostRepository : IPostRepository
         return grouped.Select(x => (x.Tag, x.Count)).ToList();
     }
 
-    public async Task<List<(DateTime Date, int NewPosts, int FlaggedPosts)>> GetDailyTrend(int days)
-    {
+    public async Task<List<(DateTime Date, int NewPosts, int FlaggedPosts)>> GetDailyTrend(int days){
         var since = DateTime.UtcNow.Date.AddDays(-(days - 1));
         var thresholds = await LoadTagThresholds();
 
@@ -89,8 +77,7 @@ public class PostRepository : IPostRepository
             .ToList();
     }
 
-    public async Task<List<(string Thread, int Count)>> GetThreadRankings()
-    {
+    public async Task<List<(string Thread, int Count)>> GetThreadRankings(){
         var grouped = await _context.Posts
             .Where(p => p.PPID == null && p.Thread != null)
             .GroupBy(p => p.Thread!)
@@ -102,8 +89,7 @@ public class PostRepository : IPostRepository
         return grouped.Select(x => (x.Thread, x.Count)).ToList();
     }
 
-    public async Task<List<Post>> GetFlaggedPosts(int page, int pageSize)
-    {
+    public async Task<List<Post>> GetFlaggedPosts(int page, int pageSize){
         var thresholds = await LoadTagThresholds();
 
         return await _context.Posts
@@ -118,10 +104,8 @@ public class PostRepository : IPostRepository
                 .ToList());
     }
 
-    public async Task<int> GetFlaggedPostsCount()
-    {
+    public async Task<int> GetFlaggedPostsCount(){
         var thresholds = await LoadTagThresholds();
-
         return await _context.Posts
             .Include(p => p.TagScores)
             .Where(p => p.PPID == null)
@@ -129,15 +113,13 @@ public class PostRepository : IPostRepository
             .ContinueWith(t => t.Result.Count(p => p.TagScores.Any(ts => ts.Score >= thresholds.GetValueOrDefault(ts.Tag, 35.0))));
     }
 
-    public async Task<Post?> GetById(Guid id)
-    {
+    public async Task<Post?> GetById(Guid id){
         return await _context.Posts
             .Include(p => p.TagScores)
             .FirstOrDefaultAsync(p => p.PID == id);
     }
 
-    public async Task<List<Post>> GetByUsername(string username)
-    {
+    public async Task<List<Post>> GetByUsername(string username){
         return await _context.Posts
             .Where(p => p.UserName == username && p.PPID == null)
             .Include(p => p.TagScores)
@@ -146,8 +128,7 @@ public class PostRepository : IPostRepository
             .ToListAsync();
     }
 
-    public async Task UpdateTagScores(Post post, double totalScore, List<TagScore> tags)
-    {
+    public async Task UpdateTagScores(Post post, double totalScore, List<TagScore> tags){
         post.TotalToxicityScore = totalScore;
 
         _context.TagScores.RemoveRange(_context.TagScores.Where(t => t.PostId == post.PID));
@@ -161,13 +142,41 @@ public class PostRepository : IPostRepository
         await _context.TagScores.AddRangeAsync(tags);
     }
 
-    public async Task SaveChanges()
-    {
-        await _context.SaveChangesAsync();
+    public async Task<List<Post>> GetCommentsByPostId(Guid postId){
+        // Fetch all descendants (recursively) but return them flattened as a single list.
+        // Frontend will build the thread tree for visualization.
+        var allComments = new List<Post>();
+        var currentLevel = await _context.Posts
+            .Where(p => p.PPID == postId)
+            .Include(p => p.User)
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+
+        allComments.AddRange(currentLevel);
+
+        while (currentLevel.Any())
+        {
+            var parentIds = currentLevel.Select(p => p.PID).ToList();
+
+            var nextLevel = await _context.Posts
+                .Where(p => p.PPID.HasValue && parentIds.Contains(p.PPID.Value))
+                .Include(p => p.User)
+                .Include(p => p.TagScores)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            allComments.AddRange(nextLevel);
+            currentLevel = nextLevel;
+        }
+
+        return allComments;
     }
 
-    public async Task<List<ThreadCountDto>> GetThreadCounts()
-    {
+
+    public async Task SaveChanges(){ await _context.SaveChangesAsync(); }
+
+    public async Task<List<ThreadCountDto>> GetThreadCounts(){
         var query = from p in _context.Posts
                     where p.PPID == null
                     group p by p.Thread into g
@@ -180,8 +189,57 @@ public class PostRepository : IPostRepository
         return await query.ToListAsync();
     }
 
-    private async Task<Dictionary<string, double>> LoadTagThresholds()
-    {
+    public async Task<Post?> GetPostWithComments(Guid id){
+        var post = await _context.Posts
+            .Include(p => p.User)
+            .Include(p => p.TagScores)
+            .FirstOrDefaultAsync(p => p.PID == id);
+
+        if (post == null)
+            return null;
+
+        var allComments = new List<Post>();
+        var currentLevel = await _context.Posts
+            .Where(p => p.PPID == id)
+            .Include(p => p.User)
+            .Include(p => p.TagScores)
+            .ToListAsync();
+        allComments.AddRange(currentLevel);
+
+        while (currentLevel.Any())
+        {
+            var parentIds = currentLevel.Select(p => p.PID).ToList();
+            var nextLevel = await _context.Posts
+                .Where(p => p.PPID.HasValue && parentIds.Contains(p.PPID.Value))
+                .Include(p => p.User)
+                .Include(p => p.TagScores)
+                .ToListAsync();
+            allComments.AddRange(nextLevel);
+            currentLevel = nextLevel;
+        }
+
+        // Build the tree: map parent PID to list of child posts
+        var childrenByParentId = allComments
+            .Where(c => c.PPID.HasValue)
+            .GroupBy(c => c.PPID!.Value) // Use null-forgiving operator since we know it's not null
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        // Set ChildPosts for each comment
+        foreach (var comment in allComments)
+        {
+            if (comment.PPID.HasValue && childrenByParentId.TryGetValue(comment.PPID.Value, out var children))
+            {
+                comment.ChildPosts = children;
+            }
+        }
+
+        // Set the post's ChildPosts to the top-level comments (those with PPID == id)
+        post.ChildPosts = allComments.Where(c => c.PPID == id).ToList();
+
+        return post;
+    }
+
+    private async Task<Dictionary<string, double>> LoadTagThresholds(){
         var cfg = await _context.ToxicityConfigs.FirstOrDefaultAsync(c => c.Id == 1);
         if (cfg == null || string.IsNullOrWhiteSpace(cfg.TagThresholdsJson))
         {

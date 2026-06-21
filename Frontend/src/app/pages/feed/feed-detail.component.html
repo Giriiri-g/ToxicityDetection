@@ -1,0 +1,39 @@
+<div class="detail-container">
+  <button class="back-button" (click)="goBack()">&#8592;</button>
+
+  <div *ngIf="post$ | async as post">
+    <app-post-card
+      [postId]="post.pid"
+      [username]="post.userName"
+      [title]="post.title ?? ''"
+      [message]="post.message"
+      [thread]="post.thread ?? '#general'"
+      [timePosted]="post.createdAt"
+      [likeCount]="post.likesCount"
+      [commentCount]="post.commentsCount"
+      [toxicityTags]="toToxicityTags(post.tagScores)"
+      [depth]="0"
+      (commentPosted)="refreshComments()"
+    />
+  </div>
+
+  <div class="comments-section">
+    <h3 class="comments-heading">Comments ({{ flatComments.length }})</h3>
+    <ng-container *ngFor="let c of flatComments">
+      <app-post-card
+        [postId]="c.post.pid"
+        [username]="c.post.userName"
+        [title]="''"
+        [message]="c.post.message"
+        [thread]="c.post.thread ?? '#general'"
+        [timePosted]="c.post.createdAt"
+        [likeCount]="c.post.likesCount"
+        [commentCount]="c.post.commentsCount"
+        [toxicityTags]="toToxicityTags(c.post.tagScores)"
+        [depth]="c.depth"
+        (commentPosted)="refreshComments()"
+      />
+    </ng-container>
+    <div *ngIf="flatComments.length === 0" class="no-comments">No comments yet.</div>
+  </div>
+</div>

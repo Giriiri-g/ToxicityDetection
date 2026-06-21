@@ -27,6 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/feed/feed.component').then(m => m.FeedComponent)
   },
   {
+    path: 'feed/p/:postId',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/feed/feed-detail.component').then(m => m.FeedDetailComponent)
+  },
+  {
     path: 'admin',
     canActivate: [AuthGuard, RoleGuard],
     data: { role: 'Admin' },

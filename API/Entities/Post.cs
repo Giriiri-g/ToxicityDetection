@@ -24,4 +24,8 @@ public class Post
     // Navigation
     public User User { get; set; } = null!;
     public ICollection<TagScore> TagScores { get; set; } = new List<TagScore>();
+
+    // Self-referencing navigation for comments
+    public Post? ParentPost { get; set; }
+    public ICollection<Post> ChildPosts { get; set; } = new List<Post>();
 }

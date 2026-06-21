@@ -1,16 +1,16 @@
-<article class="post-card">
-  <div class="post-card__body">
+<div [style.margin-left]="indentPx">
+  <article class="post-card" (click)="navigateToDetail()">
+    <div class="post-card__body">
 
-    <!-- Header row -->
-    <header class="post-card__header">
-      <div class="post-card__meta">
+      <!-- Header -->
+      <header class="post-card__header">
+        <div class="post-card__meta">
           <div class="post-card__icon">
             <img *ngIf="iconUrl; else letterAvatar" [src]="iconUrl" [alt]="username" class="post-card__icon-img" />
             <ng-template #letterAvatar>
               <span class="post-card__icon-letter">{{ iconFallbackLetter }}</span>
             </ng-template>
           </div>
-
           <div class="post-card__meta-text">
             <span class="post-card__username">{{ username }}</span>
             <span class="post-card__separator">·</span>
@@ -19,66 +19,125 @@
             <span class="post-card__thread">{{ thread }}</span>
           </div>
         </div>
-
-      <div class="wrapper-right" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-        <div class="post-card__tags" *ngIf="toxicityTags.length > 0">
-          <span
-            *ngFor="let tag of toxicityTags"
-            class="post-card__tag"
-            [style.color]="tagColor(tag.label)"
-            [style.background]="tagColor(tag.label) + '26'">
-            {{ tag.label }}
-          </span>
+        <div class="wrapper-right" style="display:flex;flex-direction:row;align-items:center;gap:10px;">
+          <div class="post-card__tags" *ngIf="toxicityTags.length > 0">
+            <span *ngFor="let tag of toxicityTags" class="post-card__tag" [style.color]="tagColor(tag.label)"
+              [style.background]="tagColor(tag.label) + '26'">
+              {{ tag.label }}
+            </span>
+          </div>
+          <div class="more">•••</div>
         </div>
-        <div class="more">•••</div>
-      </div>
-    </header>
+      </header>
 
-    <h2 class="post-card__title">{{ title }}</h2>
-    <p class="post-card__message" [innerHTML]="messageHtml"></p>
+      <h2 class="post-card__title" *ngIf="title">{{ title }}</h2>
+      <p class="post-card__message" [innerHTML]="messageHtml"></p>
 
-    <!-- Footer row -->
-    <footer class="post-card__footer" (click)="$event.stopPropagation()">
-      <div class="post-card__actions">
-        <div class="post-card__vote-cluster">
-          <button class="post-card__btn post-card__btn--vote"
-            [class.post-card__btn--active-up]="userVote === 'up'" aria-label="Upvote">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      <!-- Footer -->
+      <footer class="post-card__footer" (click)="$event.stopPropagation()">
+        <div class="post-card__actions">
+          <div class="post-card__vote-cluster">
+            <button class="post-card__btn post-card__btn--vote" [class.post-card__btn--active-up]="userVote === 'up'"
+              aria-label="Upvote">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+            </button>
+            <span class="post-card__count">{{ likeCount }}</span>
+            <button class="post-card__btn post-card__btn--vote"
+              [class.post-card__btn--active-down]="userVote === 'down'" aria-label="Downvote">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+          </div>
+          <button class="post-card__btn post-card__btn--comment">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="18 15 12 9 6 15" />
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
+            <span>{{ commentCount }}</span>
           </button>
-          <span class="post-card__count">{{ likeCount }}</span>
-          <button class="post-card__btn post-card__btn--vote"
-            [class.post-card__btn--active-down]="userVote === 'down'" aria-label="Downvote">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          <button class="post-card__btn post-card__btn--share">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9" />
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
+            <span>Share</span>
           </button>
         </div>
+      </footer>
 
-        <button class="post-card__btn post-card__btn--comment">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <span>{{ commentCount }}</span>
-        </button>
-
-        <button class="post-card__btn post-card__btn--share">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          <span>Share</span>
-        </button>
+      <!-- Comment trigger bar -->
+      <div class="post-card__comment-trigger" (click)="openCommentModal($event)">
+        Add a comment…
       </div>
-    </footer>
+
+    </div>
+    <hr style="border-color: #ffffff19; margin-top: 20px;" />
+  </article>
+</div>
+
+<!-- ── Comment Modal ──────────────────────────────────────────────────────── -->
+<div class="comment-modal-backdrop" [class.comment-modal-backdrop--open]="commentModalOpen"
+  (click)="closeCommentModal()"></div>
+
+<div class="comment-modal-card" [class.comment-modal-card--open]="commentModalOpen">
+  <div class="comment-modal-card__header">
+    <span class="comment-modal-card__title">Add a Comment</span>
+    <button class="comment-modal-card__close" (click)="closeCommentModal()">✕</button>
   </div>
-  <hr style="border-color: #ffffff19; margin-top: 20px;" />
-</article>
+
+  <div class="comment-modal-card__body">
+    <div class="comment-modal-editor">
+
+      <div class="comment-modal-editor__toolbar">
+        <button class="comment-modal-editor__tool" title="Bold" (click)="wrapComment('**','**')"><b>B</b></button>
+        <button class="comment-modal-editor__tool" title="Italic" (click)="wrapComment('_','_')"><i>I</i></button>
+        <button class="comment-modal-editor__tool" title="Numbered list" (click)="wrapComment('1. ','')">1.</button>
+        <button class="comment-modal-editor__tool" title="Bullet list" (click)="wrapComment('- ','')">•</button>
+        <span class="comment-modal-editor__divider"></span>
+        <label class="comment-modal-editor__tool" title="Add media">
+          📷
+          <input #commentFileInput type="file" accept="image/*" hidden (change)="onCommentMediaSelected($event)" />
+        </label>
+      </div>
+
+      <textarea #commentBodyArea class="comment-modal-editor__body"
+        placeholder="Write your comment… (supports **bold** and _italic_)" [(ngModel)]="commentBody"
+        rows="5"></textarea>
+
+      <input class="comment-modal-editor__link" type="url" placeholder="🔗 Paste a link (optional)…"
+        [(ngModel)]="commentLink" />
+
+      <div class="comment-modal-editor__media" *ngIf="commentMediaPreviewUrl">
+        <img [src]="commentMediaPreviewUrl" alt="Media preview" class="comment-modal-editor__media-img" />
+        <button class="comment-modal-editor__media-remove" (click)="removeCommentMedia()">✕</button>
+      </div>
+
+    </div>
+
+    <div class="comment-modal-preview">
+      <div class="comment-modal-preview__label">Preview</div>
+      <div class="comment-modal-preview__body" [innerHTML]="previewHtml || 'Your comment will appear here…'"></div>
+      <div class="comment-modal-preview__link" *ngIf="commentLink">
+        <span>🔗</span> <a [href]="commentLink" target="_blank">{{ commentLink }}</a>
+      </div>
+      <img *ngIf="commentMediaPreviewUrl" [src]="commentMediaPreviewUrl" class="comment-modal-preview__img"
+        alt="preview" />
+    </div>
+  </div>
+  <div class="comment-modal-card__footer">
+    <button class="comment-modal-card__cancel" (click)="closeCommentModal()">Cancel</button>
+    <button class="comment-modal-card__submit" (click)="submitComment()"
+      [disabled]="submittingComment || !commentBody.trim()">
+      {{ submittingComment ? 'Posting…' : 'Comment' }}
+    </button>
+  </div>
+</div>
