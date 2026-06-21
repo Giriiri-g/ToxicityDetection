@@ -31,7 +31,8 @@ public class PostService : IPostService
             LinkUrl = dto.LinkUrl,
             CreatedAt = DateTime.UtcNow,
             TotalToxicityScore = totalScore,
-            Thread = dto.Thread
+            Thread = dto.Thread,
+            PPID = dto.PPID
         };
 
         // Link tag scores to the post
@@ -56,15 +57,28 @@ public class PostService : IPostService
         return posts.Select(p => ToDto(p, thresholds)).ToList();
     }
 
-    public async Task<List<ThreadCountDto>> GetThreadCounts()
+    public async Task<List<ThreadCountDto>> GetThreadCounts() { return await _posts.GetThreadCounts(); }
+
+    public async Task<PostResponseDto?> GetPostById(Guid postId)
     {
-        var threadCounts = await _posts.GetThreadCounts();
-        return threadCounts;
+        var post = await _posts.GetById(postId);
+        if (post == null) return null;
+
+        var thresholds = await _admin.GetThresholds();
+        return ToDto(post, thresholds);
+    }
+
+    public async Task<List<PostResponseDto>> GetCommentsForPost(Guid postId)
+    {
+        var comments = await _posts.GetCommentsByPostId(postId);
+        var thresholds = await _admin.GetThresholds();
+        return comments.Select(c => ToDto(c, thresholds)).ToList();
     }
 
     private static PostResponseDto ToDto(Post p, ToxicityThresholdsDto thresholds) => new()
     {
         PID = p.PID,
+        PPID = p.PPID,
         UserName = p.UserName,
         Title = p.Title,
         Message = p.Message,
@@ -80,5 +94,4 @@ public class PostService : IPostService
             .ToList(),
         Thread = p.Thread
     };
-
 }

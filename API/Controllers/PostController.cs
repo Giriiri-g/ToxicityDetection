@@ -41,4 +41,21 @@ public class PostController : ControllerBase
         var threadCounts = await _postService.GetThreadCounts();
         return Ok(threadCounts);
     }
+
+    // GET api/posts/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPostById(Guid id)
+    {
+        var post = await _postService.GetPostById(id);
+        if (post == null) return NotFound();
+        return Ok(post);
+    }
+
+    // GET api/posts/{id}/comments
+    [HttpGet("{id}/comments")]
+    public async Task<IActionResult> GetCommentsForPost(Guid id)
+    {
+        var comments = await _postService.GetCommentsForPost(id);
+        return Ok(comments);
+    }
 }

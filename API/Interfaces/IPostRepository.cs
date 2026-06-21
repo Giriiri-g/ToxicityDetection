@@ -20,6 +20,7 @@ public interface IPostRepository
     Task<int> GetFlaggedPostsCount();
     Task<Post?> GetById(Guid id);
     Task<List<Post>> GetByUsername(string username);
+    Task<List<Post>> GetCommentsByPostId(Guid postId);
     Task UpdateTagScores(Post post, double totalScore, List<TagScore> tags);
 
     Task SaveChanges();

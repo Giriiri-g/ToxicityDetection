@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
 
 export interface CreatePostRequest {
   title?: string;
@@ -8,6 +9,7 @@ export interface CreatePostRequest {
   mediaUrl?: string;
   linkUrl?: string;
   thread?: string;
+  PPID?: string;
 }
 
 export interface TagScoreResponse {
@@ -26,6 +28,7 @@ export interface PostResponse {
   commentsCount: number;
   tagScores: TagScoreResponse[];
   thread?: string;
+  ppid?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -63,5 +66,13 @@ export class PostService {
     return this.http.get<{ thread: string; count: number }[]>(`${this.apiUrl}/thread-counts`, {
       headers: this.headers()
     });
+  }
+
+  getPostById(postId: string): Observable<PostResponse> {
+    return this.http.get<PostResponse>(`${this.apiUrl}/${postId}`, { headers: this.headers() });
+  }
+
+  getCommentsForPost(postId: string): Observable<PostResponse[]> {
+    return this.http.get<PostResponse[]>(`${this.apiUrl}/${postId}/comments`, { headers: this.headers() });
   }
 }
