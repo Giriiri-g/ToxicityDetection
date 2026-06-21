@@ -96,6 +96,7 @@ builder.Services.AddScoped<IToxicityService, ToxicityService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IReviewerService, ReviewerService>();
 
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
