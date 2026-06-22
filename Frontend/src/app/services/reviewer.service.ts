@@ -42,6 +42,12 @@ export interface ReviewActionRequest {
   feedback: string | null;
 }
 
+export interface BanUserRequest {
+  duration: number;
+  unit: string;
+  reason: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReviewerService {
   private readonly apiUrl = 'https://localhost:5001/api/reviewer';
@@ -71,6 +77,14 @@ export class ReviewerService {
     return this.http.post<{ message: string }>(
       `${this.apiUrl}/posts/${id}/review`,
       action,
+      { headers: this.headers() }
+    );
+  }
+
+  banUser(userId: string, payload: BanUserRequest) {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/ban/${userId}`,
+      payload,
       { headers: this.headers() }
     );
   }

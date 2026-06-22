@@ -43,7 +43,6 @@
     <div class="rv-list__empty" *ngIf="pagedPosts.length === 0">No posts match the current filters.</div>
 
     <div class="rv-row" *ngFor="let post of pagedPosts" (click)="openPost(post)">
-      <!-- Left: avatar + meta -->
       <div class="rv-row__meta">
         <div class="rv-row__avatar">{{ post.username.charAt(0).toUpperCase() }}</div>
         <div>
@@ -52,10 +51,8 @@
         </div>
       </div>
 
-      <!-- Title -->
       <p class="rv-row__title">{{ post.title }}</p>
 
-      <!-- Right: tags + score -->
       <div class="rv-row__right">
         <div class="rv-row__tags">
           <span class="rv-tag" *ngFor="let tag of post.tags"
@@ -85,10 +82,13 @@
 
 </main>
 
-<!-- ── Detail aside overlay ──────────────────────────────────────────────── -->
-<div class="rv-backdrop" [class.rv-backdrop--open]="selectedPost" (click)="closePost()"></div>
+<!-- ── Backdrop (shared by aside and ban modal) ───────────────────────────── -->
+<div class="rv-backdrop"
+     [class.rv-backdrop--open]="selectedPost && !banModalOpen"
+     (click)="closePost()"></div>
 
-<aside class="rv-aside" [class.rv-aside--open]="selectedPost" *ngIf="selectedPost">
+<!-- ── Detail aside ──────────────────────────────────────────────────────── -->
+<aside class="rv-aside" [class.rv-aside--open]="selectedPost && !banModalOpen" *ngIf="selectedPost">
 
   <button class="rv-aside__close" (click)="closePost()">✕</button>
 
@@ -155,6 +155,69 @@
     <button class="rv-btn rv-btn--approve" (click)="approve(true)">Approve &amp; Clear Scores</button>
     <button class="rv-btn rv-btn--approve-keep" (click)="approve(false)">Approve (keep scores)</button>
     <button class="rv-btn rv-btn--reject" (click)="reject()">Reject</button>
+    <button class="rv-btn rv-btn--ban" (click)="openBanModal()">Ban User</button>
   </div>
 
 </aside>
+
+<!-- ── Ban modal backdrop ─────────────────────────────────────────────────── -->
+<div class="rv-backdrop rv-backdrop--open" *ngIf="banModalOpen" (click)="closeBanModal()"></div>
+
+<!-- ── Ban modal ─────────────────────────────────────────────────────────── -->
+<div class="rv-ban-modal" [class.rv-ban-modal--open]="banModalOpen" *ngIf="banModalOpen">
+
+  <div class="rv-ban-modal__header">
+    <span class="rv-ban-modal__title">Ban User</span>
+    <button class="rv-aside__close" (click)="closeBanModal()">✕</button>
+  </div>
+
+  <p class="rv-ban-modal__target">
+    Banning <strong>{{ selectedPost?.username }}</strong>
+  </p>
+
+  <!-- Unit -->
+  <label class="rv-ban-modal__label">
+    Duration unit <span class="rv-ban-modal__required">*</span>
+    <select class="rv-nav__select rv-ban-modal__select"
+            [(ngModel)]="banUnit"
+            (ngModelChange)="onBanUnitChange()">
+      <option value="" disabled>Select unit…</option>
+      <option *ngFor="let u of banUnits" [value]="u">
+        {{ u.charAt(0).toUpperCase() + u.slice(1) }}
+      </option>
+    </select>
+  </label>
+
+  <!-- Duration — cleared and locked when permanent -->
+  <label class="rv-ban-modal__label" [class.rv-ban-modal__label--disabled]="isPermanent">
+    Duration <span class="rv-ban-modal__required">*</span>
+    <input class="rv-ban-modal__input"
+           type="number" min="1"
+           [(ngModel)]="banDuration"
+           [disabled]="isPermanent"
+           [placeholder]="isPermanent ? 'N/A — permanent ban' : 'Enter number…'" />
+  </label>
+
+  <!-- Reason -->
+  <label class="rv-ban-modal__label">
+    Reason <span class="rv-ban-modal__required">*</span>
+    <textarea class="rv-aside__feedback rv-ban-modal__reason"
+              [(ngModel)]="banReason"
+              placeholder="Reason for ban…"
+              rows="3"></textarea>
+  </label>
+
+  <!-- Inline error -->
+  <p class="rv-ban-modal__error" *ngIf="banError">{{ banError }}</p>
+
+  <!-- Footer -->
+  <div class="rv-ban-modal__footer">
+    <button class="rv-btn rv-btn--cancel" (click)="closeBanModal()">Cancel</button>
+    <button class="rv-btn rv-btn--ban"
+            [disabled]="!banFormValid || banSubmitting"
+            (click)="submitBan()">
+      {{ banSubmitting ? 'Banning…' : 'Confirm Ban' }}
+    </button>
+  </div>
+
+</div>

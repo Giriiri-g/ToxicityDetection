@@ -25,7 +25,7 @@ $accent-hover: #ffe9a0;
   position: relative;
 }
 
-// ── Filter nav — identical toggle mechanics to admin ──────────────────────────
+// ── Filter nav ────────────────────────────────────────────────────────────────
 .rv-nav {
   width: 20px;
   flex-shrink: 0;
@@ -135,7 +135,6 @@ $accent-hover: #ffe9a0;
   border-bottom: 1px solid $border;
   cursor: pointer;
   transition: background .15s;
-
   &:hover { background: $accent; }
 }
 
@@ -213,7 +212,7 @@ $accent-hover: #ffe9a0;
   &--open { opacity: 1; pointer-events: all; }
 }
 
-// ── Detail aside — centered fixed-size modal ──────────────────────────────────
+// ── Detail aside ──────────────────────────────────────────────────────────────
 .rv-aside {
   position: fixed;
   top: 50%; left: 50%;
@@ -323,9 +322,93 @@ $accent-hover: #ffe9a0;
   padding: 9px 12px; border: none; border-radius: 8px;
   font-size: 13px; font-weight: 700; cursor: pointer;
   transition: opacity .15s;
-  &:hover { opacity: .85; }
+  &:hover:not(:disabled) { opacity: .85; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
 
   &--approve      { background: #22c55e; color: #fff; }
   &--approve-keep { background: #3b82f6; color: #fff; }
   &--reject       { background: #ef4444; color: #fff; }
+  &--ban          { background: #7c3aed; color: #fff; }
+  &--cancel       { background: #e2e8f0; color: $text; flex: 0 0 auto; min-width: 80px; }
+}
+
+// ── Ban modal ─────────────────────────────────────────────────────────────────
+.rv-ban-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -46%) scale(0.97);
+  width: min(420px, 92vw);
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.22);
+  z-index: 202;
+  display: flex; flex-direction: column;
+  gap: 16px; padding: 24px 24px 20px;
+  box-sizing: border-box;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease, transform .26s cubic-bezier(.4,0,.2,1);
+
+  &--open {
+    opacity: 1; pointer-events: all;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-right: 4px;
+  }
+
+  &__title {
+    font-size: 15px; font-weight: 700; color: $text;
+  }
+
+  &__target {
+    font-size: 13px; color: $muted; margin: 0;
+    strong { color: $text; }
+  }
+
+  &__label {
+    display: flex; flex-direction: column; gap: 7px;
+    font-size: 13px; font-weight: 500; color: $text;
+
+    &--disabled {
+      opacity: .45;
+      pointer-events: none;
+    }
+  }
+
+  &__required { color: #ef4444; margin-left: 2px; }
+
+  &__select { width: 100%; }
+
+  &__input {
+    background: $bg; border: 1px solid $border;
+    border-radius: 8px; padding: 8px 10px;
+    color: $text; font-size: 13px; font-family: inherit;
+    outline: none; width: 100%; box-sizing: border-box;
+
+    &::placeholder { color: $muted; }
+    &:focus { border-color: #999; }
+    &:disabled { background: darken($bg, 3%); cursor: not-allowed; }
+
+    // Hide number spinners — the placeholder communicates N/A clearly
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    -moz-appearance: textfield;
+  }
+
+  &__reason { margin: 0; }
+
+  &__error {
+    font-size: 12.5px; color: #ef4444;
+    background: rgba(239,68,68,.08);
+    border-radius: 6px; padding: 8px 10px;
+    margin: 0;
+  }
+
+  &__footer {
+    display: flex; gap: 8px; justify-content: flex-end;
+    padding-top: 4px;
+  }
 }

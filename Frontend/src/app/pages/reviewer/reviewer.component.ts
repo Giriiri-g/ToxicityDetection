@@ -18,7 +18,6 @@ export interface ReviewPost {
   message: string;
   toxicityScore: number;
   tags: ReviewTag[];
-  // detail fields
   userJoined: string;
   history: { title: string; toxicityScore: number; timePosted: string }[];
 }
@@ -38,8 +37,6 @@ export class ReviewerComponent implements OnInit {
   posts: ReviewPost[] = [];
   loading = false;
   error: string | null = null;
-
-  // Server-side pagination totals
   totalCount = 0;
 
   // ── Nav ───────────────────────────────────────────────────────────────────
@@ -52,6 +49,7 @@ export class ReviewerComponent implements OnInit {
   selectedTag = '';
 
   readonly allTags = ['Hate', 'Threat', 'NSFW', 'Spam', 'Controversial'];
+  readonly banUnits = ['days', 'weeks', 'months', 'years', 'permanent'];
 
   // ── Pagination ────────────────────────────────────────────────────────────
   readonly pageSize = 10;
@@ -88,17 +86,14 @@ export class ReviewerComponent implements OnInit {
   onFilterChange() { this.currentPage = 1; }
 
   // ── Data loading ──────────────────────────────────────────────────────────
-  ngOnInit(): void {
-    this.loadPosts();
-  }
+  ngOnInit(): void { this.loadPosts(); }
 
   loadPosts(): void {
     this.loading = true;
     this.error = null;
-    // Load all flagged posts up-front for client-side filter/sort (pageSize 50 max per call)
     this.reviewerService.getFlaggedPosts(1, 50).subscribe({
       next: (res) => {
-        this.posts = res.posts.map(this.mapPost);
+        this.posts = res.posts.map(p => this.mapPost(p));
         this.totalCount = res.total;
         this.loading = false;
       },
@@ -154,7 +149,10 @@ export class ReviewerComponent implements OnInit {
     });
   }
 
-  closePost() { this.selectedPost = null; }
+  closePost() {
+    this.selectedPost = null;
+    this.closeBanModal();
+  }
 
   approve(clearScores: boolean) {
     if (!this.selectedPost) return;
@@ -165,10 +163,7 @@ export class ReviewerComponent implements OnInit {
       editedTags: clearScores ? null : this.editTags.map(t => t.label),
       feedback: this.feedback || null,
     }).subscribe({
-      next: () => {
-        this.posts = this.posts.filter(p => p.id !== id);
-        this.closePost();
-      },
+      next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
       error: () => alert('Review action failed.')
     });
   }
@@ -182,10 +177,7 @@ export class ReviewerComponent implements OnInit {
       editedTags: null,
       feedback: this.feedback || null,
     }).subscribe({
-      next: () => {
-        this.posts = this.posts.filter(p => p.id !== id);
-        this.closePost();
-      },
+      next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
       error: () => alert('Review action failed.')
     });
   }
@@ -194,6 +186,68 @@ export class ReviewerComponent implements OnInit {
     this.editTags = this.editTags.filter(t => t.label !== tag.label);
   }
 
+  // ── Ban modal ─────────────────────────────────────────────────────────────
+  banModalOpen = false;
+  banDuration: number | null = null;
+  banUnit = '';
+  banReason = '';
+  banError: string | null = null;
+  banSubmitting = false;
+
+  get isPermanent(): boolean { return this.banUnit === 'permanent'; }
+
+  get banFormValid(): boolean {
+    if (!this.banUnit) return false;
+    if (!this.banReason.trim()) return false;
+    if (!this.isPermanent && (!this.banDuration || this.banDuration < 1)) return false;
+    return true;
+  }
+
+  openBanModal() {
+    this.banDuration = null;
+    this.banUnit = '';
+    this.banReason = '';
+    this.banError = null;
+    this.banSubmitting = false;
+    this.banModalOpen = true;
+  }
+
+  closeBanModal() {
+    this.banModalOpen = false;
+    this.banError = null;
+  }
+
+  onBanUnitChange() {
+    if (this.isPermanent) this.banDuration = null;
+    this.banError = null;
+  }
+
+  submitBan() {
+    if (!this.selectedPost || !this.banFormValid) return;
+
+    this.banSubmitting = true;
+    this.banError = null;
+
+    const payload = {
+      duration: this.isPermanent ? 0 : this.banDuration!,
+      unit: this.banUnit,
+      reason: this.banReason.trim(),
+    };
+
+    this.reviewerService.banUser(this.selectedPost.id, payload).subscribe({
+      next: () => {
+        this.banSubmitting = false;
+        this.closeBanModal();
+        this.closePost();
+      },
+      error: (err) => {
+        this.banSubmitting = false;
+        this.banError = err?.error?.message ?? 'Failed to ban user. Please try again.';
+      }
+    });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
   tagColor(severity: string) {
     return severity === 'high' ? '#ff4500' : severity === 'medium' ? '#fbbf24' : '#94e044';
   }
