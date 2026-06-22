@@ -44,6 +44,10 @@ public class PostService : IPostService
         }
 
         await _posts.Add(post);
+        if (dto.PPID != null)
+        {
+            await _posts.ModifyCommentCount(dto.PPID.Value, 1);
+        }
         await _posts.SaveChanges();
 
         var thresholds = await _admin.GetThresholds();
@@ -75,6 +79,28 @@ public class PostService : IPostService
         return comments.Select(c => ToDto(c, thresholds)).ToList();
     }
 
+    public async Task LikePost(Guid PID, Guid UID)
+    {
+        var existingLike = await _posts.GetLike(PID, UID);
+        if (existingLike != null)
+            return; // Like already exists, do nothing
+
+        var like = new Like { PID = PID, UID = UID, LikedAt = DateTime.UtcNow };
+        await _posts.AddLike(like);
+        await _posts.ModifyLikeCount(PID, 1); // Increment like count
+        await _posts.SaveChanges();
+    }
+
+    public async Task UnLikePost(Guid PID, Guid UID)
+    {
+        var existingLike = await _posts.GetLike(PID, UID);
+        if (existingLike == null)
+            return; // Like doesn't exist, do nothing
+
+        await _posts.RemoveLike(existingLike);
+        await _posts.ModifyLikeCount(PID, -1); // Decrement like count
+        await _posts.SaveChanges();
+    }
     private static PostResponseDto ToDto(Post p, ToxicityThresholdsDto thresholds) => new()
     {
         PID = p.PID,

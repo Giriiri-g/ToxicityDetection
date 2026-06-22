@@ -36,6 +36,39 @@ public class PostRepository : IPostRepository
             .ToListAsync();
     }
 
+    public async Task<Like?> GetLike(Guid PID, Guid UID)
+    {
+        return await _context.Likes.FirstOrDefaultAsync(l => l.PID == PID && l.UID == UID);
+    }
+
+    public async Task AddLike(Like like)
+    {
+        await _context.Likes.AddAsync(like);
+    }
+
+    public async Task RemoveLike(Like like)
+    {
+        _context.Likes.Remove(like);
+    }
+
+    public async Task ModifyLikeCount(Guid PID, int delta)
+    {
+        var post = await _context.Posts.FindAsync(PID);
+        if (post != null)
+        {
+            post.LikesCount += delta;
+        }
+    }
+
+    public async Task ModifyCommentCount(Guid PID, int delta)
+    {
+        var post = await _context.Posts.FindAsync(PID);
+        if (post != null)
+        {
+            post.CommentsCount += delta;
+        }
+    }
+    
     public async Task<int> GetTotalPostCount(){return await _context.Posts.CountAsync(p => p.PPID == null);}
 
     public async Task<List<(string Tag, int Count)>> GetFlaggedCountByTag(){

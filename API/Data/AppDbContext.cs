@@ -74,6 +74,16 @@ namespace API.Data
                 BlurThreshold = 35.0,
                 BlockThreshold = 70.0
             });
+
+            // Like
+            b.Entity<Like>(entity =>
+            {
+                entity.HasKey(l => new { l.PID, l.UID });
+                entity.Property(l => l.LikedAt)
+                    .IsRequired();
+                entity.HasIndex(l => l.UID);
+                entity.HasIndex(l => l.PID);
+            });
         }
     }
 }

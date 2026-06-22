@@ -16,9 +16,9 @@ public class Post
 
     public required DateTime CreatedAt { get; set; }
 
-    public int LikesCount { get; set; }
-    public int SharesCount { get; set; }
-    public int CommentsCount { get; set; }
+    public int LikesCount { get; set; } = 0;
+    public int SharesCount { get; set; } = 0;
+    public int CommentsCount { get; set; } = 0;
     public double TotalToxicityScore { get; set; }
 
     // Navigation

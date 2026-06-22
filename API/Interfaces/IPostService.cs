@@ -9,4 +9,7 @@ public interface IPostService
     Task<PostResponseDto?> GetPostById(Guid postId);
     Task<List<PostResponseDto>> GetCommentsForPost(Guid postId);
     Task<List<ThreadCountDto>> GetThreadCounts();
+    Task LikePost(Guid PID, Guid UID);
+    Task UnLikePost(Guid PID, Guid UID);
+
 }

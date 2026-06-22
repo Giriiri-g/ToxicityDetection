@@ -58,4 +58,28 @@ public class PostController : ControllerBase
         var comments = await _postService.GetCommentsForPost(id);
         return Ok(comments);
     }
+
+    // POST api/posts/{id}/like
+    [HttpPost("{PID}/like")]
+    public async Task<IActionResult> LikePost(Guid PID)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var UID))
+            return Unauthorized(new { message = "User identity could not be resolved from token." });
+
+        await _postService.LikePost(PID, UID);
+        return Ok(new { message = "Reached Post Like Controller Successfully." });
+    }
+
+    // DELETE api/posts/{id}/like
+    [HttpDelete("{PID}/like")]
+    public async Task<IActionResult> UnLikePost(Guid PID)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var UID))
+            return Unauthorized(new { message = "User identity could not be resolved from token." });
+
+        await _postService.UnLikePost(PID, UID);
+        return Ok(new { message = "Reached Post Unlike Controller Successfully." });
+    }
 }

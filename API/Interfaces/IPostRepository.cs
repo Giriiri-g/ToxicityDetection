@@ -7,6 +7,11 @@ public interface IPostRepository
 {
     Task Add(Post post);
     Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null);
+    Task<Like?> GetLike(Guid PID, Guid UID);
+    Task AddLike(Like like);
+    Task RemoveLike(Like like);
+    Task ModifyLikeCount(Guid PID, int delta);
+    Task ModifyCommentCount(Guid PID, int delta);
 
     // Stats / admin
     Task<int> GetTotalPostCount();
