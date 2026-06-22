@@ -47,8 +47,8 @@ public class AdminService : IAdminService
 
     public async Task<(bool success, string message)> CreateUser(RegisterDto dto)
     {
-        if (dto.Role != "User" && dto.Role != "Reviewer")
-            return (false, "Role must be 'User' or 'Reviewer'.");
+        if (dto.Role != "User" && dto.Role != "Reviewer" && dto.Role != "Admin")
+            return (false, "Role must be 'User', 'Reviewer', or 'Admin'.");
 
         var token = await _authService.Register(dto);
         if (token == null)
