@@ -30,7 +30,7 @@ public class ReviewerService : IReviewerService
         var user = await _users.GetByUsername(post.UserName);
         var history = await _posts.GetByUsername(post.UserName);
 
-        var detail = new ReviewPostDetailDto
+        return new ReviewPostDetailDto
         {
             PID = post.PID,
             UserName = post.UserName,
@@ -54,8 +54,6 @@ public class ReviewerService : IReviewerService
                 })
                 .ToList()
         };
-
-        return detail;
     }
 
     public async Task<(bool success, string message)> ReviewPost(Guid id, ReviewActionDto dto)
@@ -85,13 +83,86 @@ public class ReviewerService : IReviewerService
         }
         else
         {
-            // Reject: flag as removed by setting a sentinel toxicity value or simply remove
             await _posts.UpdateTagScores(post, 100, post.TagScores.ToList());
         }
 
         await _posts.SaveChanges();
         return (true, dto.Approve ? "Post approved." : "Post rejected.");
     }
+
+    public async Task<(bool success, string message)> BanUser(Guid userId, BanUserResponseDto dto, Guid moderatorId)
+    {
+        // 1. Check if user exists
+        var user = await _users.GetById(userId);
+        if (user is null) return (false, "User not found.");
+
+        // 2. Check for an existing active ban
+        var existingBan = await _users.GetActiveBan(userId);
+
+        bool isPermanent = dto.Unit.Equals("permanent", StringComparison.OrdinalIgnoreCase);
+
+        if (existingBan is not null)
+        {
+            // Perma-banned users stay perma-banned — no calculation
+            if (existingBan.ExpiryDate is null)
+                return (false, "User is already permanently banned.");
+
+            if (isPermanent)
+            {
+                // Escalate existing timed ban to permanent
+                await _users.UpdateBanExpiry(existingBan, null);
+            }
+            else
+            {
+                // Add duration on top of the current expiry date
+                var newExpiry = AddDuration(existingBan.ExpiryDate.Value, dto.Duration, dto.Unit);
+                await _users.UpdateBanExpiry(existingBan, newExpiry);
+            }
+
+            await _users.SaveChanges();
+            return (true, isPermanent
+                ? "Existing ban escalated to permanent."
+                : $"Ban extended by {dto.Duration} {dto.Unit}.");
+        }
+
+        // 3. No existing ban — calculate start and expiry dates
+        var startDate = DateTime.UtcNow;
+        DateTime? endDate = isPermanent ? null : AddDuration(startDate, dto.Duration, dto.Unit);
+
+        // 4. Create and persist the new ban
+        var banDto = new BanUserDto
+        {
+            UserId = userId,
+            StartDate = startDate,
+            EndDate = endDate,
+            Reason = dto.Reason ?? "",
+            ModeratorId = moderatorId
+        };
+
+        await _users.BanUser(banDto);
+        await _users.SaveChanges();
+
+        return (true, isPermanent
+            ? "User permanently banned."
+            : $"User banned until {endDate:u}.");
+    }
+
+    public async Task<int> ClearCache()
+    {
+        return await _users.ClearCache();
+    }
+
+    // --- Helpers ---
+
+    private static DateTime AddDuration(DateTime from, int duration, string unit) =>
+        unit.ToLowerInvariant() switch
+        {
+            "days"   => from.AddDays(duration),
+            "weeks"  => from.AddDays(duration * 7),
+            "months" => from.AddMonths(duration),
+            "years"  => from.AddYears(duration),
+            _        => throw new ArgumentException($"Unsupported ban unit: {unit}")
+        };
 
     private static ReviewPostDto ToDto(Post p) => new()
     {

@@ -1,4 +1,5 @@
 namespace API.DTOs;
+
 public class TagScoreDto
 {
     public string Tag { get; set; } = "";
@@ -32,17 +33,23 @@ public class ReviewPostDetailDto : ReviewPostDto
     public List<ReviewHistoryItemDto> History { get; set; } = new();
 }
 
-/// <summary>Body sent by reviewer when approving or rejecting a post.</summary>
-public class ReviewActionDto
-{
-    /// <summary>true = approve, false = reject</summary>
+public class ReviewActionDto{
     public bool Approve { get; set; }
-
-    /// <summary>When approving: true clears scores/tags, false keeps them (optionally with EditedTags).</summary>
     public bool ClearScores { get; set; }
-
-    /// <summary>Reviewer-edited tag list. Null means keep existing.</summary>
     public List<string>? EditedTags { get; set; }
-
     public string? Feedback { get; set; }
+}
+
+public class BanUserResponseDto{
+    public int Duration { get; set; }
+    public string Unit { get; set; } = "";
+    public string? Reason { get; set; }
+}
+
+public class BanUserDto{
+    public Guid UserId { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public string Reason { get; set; } = "";
+    public Guid ModeratorId { get; set; }
 }

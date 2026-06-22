@@ -28,8 +28,12 @@ public class AuthService : IAuthService
 
         if (user == null)
             return null;
-
-
+        var BanExists = await _userRepository.GetActiveBan(user.Id);
+        if (BanExists != null) // If User is banned then Block Login
+        {
+            System.Console.WriteLine("User is banned");
+            return null;
+        }
         if (BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash) == false)
             return null;
 

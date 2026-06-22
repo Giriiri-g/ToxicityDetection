@@ -12,6 +12,9 @@ namespace API.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<TagScore> TagScores { get; set; }
         public DbSet<ToxicityConfig> ToxicityConfigs { get; set; }
+        public DbSet<Ban> Bans { get; set; }
+        public DbSet<BanHistory> BanHistories { get; set; }
+        public DbSet<Like> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -25,7 +28,6 @@ namespace API.Data
                  .HasPrincipalKey(u => u.UserName)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                // Self-referencing relationship for comments
                 e.HasOne(p => p.ParentPost)
                  .WithMany(p => p.ChildPosts)
                  .HasForeignKey(p => p.PPID)
@@ -43,7 +45,27 @@ namespace API.Data
                  .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // ToxicityConfig — singleton row seeded with defaults
+            // Ban
+            b.Entity<Ban>(e =>
+            {
+                e.HasKey(b => b.TID);
+
+                e.HasOne(b => b.User)
+                 .WithMany()
+                 .HasForeignKey(b => b.UID)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(b => b.Moderator)
+                 .WithMany()
+                 .HasForeignKey(b => b.ModID)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            b.Entity<BanHistory>(e =>
+            {
+                e.HasKey(h => h.TID);
+            });
+
             b.Entity<ToxicityConfig>(e => e.HasKey(c => c.Id));
             b.Entity<ToxicityConfig>().HasData(new ToxicityConfig
             {
