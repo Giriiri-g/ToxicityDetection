@@ -165,14 +165,17 @@ public class PostRepository : IPostRepository
         post.TotalToxicityScore = totalScore;
 
         _context.TagScores.RemoveRange(_context.TagScores.Where(t => t.PostId == post.PID));
+        await SaveChanges();
 
         foreach (var tag in tags)
         {
+            tag.Id = Guid.NewGuid();
             tag.PostId = post.PID;
             tag.Post = post;
         }
 
         await _context.TagScores.AddRangeAsync(tags);
+        await SaveChanges();
     }
 
     public async Task<List<Post>> GetCommentsByPostId(Guid postId){

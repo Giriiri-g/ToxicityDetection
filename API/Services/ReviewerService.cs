@@ -85,8 +85,6 @@ public class ReviewerService : IReviewerService
         {
             await _posts.UpdateTagScores(post, 100, post.TagScores.ToList());
         }
-
-        await _posts.SaveChanges();
         return (true, dto.Approve ? "Post approved." : "Post rejected.");
     }
 
@@ -118,8 +116,6 @@ public class ReviewerService : IReviewerService
                 var newExpiry = AddDuration(existingBan.ExpiryDate.Value, dto.Duration, dto.Unit);
                 await _users.UpdateBanExpiry(existingBan, newExpiry);
             }
-
-            await _users.SaveChanges();
             return (true, isPermanent
                 ? "Existing ban escalated to permanent."
                 : $"Ban extended by {dto.Duration} {dto.Unit}.");
@@ -140,7 +136,6 @@ public class ReviewerService : IReviewerService
         };
 
         await _users.BanUser(banDto);
-        await _users.SaveChanges();
 
         return (true, isPermanent
             ? "User permanently banned."

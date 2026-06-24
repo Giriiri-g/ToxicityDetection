@@ -80,6 +80,7 @@ public class UserRepository : IUserRepository
         };
 
         await _context.Bans.AddAsync(ban);
+        await SaveChanges();
     }
 
     public async Task UpdateBanExpiry(Ban existingBan, DateTime? newExpiry)
@@ -87,6 +88,7 @@ public class UserRepository : IUserRepository
         existingBan.ExpiryDate = newExpiry;
         _context.Bans.Update(existingBan);
         await Task.CompletedTask;
+        await SaveChanges();
     }
 
     public async Task<int> ClearCache()
