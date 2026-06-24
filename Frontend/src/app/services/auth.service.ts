@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { throwError, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -23,10 +24,30 @@ export class AuthService {
     );
   }
 
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (e) {
+      return null;
+    }
+  }
+
   me() {
-    return this.http.get(`${this.apiUrl}/user/me`, {
-      headers: new HttpHeaders({ Authorization: `Bearer ${this.getToken()}` })
-    });
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No token'));
+    }
+    const decoded = this.decodeToken(token);
+    if (!decoded) {
+      return throwError(() => new Error('Invalid token'));
+    }
+    const username = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    if (username === undefined || role === undefined) {
+      return throwError(() => new Error('Token does not contain required claims'));
+    }
+    return of({ username, role });
   }
 
   logout() {
