@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PostService, PostResponse } from '../../services/post.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PostCardComponent, ToxicityTag  } from './post-card.component';
 import { CommonModule, Location } from '@angular/common';
@@ -19,14 +19,14 @@ export interface FlatComment {
   styleUrls: ['./feed-detail.component.scss']
 })
 export class FeedDetailComponent implements OnInit {
+  private router = inject(Router);
   postId = '';
   post$: Observable<PostResponse> | undefined;
   flatComments: FlatComment[] = [];
 
   constructor(
     private postService: PostService,
-    private route: ActivatedRoute,
-    private location: Location
+    private route: ActivatedRoute
   ) {}
 
   buildFlatComments(comments: PostResponse[]): FlatComment[] {
@@ -102,7 +102,7 @@ export class FeedDetailComponent implements OnInit {
     });
   }
 
-  goBack(): void { this.location.back(); }
+  goBack(): void { this.router.navigate(['/feed']); }
 
   refreshComments(): void { this.loadComments(); }
 

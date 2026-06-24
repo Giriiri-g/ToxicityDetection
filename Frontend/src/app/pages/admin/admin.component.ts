@@ -10,7 +10,6 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from "@angular/router";
   imports: [HeaderComponent, RouterOutlet, RouterLink, RouterLinkActive]
 })
 export class AdminComponent {
-  currentView = 'user-stats';
   NavState = false;
   toggleNav(){
     this.NavState = !this.NavState;
