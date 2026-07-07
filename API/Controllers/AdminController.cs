@@ -23,10 +23,7 @@ public class AdminController : ControllerBase
         => Ok(await _adminService.GetToxicityStats(days));
 
     [HttpGet("thresholds")]
-    public async Task<IActionResult> GetThresholds()
-        => Ok(await _admin_service_wrapper());
-
-    private async Task<ToxicityThresholdsDto> _admin_service_wrapper() => await _adminService.GetThresholds();
+    public async Task<IActionResult> GetThresholds() => Ok(await _adminService.GetThresholds());
 
     [HttpPost("thresholds")]
     public async Task<IActionResult> SetThresholds([FromBody] ToxicityThresholdsDto dto)

@@ -7,21 +7,13 @@ using System.Text.Json;
 
 namespace API.Services;
 
-public class AdminService : IAdminService
+public class AdminService(IUserRepository userRepository, IAuthService authService, IPostRepository postRepository, AppDbContext db) : IAdminService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IAuthService _authService;
-    private readonly IPostRepository _postRepository;
-    private readonly AppDbContext _db;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IAuthService _authService = authService;
+    private readonly IPostRepository _postRepository = postRepository;
+    private readonly AppDbContext _db = db;
     private static bool _threadUpdatePerformed = false;
-
-    public AdminService(IUserRepository userRepository, IAuthService authService, IPostRepository postRepository, AppDbContext db)
-    {
-        _userRepository = userRepository;
-        _authService = authService;
-        _postRepository = postRepository;
-        _db = db;
-    }
 
     public async Task<UserStatsDto> GetUserStats()
     {

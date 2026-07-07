@@ -8,18 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace API.Services;
 
-public class ToxicityService : IToxicityService
+public class ToxicityService(IConfiguration config, IHttpClientFactory httpClientFactory, ILogger<ToxicityService> logger) : IToxicityService
 {
-    private readonly HttpClient _http;
-    private readonly string _apiKey;
-    private readonly ILogger<ToxicityService> _logger;
-
-    private const string GroqApiUrl =
-        "https://api.groq.com/openai/v1/chat/completions";
-
-    private const string Model =
-        "openai/gpt-oss-safeguard-20b";
-
+    private readonly HttpClient _http = httpClientFactory.CreateClient();
+    private readonly string _apiKey = config["Groq:ApiKey"]
+            ?? throw new InvalidOperationException(
+                "Groq:ApiKey is not configured.");
+    private readonly ILogger<ToxicityService> _logger = logger;
+    private const string GroqApiUrl = "https://api.groq.com/openai/v1/chat/completions"; // set it up in appsettings.json
+    private const string Model = "openai/gpt-oss-safeguard-20b"; // set it up in appsettings.json, model may get decapricated in the future, so we can change it to a different model if needed
     private static readonly string[] SupportedTags =
     [
         "Hate",
@@ -28,19 +25,6 @@ public class ToxicityService : IToxicityService
         "Spam",
         "Controversial"
     ];
-
-    public ToxicityService(
-        IConfiguration config,
-        IHttpClientFactory httpClientFactory,
-        ILogger<ToxicityService> logger)
-    {
-        _http = httpClientFactory.CreateClient();
-        _logger = logger;
-
-        _apiKey = config["Groq:ApiKey"]
-            ?? throw new InvalidOperationException(
-                "Groq:ApiKey is not configured.");
-    }
 
     public async Task<(double totalScore, List<TagScore> tags)> Analyze(string text)
     {
@@ -154,9 +138,7 @@ Example:
         }
     }
 
-    private static (double totalScore, List<TagScore> tags)
-        ParseScores(string jsonContent)
-    {
+    private static (double totalScore, List<TagScore> tags) ParseScores(string jsonContent){
         using var doc =
             JsonDocument.Parse(jsonContent);
 
@@ -197,9 +179,7 @@ Example:
 
     private static readonly Random Rng = new();
 
-    private static (double totalScore, List<TagScore> tags)
-        FallbackScores()
-    {
+    private static (double totalScore, List<TagScore> tags) FallbackScores(){
         var tagScores = SupportedTags
             .Select(tag => new TagScore
             {
