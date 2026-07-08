@@ -15,25 +15,59 @@ public class PostRepository : IPostRepository
 {
     private readonly AppDbContext _context;
     public PostRepository(AppDbContext context) => _context = context;
-    public async Task Add(Post post){await _context.Posts.AddAsync(post);}
-    public async Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null){
+    public async Task Add(Post post){await _context.Posts.AddAsync(post); }
+    public async Task<List<Post>> GetFeed(int page, int pageSize, Guid? userId = null, string? thread = null)
+    {
         var cfg = await _context.ToxicityConfigs.FirstOrDefaultAsync(c => c.Id == 1);
         var blockThreshold = cfg?.BlockThreshold ?? 70.0;
 
         var query = _context.Posts
-            .Where(p => p.PPID == null && p.TotalToxicityScore < blockThreshold);
+            .Where(p => p.PPID == null
+                     && p.TotalToxicityScore < blockThreshold
+                     && !p.IsBlocked);
 
         if (!string.IsNullOrWhiteSpace(thread))
-        {
             query = query.Where(p => p.Thread == thread);
-        }
 
-        return await query
+        var posts = await query
             .Include(p => p.TagScores)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+
+        if (userId.HasValue && posts.Count > 0)
+        {
+            var pids = posts.Select(p => p.PID).ToList();
+            var likedSet = (await _context.Likes
+                .Where(l => l.UID == userId.Value && pids.Contains(l.PID))
+                .Select(l => l.PID)
+                .ToListAsync())
+                .ToHashSet();
+
+            foreach (var post in posts)
+                post.IsLikedByCurrentUser = likedSet.Contains(post.PID);
+        }
+
+        return posts;
+    }
+
+    public async Task<bool> SetBlocked(Guid postId, bool isBlocked)
+    {
+        var post = await _context.Posts.FindAsync(postId);
+        if (post is null) return false;
+        post.IsBlocked = isBlocked;
+        await SaveChanges();
+        return true;
+    }
+
+    public async Task<bool> SetBlurred(Guid postId, bool isBlurred)
+    {
+        var post = await _context.Posts.FindAsync(postId);
+        if (post is null) return false;
+        post.IsBlurred = isBlurred;
+        await SaveChanges();
+        return true;
     }
 
     public async Task<Like?> GetLike(Guid PID, Guid UID)
@@ -41,6 +75,40 @@ public class PostRepository : IPostRepository
         return await _context.Likes.FirstOrDefaultAsync(l => l.PID == PID && l.UID == UID);
     }
 
+    public async Task<List<bool>> DidUserLikePosts(Guid userId, List<Guid> PIDs)
+    {
+        if (PIDs.Count == 0)
+            return [];
+
+        var likedPids = (await _context.Likes
+            .Where(l => l.UID == userId && PIDs.Contains(l.PID))
+            .Select(l => l.PID)
+            .ToListAsync())
+            .ToHashSet();
+
+        return PIDs.Select(pid => likedPids.Contains(pid)).ToList();
+    }
+
+    public async Task<List<Post>?> GetLikedPostsByUserId(Guid userId)
+    {
+        return await _context.Posts
+            .Where(p => _context.Likes.Any(l =>
+                l.UID == userId &&
+                l.PID == p.PID))
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<List<Post>?> GetPostsByUserId(Guid userId)
+    {
+        return await _context.Posts
+            .AsNoTracking()
+            .Where(p => p.User.Id == userId)
+            .Include(p => p.TagScores)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
     public async Task AddLike(Like like)
     {
         await _context.Likes.AddAsync(like);
@@ -54,10 +122,7 @@ public class PostRepository : IPostRepository
     public async Task ModifyLikeCount(Guid PID, int delta)
     {
         var post = await _context.Posts.FindAsync(PID);
-        if (post != null)
-        {
-            post.LikesCount += delta;
-        }
+        post?.LikesCount += delta;
     }
 
     public async Task ModifyCommentCount(Guid PID, int delta)

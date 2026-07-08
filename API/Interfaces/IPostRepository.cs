@@ -6,12 +6,19 @@ namespace API.Interfaces;
 public interface IPostRepository
 {
     Task Add(Post post);
-    Task<List<Post>> GetFeed(int page, int pageSize, string? thread = null);
+    Task<List<Post>> GetFeed(int page, int pageSize, Guid? userId = null, string? thread = null);
     Task<Like?> GetLike(Guid PID, Guid UID);
+    Task<List<bool>> DidUserLikePosts(Guid userId, List<Guid> PIDs);
+    Task<List<Post>?> GetLikedPostsByUserId(Guid userId);
+    Task<List<Post>?> GetPostsByUserId(Guid userId);
     Task AddLike(Like like);
     Task RemoveLike(Like like);
     Task ModifyLikeCount(Guid PID, int delta);
     Task ModifyCommentCount(Guid PID, int delta);
+
+    // Moderation
+    Task<bool> SetBlocked(Guid postId, bool isBlocked);
+    Task<bool> SetBlurred(Guid postId, bool isBlurred);
 
     // Stats / admin
     Task<int> GetTotalPostCount();

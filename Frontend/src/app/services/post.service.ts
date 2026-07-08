@@ -29,6 +29,8 @@ export interface PostResponse {
   tagScores: TagScoreResponse[];
   thread?: string;
   ppid?: string;
+  isBlurred: boolean;
+  isLikedByUser: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,7 +43,6 @@ export class PostService {
     const token = this.auth.getToken();
     if (!token) {
       console.warn('No auth token available');
-      // Return headers without authorization - let the backend handle auth errors
       return new HttpHeaders({});
     }
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -53,26 +54,29 @@ export class PostService {
 
   getFeed(page = 1, pageSize = 20, thread?: string) {
     const params: any = { page, pageSize };
-    if (thread) {
-      params.thread = thread;
-    }
+    if (thread) params.thread = thread;
     return this.http.get<PostResponse[]>(`${this.apiUrl}/feed`, {
       headers: this.headers(),
-      params: params
+      params,
     });
   }
 
   getThreadCounts() {
-    return this.http.get<{ thread: string; count: number }[]>(`${this.apiUrl}/thread-counts`, {
-      headers: this.headers()
-    });
+    return this.http.get<{ thread: string; count: number }[]>(
+      `${this.apiUrl}/thread-counts`,
+      { headers: this.headers() }
+    );
   }
 
   getPostById(postId: string): Observable<PostResponse> {
-    return this.http.get<PostResponse>(`${this.apiUrl}/${postId}`, { headers: this.headers() });
+    return this.http.get<PostResponse>(`${this.apiUrl}/${postId}`, {
+      headers: this.headers(),
+    });
   }
 
   getCommentsForPost(postId: string): Observable<PostResponse[]> {
-    return this.http.get<PostResponse[]>(`${this.apiUrl}/${postId}/comments`, { headers: this.headers() });
+    return this.http.get<PostResponse[]>(`${this.apiUrl}/${postId}/comments`, {
+      headers: this.headers(),
+    });
   }
 }

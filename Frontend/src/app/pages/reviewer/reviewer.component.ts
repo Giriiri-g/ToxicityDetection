@@ -8,7 +8,11 @@ import {
   ReviewPostDetailResponse,
 } from '../../services/reviewer.service';
 
-export interface ReviewTag { label: string; severity: 'low' | 'medium' | 'high'; }
+export interface ReviewTagScore {
+  label: string;
+  score: number;                         // 0–100 numeric score from API
+  severity: 'low' | 'medium' | 'high';
+}
 
 export interface ReviewPost {
   id: string;
@@ -17,7 +21,7 @@ export interface ReviewPost {
   title: string;
   message: string;
   toxicityScore: number;
-  tags: ReviewTag[];
+  tags: ReviewTagScore[];               // all detected tags with numeric scores
   userJoined: string;
   history: { title: string; toxicityScore: number; timePosted: string }[];
 }
@@ -114,7 +118,8 @@ export class ReviewerComponent implements OnInit {
       toxicityScore: Math.round(p.totalToxicityScore),
       tags: p.tagScores.map(t => ({
         label: t.tag,
-        severity: t.score >= 70 ? 'high' : t.score >= 35 ? 'medium' : 'low'
+        score: Math.round(t.score),
+        severity: t.score >= 70 ? 'high' : t.score >= 35 ? 'medium' : 'low',
       })),
       userJoined: '',
       history: [],
@@ -124,17 +129,28 @@ export class ReviewerComponent implements OnInit {
   // ── Aside / detail panel ──────────────────────────────────────────────────
   selectedPost: ReviewPost | null = null;
   detailLoading = false;
-  historyOpen = false;
   feedback = '';
-  editTags: ReviewTag[] = [];
+
+  allTagScores: ReviewTagScore[] = [];
+
+  sliderStates: Record<string, boolean> = {};
+
+  get activeTags(): ReviewTagScore[] {
+    return this.allTagScores.filter(t => this.sliderStates[t.label]);
+  }
 
   openPost(post: ReviewPost) {
     this.selectedPost = { ...post };
-    this.historyOpen = false;
     this.feedback = '';
-    this.editTags = post.tags.map(t => ({ ...t }));
-    this.detailLoading = true;
 
+    // Initialise tag table & sliders — all tags start as ON
+    this.allTagScores = post.tags.map(t => ({ ...t }));
+    this.sliderStates = {};
+    for (const t of this.allTagScores) {
+      this.sliderStates[t.label] = true;
+    }
+
+    this.detailLoading = true;
     this.reviewerService.getPostDetail(post.id).subscribe({
       next: (detail: ReviewPostDetailResponse) => {
         this.selectedPost!.userJoined = detail.userJoined;
@@ -151,39 +167,56 @@ export class ReviewerComponent implements OnInit {
 
   closePost() {
     this.selectedPost = null;
+    this.allTagScores = [];
+    this.sliderStates = {};
     this.closeBanModal();
   }
 
-  approve(clearScores: boolean) {
+  // Toggle slider for tags
+  toggleSlider(label: string) {
+    this.sliderStates[label] = !this.sliderStates[label];
+  }
+
+  // Close Tag pill
+  removeTag(label: string) {
+    this.sliderStates[label] = false;
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  // Do not display post in the feed
+  blockPost() {
+    if (!this.selectedPost) return;
+    const id = this.selectedPost.id;
+    this.reviewerService.setBlocked(id, true).subscribe({
+      next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
+      error: () => alert('Block action failed.')
+    });
+  }
+
+  // Change the post to be blurred
+  blurPost() {
+    if (!this.selectedPost) return;
+    const id = this.selectedPost.id;
+    this.reviewerService.setBlurred(id, true).subscribe({
+      next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
+      error: () => alert('Blur action failed.')
+    });
+  }
+
+  // Submit
+  submitPost() {
     if (!this.selectedPost) return;
     const id = this.selectedPost.id;
     this.reviewerService.reviewPost(id, {
       approve: true,
-      clearScores,
-      editedTags: clearScores ? null : this.editTags.map(t => t.label),
-      feedback: this.feedback || null,
-    }).subscribe({
-      next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
-      error: () => alert('Review action failed.')
-    });
-  }
-
-  reject() {
-    if (!this.selectedPost) return;
-    const id = this.selectedPost.id;
-    this.reviewerService.reviewPost(id, {
-      approve: false,
-      clearScores: false,
+      clearScores: true,
       editedTags: null,
       feedback: this.feedback || null,
     }).subscribe({
       next: () => { this.posts = this.posts.filter(p => p.id !== id); this.closePost(); },
-      error: () => alert('Review action failed.')
+      error: () => alert('Action failed.')
     });
-  }
-
-  removeTag(tag: ReviewTag) {
-    this.editTags = this.editTags.filter(t => t.label !== tag.label);
   }
 
   // ── Ban modal ─────────────────────────────────────────────────────────────
@@ -248,15 +281,19 @@ export class ReviewerComponent implements OnInit {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  scoreBarColor(score: number) {
+    return score >= 70 ? '#ef4444' : score >= 35 ? '#f59e0b' : '#3b82f6';
+  }
+
   tagColor(severity: string) {
-    return severity === 'high' ? '#ff4500' : severity === 'medium' ? '#fbbf24' : '#94e044';
+    return severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#3b82f6';
   }
 
   tagBg(severity: string) {
-    return severity === 'high' ? 'rgba(239,68,68,.15)' : severity === 'medium' ? 'rgba(245,158,11,.15)' : 'rgba(34,197,94,.12)';
+    return severity === 'high' ? 'rgba(239,68,68,.15)' : severity === 'medium' ? 'rgba(245,158,11,.15)' : 'rgba(59,130,246,.12)';
   }
 
-  scoreBarColor(score: number) {
-    return score >= 70 ? '#ef4444' : score >= 35 ? '#f59e0b' : '#22c55e';
+  avatarLetter(username: string) {
+    return username ? username.charAt(0).toUpperCase() : '?';
   }
 }

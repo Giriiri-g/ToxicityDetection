@@ -26,7 +26,9 @@ public class PostResponseDto
     public double TotalToxicityScore { get; set; }
     public List<TagDto> TagScores { get; set; } = new();
     public string? Thread { get; set; }
+    public bool IsBlurred { get; set; }
+    public bool IsLikedByUser { get; set; }
 
     // For holding comments (child posts) when needed
-    public List<PostResponseDto> Comments { get; set; } = new();
+    public List<PostResponseDto> Comments { get; set; } = [];
 }

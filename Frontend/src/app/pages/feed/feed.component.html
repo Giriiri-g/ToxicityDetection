@@ -38,7 +38,8 @@
       <app-post-card *ngFor="let post of posts; trackBy: trackById" [thread]="post.thread" [username]="post.username"
         [iconUrl]="post.iconUrl" [timePosted]="post.timePosted" [title]="post.title" [message]="post.message"
         [likeCount]="post.likeCount" [commentCount]="post.commentCount" [toxicityTags]="post.toxicityTags"
-        [userVote]="post.userVote" [postId]="post.postId" />
+        [userVote]="post.userVote" [postId]="post.postId"
+        [isBlurred]="post.isBlurred" [isLikedByUser]="post.isLikedByUser" />
       <div class="feed-posts__empty" *ngIf="posts.length === 0">No posts yet. Be the first to share!</div>
     </div>
 

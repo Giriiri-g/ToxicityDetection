@@ -34,7 +34,10 @@ export class PostCardComponent {
   @Input() userVote: 'up' | 'down' | null = null;
   @Input() postId: string = '';
   @Input() depth: number = 0;          // 0 = top-level post, 1+ = comment
+  @Input() isLikedByUser: boolean = false;
+  @Input() isBlurred: boolean = false;
   @Output() commentPosted = new EventEmitter<void>();
+  blurDismissed = false;
   @ViewChild('commentBodyArea') commentBodyArea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('commentFileInput') commentFileInput!: ElementRef<HTMLInputElement>;
 
@@ -130,4 +133,9 @@ export class PostCardComponent {
   }
 
   get previewHtml(): string { return renderMarkdown(this.commentBody); }
+  
+  dismissBlur(event: Event): void {
+    event.stopPropagation();
+    this.blurDismissed = true;
+  }
 }

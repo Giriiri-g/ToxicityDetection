@@ -4,16 +4,10 @@ using API.Interfaces;
 
 namespace API.Services;
 
-public class ReviewerService : IReviewerService
+public class ReviewerService(IPostRepository posts, IUserRepository users) : IReviewerService
 {
-    private readonly IPostRepository _posts;
-    private readonly IUserRepository _users;
-
-    public ReviewerService(IPostRepository posts, IUserRepository users)
-    {
-        _posts = posts;
-        _users = users;
-    }
+    private readonly IPostRepository _posts = posts;
+    private readonly IUserRepository _users = users;
 
     public async Task<(List<ReviewPostDto> posts, int totalCount)> GetFlaggedPosts(int page, int pageSize)
     {
@@ -140,6 +134,20 @@ public class ReviewerService : IReviewerService
         return (true, isPermanent
             ? "User permanently banned."
             : $"User banned until {endDate:u}.");
+    }
+
+    public async Task<(bool success, string message)> SetPostBlocked(Guid postId, bool isBlocked)
+    {
+        var ok = await _posts.SetBlocked(postId, isBlocked);
+        if (!ok) return (false, "Post not found.");
+        return (true, isBlocked ? "Post blocked." : "Post unblocked.");
+    }
+
+    public async Task<(bool success, string message)> SetPostBlurred(Guid postId, bool isBlurred)
+    {
+        var ok = await _posts.SetBlurred(postId, isBlurred);
+        if (!ok) return (false, "Post not found.");
+        return (true, isBlurred ? "Post blurred." : "Post unblurred.");
     }
 
     public async Task<int> ClearCache()

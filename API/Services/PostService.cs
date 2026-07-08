@@ -35,7 +35,6 @@ public class PostService : IPostService
             PPID = dto.PPID
         };
 
-        // Link tag scores to the post
         foreach (var tag in tagScores)
         {
             tag.PostId = post.PID;
@@ -45,29 +44,27 @@ public class PostService : IPostService
 
         await _posts.Add(post);
         if (dto.PPID != null)
-        {
             await _posts.ModifyCommentCount(dto.PPID.Value, 1);
-        }
         await _posts.SaveChanges();
 
         var thresholds = await _admin.GetThresholds();
         return ToDto(post, thresholds);
     }
 
-    public async Task<List<PostResponseDto>> GetFeed(int page, int pageSize, string? thread = null)
+    public async Task<List<PostResponseDto>> GetFeed(int page, int pageSize, Guid? userId = null, string? thread = null)
     {
-        var posts = await _posts.GetFeed(page, pageSize, thread);
+        var posts = await _posts.GetFeed(page, pageSize, userId, thread);
         var thresholds = await _admin.GetThresholds();
         return posts.Select(p => ToDto(p, thresholds)).ToList();
     }
 
-    public async Task<List<ThreadCountDto>> GetThreadCounts() { return await _posts.GetThreadCounts(); }
+    public async Task<List<ThreadCountDto>> GetThreadCounts() =>
+        await _posts.GetThreadCounts();
 
     public async Task<PostResponseDto?> GetPostById(Guid postId)
     {
         var post = await _posts.GetById(postId);
         if (post == null) return null;
-
         var thresholds = await _admin.GetThresholds();
         return ToDto(post, thresholds);
     }
@@ -82,25 +79,26 @@ public class PostService : IPostService
     public async Task LikePost(Guid PID, Guid UID)
     {
         var existingLike = await _posts.GetLike(PID, UID);
-        if (existingLike != null)
-            return; // Like already exists, do nothing
+        if (existingLike != null) return;
 
         var like = new Like { PID = PID, UID = UID, LikedAt = DateTime.UtcNow };
         await _posts.AddLike(like);
-        await _posts.ModifyLikeCount(PID, 1); // Increment like count
+        await _posts.ModifyLikeCount(PID, 1);
         await _posts.SaveChanges();
     }
 
     public async Task UnLikePost(Guid PID, Guid UID)
     {
         var existingLike = await _posts.GetLike(PID, UID);
-        if (existingLike == null)
-            return; // Like doesn't exist, do nothing
+        if (existingLike == null) return;
 
         await _posts.RemoveLike(existingLike);
-        await _posts.ModifyLikeCount(PID, -1); // Decrement like count
+        await _posts.ModifyLikeCount(PID, -1);
         await _posts.SaveChanges();
     }
+
+    // ── DTO mapping ───────────────────────────────────────────────────────────
+
     private static PostResponseDto ToDto(Post p, ToxicityThresholdsDto thresholds) => new()
     {
         PID = p.PID,
@@ -118,6 +116,8 @@ public class PostService : IPostService
             .Where(t => t.Score >= thresholds.TagThresholds.GetValueOrDefault(t.Tag, thresholds.BlurThreshold))
             .Select(t => new TagDto { Tag = t.Tag })
             .ToList(),
-        Thread = p.Thread
+        Thread = p.Thread,
+        IsBlurred = p.IsBlurred,
+        IsLikedByUser = p.IsLikedByCurrentUser,
     };
 }

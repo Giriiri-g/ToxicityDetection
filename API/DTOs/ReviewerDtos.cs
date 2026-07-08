@@ -40,6 +40,11 @@ public class ReviewActionDto{
     public string? Feedback { get; set; }
 }
 
+public class SetFlagDto
+{
+    public bool Value { get; set; }
+}
+
 public class BanUserResponseDto{
     public int Duration { get; set; }
     public string Unit { get; set; } = "";

@@ -88,4 +88,20 @@ export class ReviewerService {
       { headers: this.headers() }
     );
   }
+
+  setBlocked(postId: string, value: boolean) {
+    return this.http.patch<{ message: string }>(
+      `${this.apiUrl}/posts/${postId}/block`,
+      { value },
+      { headers: this.headers() }
+    );
+  }
+
+  setBlurred(postId: string, value: boolean) {
+    return this.http.patch<{ message: string }>(
+      `${this.apiUrl}/posts/${postId}/blur`,
+      { value },
+      { headers: this.headers() }
+    );
+  }
 }

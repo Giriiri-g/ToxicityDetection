@@ -40,11 +40,15 @@
   <!-- ── Post list ─────────────────────────────────────────────────────────── -->
   <section class="rv-list">
 
-    <div class="rv-list__empty" *ngIf="pagedPosts.length === 0">No posts match the current filters.</div>
+    <div class="rv-list__empty" *ngIf="pagedPosts.length === 0 && !loading">
+      No posts match the current filters.
+    </div>
+
+    <div class="rv-list__loading" *ngIf="loading">Loading…</div>
 
     <div class="rv-row" *ngFor="let post of pagedPosts" (click)="openPost(post)">
       <div class="rv-row__meta">
-        <div class="rv-row__avatar">{{ post.username.charAt(0).toUpperCase() }}</div>
+        <div class="rv-row__avatar">{{ avatarLetter(post.username) }}</div>
         <div>
           <span class="rv-row__user">{{ post.username }}</span>
           <span class="rv-row__time">{{ post.timePosted | date:'d MMM y, HH:mm' }}</span>
@@ -65,105 +69,122 @@
                  [style.width.%]="post.toxicityScore"
                  [style.background]="scoreBarColor(post.toxicityScore)"></div>
           </div>
-          <span class="rv-row__pct" [style.color]="scoreBarColor(post.toxicityScore)">{{ post.toxicityScore }}%</span>
+          <span class="rv-row__pct" [style.color]="scoreBarColor(post.toxicityScore)">
+            {{ post.toxicityScore }}%
+          </span>
         </div>
       </div>
     </div>
 
     <!-- Pagination -->
     <div class="rv-pagination" *ngIf="totalPages > 1">
-      <button class="rv-page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">‹</button>
+      <button class="rv-page-btn" [disabled]="currentPage === 1"
+              (click)="currentPage = currentPage - 1">‹</button>
       <button class="rv-page-btn" *ngFor="let p of pageNumbers"
               [class.active]="p === currentPage" (click)="currentPage = p">{{ p }}</button>
-      <button class="rv-page-btn" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">›</button>
+      <button class="rv-page-btn" [disabled]="currentPage === totalPages"
+              (click)="currentPage = currentPage + 1">›</button>
     </div>
 
   </section>
 
 </main>
 
-<!-- ── Backdrop (shared by aside and ban modal) ───────────────────────────── -->
+<!-- ____________________________ BG Overlay _________________________________________ -->
+
 <div class="rv-backdrop"
      [class.rv-backdrop--open]="selectedPost && !banModalOpen"
      (click)="closePost()"></div>
 
-<!-- ── Detail aside ──────────────────────────────────────────────────────── -->
+<!-- _____________________________ Review Post Popup Modal ________________________________________ -->
+
 <aside class="rv-aside" [class.rv-aside--open]="selectedPost && !banModalOpen" *ngIf="selectedPost">
 
-  <button class="rv-aside__close" (click)="closePost()">✕</button>
-
-  <!-- Header -->
+  <!-- ── Header row: avatar · username · datetime · close ─────────────────── -->
   <div class="rv-aside__header">
-    <div class="rv-aside__avatar">{{ selectedPost.username.charAt(0).toUpperCase() }}</div>
-    <div>
-      <div class="rv-aside__user">{{ selectedPost.username }}</div>
-      <div class="rv-aside__joined">Joined {{ selectedPost.userJoined | date:'d MMM y' }}</div>
-      <div class="rv-aside__time">{{ selectedPost.timePosted | date:'d MMM y, HH:mm' }}</div>
+    <div class="rv-aside__avatar">{{ avatarLetter(selectedPost.username) }}</div>
+    <div class="rv-aside__header-text">
+      <span class="rv-aside__user">{{ selectedPost.username }}</span>
+      <span class="rv-aside__time">{{ selectedPost.timePosted | date:'d MMM y, HH:mm' }}</span>
     </div>
+    <button class="rv-aside__close" (click)="closePost()" aria-label="Close">✕</button>
   </div>
 
-  <!-- Content -->
-  <h2 class="rv-aside__title">{{ selectedPost.title }}</h2>
-  <p class="rv-aside__message">{{ selectedPost.message }}</p>
-
-  <!-- Toxicity score -->
-  <div class="rv-aside__score-row">
-    <span class="rv-aside__score-label">Toxicity</span>
-    <div class="rv-score-bar rv-score-bar--wide">
-      <div class="rv-score-bar__fill"
-           [style.width.%]="selectedPost.toxicityScore"
-           [style.background]="scoreBarColor(selectedPost.toxicityScore)"></div>
-    </div>
-    <span class="rv-aside__score-pct" [style.color]="scoreBarColor(selectedPost.toxicityScore)">
-      {{ selectedPost.toxicityScore }}%
-    </span>
+  <!-- ── Post content box ──────────────────────────────────────────────────── -->
+  <div class="rv-aside__content-box">
+    <p class="rv-aside__message">{{ selectedPost.message }}</p>
   </div>
 
-  <!-- Editable tags -->
-  <div class="rv-aside__tags">
-    <span class="rv-tag rv-tag--removable" *ngFor="let tag of editTags"
-          [style.color]="tagColor(tag.severity)"
-          [style.background]="tagBg(tag.severity)">
-      {{ tag.label }}
-      <button class="rv-tag__remove" (click)="removeTag(tag)">✕</button>
-    </span>
-    <span class="rv-aside__no-tags" *ngIf="editTags.length === 0">No tags</span>
+  <!-- ── Active-tag pills ──────────────────── -->
+  <div class="rv-aside__pills">
+    <ng-container *ngIf="activeTags.length > 0; else noTags">
+      <span class="rv-pill" *ngFor="let tag of activeTags"
+            [style.color]="tagColor(tag.severity)"
+            [style.background]="tagBg(tag.severity)"
+            [style.border-color]="tagColor(tag.severity)">
+        {{ tag.label }}
+        <button class="rv-pill__remove" (click)="removeTag(tag.label)">✕</button>
+      </span>
+    </ng-container>
+    <ng-template #noTags>
+      <span class="rv-aside__no-tags">No active tags</span>
+    </ng-template>
   </div>
 
-  <!-- Post history -->
-  <div class="rv-aside__history-toggle" (click)="historyOpen = !historyOpen">
-    <span>Post history ({{ selectedPost.history.length }})</span>
-    <span class="rv-aside__chevron" [class.open]="historyOpen">›</span>
+  <!-- ── Tag scores table ──────────────────────────────────────────────────── -->
+  <div class="rv-aside__table-wrap">
+    <table class="rv-tag-table">
+      <thead>
+        <tr>
+          <th class="rv-tag-table__th rv-tag-table__th--name">Current Tag Scores</th>
+          <th class="rv-tag-table__th rv-tag-table__th--modify">Modify</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="rv-tag-table__row" *ngFor="let tag of allTagScores; let i = index">
+          <!-- Name + bar + % -->
+          <td class="rv-tag-table__cell rv-tag-table__cell--score">
+            <span class="rv-tag-table__index">{{ i + 1 }}.</span>
+            <span class="rv-tag-table__label">{{ tag.label }}</span>
+            <div class="rv-tag-bar">
+              <div class="rv-tag-bar__fill"
+                   [style.width.%]="tag.score"
+                   [style.background]="scoreBarColor(tag.score)"></div>
+            </div>
+            <span class="rv-tag-table__pct" [style.color]="scoreBarColor(tag.score)">
+              {{ tag.score }}%
+            </span>
+          </td>
+          <!-- Toggle slider -->
+          <td class="rv-tag-table__cell rv-tag-table__cell--toggle">
+            <button class="rv-toggle"
+                    [class.rv-toggle--on]="sliderStates[tag.label]"
+                    (click)="toggleSlider(tag.label)"
+                    [attr.aria-label]="(sliderStates[tag.label] ? 'Disable' : 'Enable') + ' ' + tag.label"
+                    role="switch"
+                    [attr.aria-checked]="sliderStates[tag.label]">
+              <span class="rv-toggle__thumb"></span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="rv-aside__history" *ngIf="historyOpen && selectedPost.history.length > 0">
-    <div class="rv-hist-row" *ngFor="let h of selectedPost.history">
-      <span class="rv-hist-row__title">{{ h.title }}</span>
-      <span class="rv-hist-row__time">{{ h.timePosted | date:'d MMM y' }}</span>
-      <span class="rv-hist-row__score" [style.color]="scoreBarColor(h.toxicityScore)">{{ h.toxicityScore }}%</span>
-    </div>
-  </div>
-  <div class="rv-aside__history rv-aside__history--empty" *ngIf="historyOpen && selectedPost.history.length === 0">
-    No previous posts.
-  </div>
-
-  <!-- Feedback -->
-  <textarea class="rv-aside__feedback" [(ngModel)]="feedback" placeholder="Optional feedback to the user…" rows="3"></textarea>
-
-  <!-- Actions -->
+  <!-- ── action buttons ───────────────────────────────────────────────── -->
   <div class="rv-aside__actions">
-    <button class="rv-btn rv-btn--approve" (click)="approve(true)">Approve &amp; Clear Scores</button>
-    <button class="rv-btn rv-btn--approve-keep" (click)="approve(false)">Approve (keep scores)</button>
-    <button class="rv-btn rv-btn--reject" (click)="reject()">Reject</button>
-    <button class="rv-btn rv-btn--ban" (click)="openBanModal()">Ban User</button>
+    <button class="rv-action-btn rv-action-btn--block"  (click)="blockPost()">Block Post</button>
+    <button class="rv-action-btn rv-action-btn--blur"   (click)="blurPost()">Blur Post</button>
+    <button class="rv-action-btn rv-action-btn--submit" (click)="submitPost()">Submit</button>
+    <button class="rv-action-btn rv-action-btn--ban"    (click)="openBanModal()">Ban User</button>
   </div>
 
 </aside>
 
-<!-- ── Ban modal backdrop ─────────────────────────────────────────────────── -->
+<!-- ______________________________________ Ban BG overlay ________________________________________ -->
 <div class="rv-backdrop rv-backdrop--open" *ngIf="banModalOpen" (click)="closeBanModal()"></div>
 
-<!-- ── Ban modal ─────────────────────────────────────────────────────────── -->
+<!-- ______________________________________ Ban Popup modal ________________________________________ -->
 <div class="rv-ban-modal" [class.rv-ban-modal--open]="banModalOpen" *ngIf="banModalOpen">
 
   <div class="rv-ban-modal__header">
@@ -175,7 +196,7 @@
     Banning <strong>{{ selectedPost?.username }}</strong>
   </p>
 
-  <!-- Unit -->
+  <!-- Duration unit -->
   <label class="rv-ban-modal__label">
     Duration unit <span class="rv-ban-modal__required">*</span>
     <select class="rv-nav__select rv-ban-modal__select"
@@ -188,7 +209,7 @@
     </select>
   </label>
 
-  <!-- Duration — cleared and locked when permanent -->
+  <!-- Duration value -->
   <label class="rv-ban-modal__label" [class.rv-ban-modal__label--disabled]="isPermanent">
     Duration <span class="rv-ban-modal__required">*</span>
     <input class="rv-ban-modal__input"
@@ -201,19 +222,17 @@
   <!-- Reason -->
   <label class="rv-ban-modal__label">
     Reason <span class="rv-ban-modal__required">*</span>
-    <textarea class="rv-aside__feedback rv-ban-modal__reason"
+    <textarea class="rv-ban-modal__textarea"
               [(ngModel)]="banReason"
               placeholder="Reason for ban…"
               rows="3"></textarea>
   </label>
 
-  <!-- Inline error -->
   <p class="rv-ban-modal__error" *ngIf="banError">{{ banError }}</p>
 
-  <!-- Footer -->
   <div class="rv-ban-modal__footer">
-    <button class="rv-btn rv-btn--cancel" (click)="closeBanModal()">Cancel</button>
-    <button class="rv-btn rv-btn--ban"
+    <button class="rv-action-btn rv-action-btn--cancel"  (click)="closeBanModal()">Cancel</button>
+    <button class="rv-action-btn rv-action-btn--ban"
             [disabled]="!banFormValid || banSubmitting"
             (click)="submitBan()">
       {{ banSubmitting ? 'Banning…' : 'Confirm Ban' }}

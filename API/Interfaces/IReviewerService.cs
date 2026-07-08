@@ -8,5 +8,7 @@ public interface IReviewerService
     Task<ReviewPostDetailDto?> GetPostDetail(Guid id);
     Task<(bool success, string message)> ReviewPost(Guid id, ReviewActionDto dto);
     Task<(bool success, string message)> BanUser(Guid userId, BanUserResponseDto dto, Guid moderatorId);
+    Task<(bool success, string message)> SetPostBlocked(Guid postId, bool isBlocked);
+    Task<(bool success, string message)> SetPostBlurred(Guid postId, bool isBlurred);
     Task<int> ClearCache();
 }

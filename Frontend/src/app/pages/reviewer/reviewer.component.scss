@@ -1,13 +1,14 @@
-// ── Tokens — match admin light palette ───────────────────────────────────────
-$bg:      #f5f5f5;
-$surface: #ffffff;
-$border:  rgba(74, 71, 71, 0.2);
-$muted:   #718096;
-$text:    #1a202c;
-$accent:  #fff4d6;
+// ── Design tokens ─────────────────────────────────────────────────────────────
+$bg:           #f5f5f5;
+$surface:      #ffffff;
+$border:       rgba(74, 71, 71, 0.18);
+$border-solid: #dde1e9;
+$muted:        #718096;
+$text:         #1a202c;
+$accent:       #fff4d6;
 $accent-hover: #ffe9a0;
 
-// ── Layout ────────────────────────────────────────────────────────────────────
+// ── Host ──────────────────────────────────────────────────────────────────────
 :host {
   display: flex;
   flex-direction: column;
@@ -18,6 +19,7 @@ $accent-hover: #ffe9a0;
   overflow: hidden;
 }
 
+// ── Layout ────────────────────────────────────────────────────────────────────
 .rv-main {
   display: flex;
   flex: 1;
@@ -80,13 +82,11 @@ $accent-hover: #ffe9a0;
   background: $surface;
   border-right: 1px solid $border;
   display: flex; flex-direction: column;
-  gap: 24px;
-  padding: 32px 20px;
+  gap: 24px; padding: 32px 20px;
   transform: translateX(-100%);
   opacity: 0; pointer-events: none;
   transition: transform .34s cubic-bezier(.4,0,.2,1), opacity .26s cubic-bezier(.4,0,.2,1);
-  z-index: 10;
-  box-sizing: border-box;
+  z-index: 10; box-sizing: border-box;
 }
 
 .rv-nav.open .rv-nav__panel {
@@ -120,7 +120,8 @@ $accent-hover: #ffe9a0;
   padding: 20px 28px;
 }
 
-.rv-list__empty {
+.rv-list__empty,
+.rv-list__loading {
   color: $muted; font-size: 14px;
   text-align: center; padding: 48px 0;
 }
@@ -158,31 +159,23 @@ $accent-hover: #ffe9a0;
 }
 
 .rv-row__tags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-
 .rv-row__score { display: flex; align-items: center; gap: 6px; width: 100%; }
 .rv-row__pct   { font-size: 11.5px; font-weight: 700; min-width: 34px; text-align: right; }
 
-// ── Score bar ─────────────────────────────────────────────────────────────────
+// ── Shared score bar (list rows) ──────────────────────────────────────────────
 .rv-score-bar {
   flex: 1; height: 4px;
   background: #e2e8f0; border-radius: 4px; overflow: hidden;
   min-width: 60px;
-  &--wide { min-width: 140px; }
+
   &__fill { height: 100%; border-radius: 4px; transition: width .4s cubic-bezier(.4,0,.2,1); }
 }
 
-// ── Tag pill ──────────────────────────────────────────────────────────────────
+// ── List tag pill ─────────────────────────────────────────────────────────────
 .rv-tag {
   font-size: 10px; font-weight: 700; letter-spacing: .04em;
   text-transform: uppercase; padding: 2px 8px;
   border-radius: 16px; white-space: nowrap;
-  &--removable { display: inline-flex; align-items: center; gap: 4px; }
-}
-
-.rv-tag__remove {
-  background: none; border: none; color: inherit; cursor: pointer;
-  font-size: 9px; padding: 0; line-height: 1; opacity: .7;
-  &:hover { opacity: 1; }
 }
 
 // ── Pagination ────────────────────────────────────────────────────────────────
@@ -206,26 +199,26 @@ $accent-hover: #ffe9a0;
 // ── Backdrop ──────────────────────────────────────────────────────────────────
 .rv-backdrop {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.35); backdrop-filter: blur(3px);
+  background: rgba(0,0,0,.38); backdrop-filter: blur(3px);
   z-index: 200; opacity: 0; pointer-events: none;
   transition: opacity .25s;
   &--open { opacity: 1; pointer-events: all; }
 }
 
-// ── Detail aside ──────────────────────────────────────────────────────────────
+// _____________________________ Review Post Modal _________________________________
 .rv-aside {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -44%) scale(0.97);
-  width: min(640px, 92vw);
-  max-height: 82vh;
+  width: min(600px, 94vw);
+  max-height: 88vh;
   background: $surface;
-  border: 1px solid $border;
+  border: 1px solid $border-solid;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0,0,0,.18);
   z-index: 201;
   display: flex; flex-direction: column;
-  gap: 14px; padding: 28px 28px 24px;
+  gap: 16px; padding: 22px 24px 20px;
   overflow-y: auto; box-sizing: border-box;
   opacity: 0; pointer-events: none;
   transition: opacity .25s ease, transform .28s cubic-bezier(.4,0,.2,1);
@@ -235,111 +228,296 @@ $accent-hover: #ffe9a0;
     transform: translate(-50%, -50%) scale(1);
   }
 
-  &__close {
-    position: absolute; top: 14px; right: 14px;
-    background: #f0f0f0; border: none; color: $muted;
-    border-radius: 50%; width: 28px; height: 28px;
-    font-size: 13px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .15s;
-    &:hover { background: #e2e8f0; color: $text; }
-  }
-
+  // ── Header ──────────────────────────────────────────────────────────────────
   &__header {
-    display: flex; align-items: center; gap: 14px;
-    padding-right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   &__avatar {
-    width: 44px; height: 44px; border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%;
     background: #e2e8f0; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; color: #4a5568;
+    font-size: 16px; font-weight: 700; color: #4a5568;
+    border: 1.5px solid $border-solid;
   }
 
-  &__user   { font-size: 15px; font-weight: 700; color: $text; }
-  &__joined,
-  &__time   { font-size: 11.5px; color: $muted; }
-
-  &__title   { font-size: 16px; font-weight: 700; color: $text; margin: 0; }
-  &__message { font-size: 13.5px; color: #4a5568; line-height: 1.6; margin: 0; }
-
-  &__score-row { display: flex; align-items: center; gap: 10px; }
-
-  &__score-label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .06em; color: $muted; white-space: nowrap;
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
   }
 
-  &__score-pct { font-size: 12px; font-weight: 700; white-space: nowrap; min-width: 36px; text-align: right; }
-
-  &__tags     { display: flex; flex-wrap: wrap; gap: 6px; }
-  &__no-tags  { font-size: 12px; color: $muted; }
-
-  &__history-toggle {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 13px; font-weight: 600; color: $muted;
-    cursor: pointer; padding: 8px 0;
-    border-top: 1px solid $border;
-    &:hover { color: $text; }
+  &__user {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  &__chevron {
-    display: inline-block; transition: transform .2s;
-    &.open { transform: rotate(90deg); }
+  &__time {
+    font-size: 11.5px;
+    color: $muted;
   }
 
-  &__history      { display: flex; flex-direction: column; gap: 6px; }
-  &__history--empty { font-size: 12px; color: $muted; }
-
-  &__feedback {
-    background: $bg; border: 1px solid $border;
-    border-radius: 8px; padding: 10px 12px;
-    color: $text; font-size: 13px; font-family: inherit;
-    resize: none; outline: none; width: 100%; box-sizing: border-box;
-    &::placeholder { color: $muted; }
-    &:focus { border-color: #999; }
+  &__close {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: $muted;
+    font-size: 16px;
+    cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, color .15s;
+    &:hover { background: #f0f0f0; color: $text; }
   }
 
-  &__actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+  // ── Post content box ─────────────────────────────────────────────────────────
+  &__content-box {
+    background: $surface;
+    border: 1.5px solid $border-solid;
+    border-radius: 10px;
+    padding: 16px 18px;
+    min-height: 90px;
+  }
+
+  &__message {
+    font-size: 13.5px;
+    color: #4a5568;
+    line-height: 1.65;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  // ── Removable tag pills ───────────────────────────────────────────────────────
+  &__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 30px;
+  }
+
+  &__no-tags {
+    font-size: 12px;
+    color: $muted;
+    align-self: center;
+  }
+
+  // ── Tag table wrapper ─────────────────────────────────────────────────────────
+  &__table-wrap {
+    border: 1.5px solid $border-solid;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  // ── Actions row ───────────────────────────────────────────────────────────────
+  &__actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
 }
 
-// ── History row ───────────────────────────────────────────────────────────────
-.rv-hist-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 10px;
-  background: $bg; border-radius: 6px;
-  font-size: 12.5px;
+// ── Removable pill ────────────────────────────────────────────────────────────
+.rv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 10px 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+  transition: opacity .15s;
 
-  &__title { flex: 1; color: $text; }
-  &__time  { color: $muted; white-space: nowrap; }
-  &__score { font-weight: 700; white-space: nowrap; }
+  &__remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 0;
+    line-height: 1;
+    opacity: .65;
+    transition: opacity .15s;
+    &:hover { opacity: 1; }
+  }
+}
+
+// ── Tag-score table ───────────────────────────────────────────────────────────
+.rv-tag-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__th {
+    font-size: 12px;
+    font-weight: 700;
+    color: $muted;
+    padding: 10px 16px;
+    background: $bg;
+    text-align: left;
+
+    &--name   { width: 100%; }
+    &--modify { white-space: nowrap; text-align: center; padding: 10px 20px; }
+  }
+
+  // Divider between header and body
+  thead tr { border-bottom: 1.5px solid $border-solid; }
+
+  // Divider between score column and toggle column
+  thead .rv-tag-table__th--modify,
+  tbody .rv-tag-table__cell--toggle {
+    border-left: 1.5px solid $border-solid;
+  }
+
+  &__row {
+    &:not(:last-child) { border-bottom: 1px solid rgba($border-solid, .6); }
+    transition: background .12s;
+    &:hover { background: rgba($accent, .5); }
+  }
+
+  &__cell {
+    padding: 10px 16px;
+    vertical-align: middle;
+
+    &--score {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &--toggle {
+      text-align: center;
+      padding: 10px 20px;
+    }
+  }
+
+  &__index {
+    font-size: 12.5px;
+    color: $muted;
+    min-width: 18px;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  &__pct {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+}
+
+// ── Tag score bar (inside table) ──────────────────────────────────────────────
+.rv-tag-bar {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  min-width: 80px;
+
+  &__fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+}
+
+// ── Toggle switch ─────────────────────────────────────────────────────────────
+.rv-toggle {
+  // Reset button styles
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+
+  // Track
+  display: inline-flex;
+  align-items: center;
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: #cbd5e0;
+  padding: 2px;
+  box-sizing: border-box;
+  transition: background .22s ease;
+  flex-shrink: 0;
+
+  &--on {
+    background: #22c55e;
+  }
+
+  &__thumb {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    transform: translateX(0);
+    transition: transform .22s ease;
+  }
+
+  &--on &__thumb {
+    transform: translateX(18px);
+  }
 }
 
 // ── Action buttons ────────────────────────────────────────────────────────────
-.rv-btn {
-  flex: 1; min-width: 120px;
-  padding: 9px 12px; border: none; border-radius: 8px;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  transition: opacity .15s;
-  &:hover:not(:disabled) { opacity: .85; }
-  &:disabled { opacity: .4; cursor: not-allowed; }
+.rv-action-btn {
+  padding: 11px 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s, filter .15s;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
 
-  &--approve      { background: #22c55e; color: #fff; }
-  &--approve-keep { background: #3b82f6; color: #fff; }
-  &--reject       { background: #ef4444; color: #fff; }
-  &--ban          { background: #7c3aed; color: #fff; }
-  &--cancel       { background: #e2e8f0; color: $text; flex: 0 0 auto; min-width: 80px; }
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+  &:active:not(:disabled) { filter: brightness(0.93); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+
+  &--block  { background: #2563eb; }   // Blue  — Block Post
+  &--blur   { background: #6b7280; }   // Grey  — Blur Post
+  &--submit { background: #16a34a; }   // Green — Submit
+  &--ban    { background: #dc2626; }   // Red   — Ban User
+  &--cancel { background: #e2e8f0; color: $text; }
 }
 
-// ── Ban modal ─────────────────────────────────────────────────────────────────
+// _____________________________________ Ban Modal ____________________________________________
 .rv-ban-modal {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -46%) scale(0.97);
   width: min(420px, 92vw);
   background: $surface;
-  border: 1px solid $border;
+  border: 1px solid $border-solid;
   border-radius: 14px;
   box-shadow: 0 24px 64px rgba(0,0,0,.22);
   z-index: 202;
@@ -356,7 +534,6 @@ $accent-hover: #ffe9a0;
 
   &__header {
     display: flex; align-items: center; justify-content: space-between;
-    padding-right: 4px;
   }
 
   &__title {
@@ -372,10 +549,7 @@ $accent-hover: #ffe9a0;
     display: flex; flex-direction: column; gap: 7px;
     font-size: 13px; font-weight: 500; color: $text;
 
-    &--disabled {
-      opacity: .45;
-      pointer-events: none;
-    }
+    &--disabled { opacity: .45; pointer-events: none; }
   }
 
   &__required { color: #ef4444; margin-left: 2px; }
@@ -383,7 +557,7 @@ $accent-hover: #ffe9a0;
   &__select { width: 100%; }
 
   &__input {
-    background: $bg; border: 1px solid $border;
+    background: $bg; border: 1px solid $border-solid;
     border-radius: 8px; padding: 8px 10px;
     color: $text; font-size: 13px; font-family: inherit;
     outline: none; width: 100%; box-sizing: border-box;
@@ -391,20 +565,24 @@ $accent-hover: #ffe9a0;
     &::placeholder { color: $muted; }
     &:focus { border-color: #999; }
     &:disabled { background: darken($bg, 3%); cursor: not-allowed; }
-
-    // Hide number spinners — the placeholder communicates N/A clearly
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     -moz-appearance: textfield;
   }
 
-  &__reason { margin: 0; }
+  &__textarea {
+    background: $bg; border: 1px solid $border-solid;
+    border-radius: 8px; padding: 10px 12px;
+    color: $text; font-size: 13px; font-family: inherit;
+    resize: none; outline: none; width: 100%; box-sizing: border-box;
+    &::placeholder { color: $muted; }
+    &:focus { border-color: #999; }
+  }
 
   &__error {
     font-size: 12.5px; color: #ef4444;
     background: rgba(239,68,68,.08);
-    border-radius: 6px; padding: 8px 10px;
-    margin: 0;
+    border-radius: 6px; padding: 8px 10px; margin: 0;
   }
 
   &__footer {

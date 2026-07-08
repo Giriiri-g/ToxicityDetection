@@ -42,6 +42,22 @@ public class ReviewerController : ControllerBase
         return success ? Ok(new { message }) : NotFound(new { message });
     }
 
+    // PATCH api/reviewer/posts/{id}/block
+    [HttpPatch("posts/{id:guid}/block")]
+    public async Task<IActionResult> BlockPost(Guid id, [FromBody] SetFlagDto dto)
+    {
+        var (success, message) = await _reviewer.SetPostBlocked(id, dto.Value);
+        return success ? Ok(new { message }) : NotFound(new { message });
+    }
+
+    // PATCH api/reviewer/posts/{id}/blur
+    [HttpPatch("posts/{id:guid}/blur")]
+    public async Task<IActionResult> BlurPost(Guid id, [FromBody] SetFlagDto dto)
+    {
+        var (success, message) = await _reviewer.SetPostBlurred(id, dto.Value);
+        return success ? Ok(new { message }) : NotFound(new { message });
+    }
+
     // POST api/reviewer/ban/clearcache
     [HttpPost("ban/clearcache")]
     public async Task<IActionResult> ClearCache()

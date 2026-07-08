@@ -18,6 +18,8 @@ export interface Post {
   commentCount: number;
   toxicityTags: ToxicityTag[];
   userVote: 'up' | 'down' | null;
+  isBlurred: boolean;
+  isLikedByUser: boolean;
 }
 
 @Component({
@@ -238,6 +240,8 @@ export class FeedComponent implements OnInit {
         commentCount: r.commentsCount,
         toxicityTags: (r.tagScores || []).map(t => ({ label: t.tag })),
         userVote: null,
+        isBlurred: r.isBlurred ?? false,
+        isLikedByUser: r.isLikedByUser ?? false,
       };
     } catch (e) {
       console.error('Error in toUiPost:', r, e);
@@ -254,6 +258,8 @@ export class FeedComponent implements OnInit {
         commentCount: 0,
         toxicityTags: [],
         userVote: null,
+        isBlurred: false,
+        isLikedByUser: false,
       };
     }
   }

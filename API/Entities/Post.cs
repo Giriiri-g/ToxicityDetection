@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using API.Models;
 
 namespace API.Entities;
@@ -21,11 +22,17 @@ public class Post
     public int CommentsCount { get; set; } = 0;
     public double TotalToxicityScore { get; set; }
 
+    public bool IsBlocked { get; set; } = false;
+    public bool IsBlurred { get; set; } = false;
+
+    [NotMapped]
+    public bool IsLikedByCurrentUser { get; set; } = false;
+
     // Navigation
     public User User { get; set; } = null!;
-    public ICollection<TagScore> TagScores { get; set; } = new List<TagScore>();
+    public ICollection<TagScore> TagScores { get; set; } = [];
 
     // Self-referencing navigation for comments
     public Post? ParentPost { get; set; }
-    public ICollection<Post> ChildPosts { get; set; } = new List<Post>();
+    public ICollection<Post> ChildPosts { get; set; } = [];
 }
