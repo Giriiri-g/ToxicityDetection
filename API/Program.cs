@@ -27,6 +27,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // =========================
 // AUTHENTICATION
 // =========================
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

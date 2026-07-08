@@ -30,7 +30,13 @@ public class PostController : ControllerBase
     [HttpGet("feed")]
     public async Task<IActionResult> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? thread = null)
     {
-        var posts = await _postService.GetFeed(page, pageSize, thread);
+        // Edge Case: UID missing in claims, set isliked... to false
+        Guid? userId = null;
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdClaim != null && Guid.TryParse(userIdClaim, out var parsed))
+            userId = parsed;
+
+        var posts = await _postService.GetFeed(page, pageSize, userId, thread);
         return Ok(posts);
     }
 

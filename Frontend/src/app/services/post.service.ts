@@ -79,4 +79,19 @@ export class PostService {
       headers: this.headers(),
     });
   }
+
+  likePost(postId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/${postId}/like`,
+      {},
+      { headers: this.headers() }
+    );
+  }
+
+  unlikePost(postId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/${postId}/like`,
+      { headers: this.headers() }
+    );
+  }
 }

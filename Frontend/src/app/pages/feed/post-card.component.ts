@@ -1,4 +1,4 @@
-import { Component, Input, OnInit,  Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,7 +21,7 @@ const DEFAULT_TAG_COLOR = '#64748b';
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],
 })
-export class PostCardComponent {
+export class PostCardComponent implements OnInit {
   @Input() thread: string = '';
   @Input() username: string = '';
   @Input() iconUrl: string = '';
@@ -33,10 +33,16 @@ export class PostCardComponent {
   @Input() toxicityTags: ToxicityTag[] = [];
   @Input() userVote: 'up' | 'down' | null = null;
   @Input() postId: string = '';
-  @Input() depth: number = 0;          // 0 = top-level post, 1+ = comment
-  @Input() isLikedByUser: boolean = false;
+  @Input() depth: number = 0;
+  @Input() set isLikedByUser(val: boolean) { this.liked = val; }
   @Input() isBlurred: boolean = false;
   @Output() commentPosted = new EventEmitter<void>();
+
+  // ── Local like state (optimistic) ─────────────────────────────────────────
+  liked = false;
+  localLikeCount = 0;
+  liking = false;       // debounce: ignore rapid double-clicks
+
   blurDismissed = false;
   @ViewChild('commentBodyArea') commentBodyArea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('commentFileInput') commentFileInput!: ElementRef<HTMLInputElement>;
@@ -50,6 +56,40 @@ export class PostCardComponent {
   commentLink = '';
   
   constructor(private router: Router, private postService: PostService) {}
+
+  ngOnInit(): void {
+    // Seed the local count from the parent-supplied value on first render.
+    // After that, optimistic updates keep it in sync without re-fetching.
+    this.localLikeCount = this.likeCount;
+  }
+
+  // ── Like toggle ───────────────────────────────────────────────────────────
+  toggleLike(event: Event): void {
+    event.stopPropagation();  // don't navigate to post detail
+    if (!this.postId || this.liking) return;
+
+    const wasLiked = this.liked;
+
+    // Optimistic update
+    this.liked = !wasLiked;
+    this.localLikeCount += wasLiked ? -1 : 1;
+    this.liking = true;
+
+    const request$ = wasLiked
+      ? this.postService.unlikePost(this.postId)
+      : this.postService.likePost(this.postId);
+
+    request$.subscribe({
+      next: () => { this.liking = false; },
+      error: (err) => {
+        // Revert on failure
+        console.error('Like/unlike failed:', err);
+        this.liked = wasLiked;
+        this.localLikeCount += wasLiked ? 1 : -1;
+        this.liking = false;
+      }
+    });
+  }
 
   get iconFallbackLetter(): string {
     return this.username?.charAt(0).toUpperCase() ?? '?';
